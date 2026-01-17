@@ -2,7 +2,16 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../../prisma/generated/client'
 
 const prismaClientSingleton = () => {
-  const pool = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
+  const config = useRuntimeConfig()
+
+  if (!config.databaseUrl) {
+    throw new Error('DATABASE_URL is not defined')
+  }
+
+  const pool = new PrismaPg({
+    connectionString: config.databaseUrl
+  })
+
   return new PrismaClient({ adapter: pool })
 }
 
@@ -14,4 +23,6 @@ const globalForPrisma = globalThis as unknown as {
 
 export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
