@@ -14,17 +14,103 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  vendor  Vendor?
+  partner Partner?
+  admin   Admin?
+
+  orders Order[]
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model Vendor {
+  id       String  @id @default(uuid())
+  userId   String  @unique
+  company  String
+  category String
+  verified Boolean @default(false)
+
+  user       User        @relation(fields: [userId], references: [id])
+  products   Product[]
+  orderItems OrderItem[]
+}
+
+model Partner {
+  id           String @id @default(uuid())
+  userId       String @unique
+  organization String
+  commission   Float
+
+  user   User    @relation(fields: [userId], references: [id])
+  orders Order[]
+}
+
+model Admin {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  vendorId    String
+  name        String
+  price       Float
+  description String?
+  isActive    Boolean @default(true)
+
+  vendor     Vendor      @relation(fields: [vendorId], references: [id])
+  orderItems OrderItem[] // ⬅️ INI YANG KURANG
+}
+
+enum OrderStatus {
+  DRAFT
+  PAID
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String
+  partnerId String?
+  status    OrderStatus
+  eventDate DateTime
+  total     Float
+
+  user     User        @relation(fields: [userId], references: [id])
+  partner  Partner?    @relation(fields: [partnerId], references: [id])
+  items    OrderItem[]
+  payments Payment[]
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  vendorId  String
+  price     Float
+  qty       Int
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  vendor  Vendor  @relation(fields: [vendorId], references: [id])
+}
+
+model Payment {
+  id      String    @id @default(uuid())
+  orderId String
+  amount  Float
+  method  String
+  paidAt  DateTime?
+
+  order Order @relation(fields: [orderId], references: [id])
 }
