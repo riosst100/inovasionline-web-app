@@ -45,7 +45,47 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
- * Model Post
+ * Model RefreshToken
  * 
  */
-export type Post = Prisma.PostModel
+export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model Vendor
+ * 
+ */
+export type Vendor = Prisma.VendorModel
+/**
+ * Model Partner
+ * 
+ */
+export type Partner = Prisma.PartnerModel
+/**
+ * Model Admin
+ * 
+ */
+export type Admin = Prisma.AdminModel
+/**
+ * Model Product
+ * 
+ */
+export type Product = Prisma.ProductModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel
+/**
+ * Model VendorAssignment
+ * 
+ */
+export type VendorAssignment = Prisma.VendorAssignmentModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel

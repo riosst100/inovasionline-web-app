@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   runtimeConfig: {
-    databaseUrl: process.env.DATABASE_URL
+    databaseUrl: process.env.DATABASE_URL,
+    jwtSecret: process.env.JWT_SECRET
   },
   vite: {
     server: {

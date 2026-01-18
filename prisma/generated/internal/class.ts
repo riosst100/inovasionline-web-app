@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.2.0",
   "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id    Int     @id @default(autoincrement())\n  email String  @unique\n  name  String?\n  posts Post[]\n}\n\nmodel Post {\n  id        Int     @id @default(autoincrement())\n  title     String\n  content   String?\n  published Boolean @default(false)\n  author    User?   @relation(fields: [authorId], references: [id])\n  authorId  Int?\n}\n",
+  "inlineSchema": "// =======================================\n// GENERATOR & DATASOURCE\n// =======================================\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\n// =======================================\n// USER & ROLE\n// =======================================\n\nmodel User {\n  id           String   @id @default(uuid())\n  email        String   @unique\n  password     String\n  name         String\n  phone        String?\n  isActive     Boolean  @default(true)\n  tokenVersion Int      @default(0)\n  createdAt    DateTime @default(now())\n\n  vendor  Vendor?\n  partner Partner?\n  admin   Admin?\n\n  orders        Order[]\n  refreshTokens RefreshToken[]\n}\n\nmodel RefreshToken {\n  id         String    @id @default(uuid())\n  userId     String\n  tokenHash  String\n  expiresAt  DateTime\n  revokedAt  DateTime?\n  createdAt  DateTime  @default(now())\n  lastUsedAt DateTime?\n\n  user User @relation(fields: [userId], references: [id])\n\n  @@index([userId])\n}\n\nmodel Vendor {\n  id       String  @id @default(uuid())\n  userId   String? @unique\n  name     String\n  company  String?\n  verified Boolean @default(false)\n\n  user User? @relation(fields: [userId], references: [id])\n\n  products    Product[]          @relation(\"VendorProducts\")\n  assignments VendorAssignment[]\n  orders      Order[]            @relation(\"VendorOrders\")\n}\n\nmodel Partner {\n  id           String @id @default(uuid())\n  userId       String @unique\n  organization String\n  commission   Float\n\n  user User @relation(fields: [userId], references: [id])\n\n  products Product[] @relation(\"PartnerProducts\")\n  orders   Order[]   @relation(\"PartnerOrders\")\n}\n\nmodel Admin {\n  id     String @id @default(uuid())\n  userId String @unique\n\n  user User @relation(fields: [userId], references: [id])\n}\n\n// =======================================\n// PRODUCT\n// =======================================\n\nenum ProductType {\n  EVENT_SERVICE // jasa event (butuh vendor assignment)\n  EVENT_TICKET // tiket konser (tanpa vendor)\n  SOUND\n  STAGE\n  LIGHTING\n  ARTIST\n  OTHER\n}\n\nmodel Product {\n  id          String  @id @default(uuid())\n  name        String\n  price       Float\n  description String?\n  isActive    Boolean @default(true)\n\n  type ProductType\n\n  vendorId  String?\n  partnerId String?\n\n  vendor  Vendor?  @relation(\"VendorProducts\", fields: [vendorId], references: [id])\n  partner Partner? @relation(\"PartnerProducts\", fields: [partnerId], references: [id])\n\n  orderItems OrderItem[]\n\n  createdAt DateTime @default(now())\n}\n\n// RULE (LOGIC):\n// - vendorId XOR partnerId (tidak boleh dua-duanya)\n// - EVENT_TICKET selalu partnerId\n// - EVENT_SERVICE selalu partnerId\n// - SOUND / STAGE bisa vendorId (direct booking)\n\n// =======================================\n// ORDER\n// =======================================\n\nenum OrderStatus {\n  DRAFT\n  PAID\n  ONGOING\n  COMPLETED\n  CANCELLED\n}\n\nmodel Order {\n  id        String  @id @default(uuid())\n  userId    String\n  partnerId String?\n  vendorId  String?\n\n  sellerType OrderSellerType\n\n  status OrderStatus\n  total  Float\n\n  user    User     @relation(fields: [userId], references: [id])\n  vendor  Vendor?  @relation(\"VendorOrders\", fields: [vendorId], references: [id])\n  partner Partner? @relation(\"PartnerOrders\", fields: [partnerId], references: [id])\n\n  items    OrderItem[]\n  payments Payment[]\n\n  createdAt DateTime @default(now())\n\n  @@index([partnerId])\n  @@index([vendorId])\n  @@index([status])\n}\n\nenum OrderSellerType {\n  VENDOR\n  PARTNER\n}\n\n// RULE (LOGIC):\n// - partnerId XOR vendorId\n// - partnerId → order via EO\n// - vendorId  → direct vendor order\n\n// =======================================\n// ORDER ITEM\n// =======================================\n\nmodel OrderItem {\n  id        String @id @default(uuid())\n  orderId   String\n  productId String\n  price     Float\n  qty       Int\n\n  eventDate DateTime?\n\n  order   Order   @relation(fields: [orderId], references: [id])\n  product Product @relation(fields: [productId], references: [id])\n\n  assignments VendorAssignment[]\n}\n\n// RULE (LOGIC):\n// - EVENT_TICKET → assignments HARUS kosong\n// - EVENT_SERVICE → assignments boleh ada\n\n// =======================================\n// VENDOR ASSIGNMENT (JOB / TASK)\n// =======================================\n\nenum VendorAssignmentSource {\n  DIRECT // order langsung ke vendor\n  PARTNER // tugas dari EO\n}\n\nenum VendorAssignmentStatus {\n  PENDING\n  ACCEPTED\n  IN_PROGRESS\n  COMPLETED\n  CANCELLED\n}\n\nmodel VendorAssignment {\n  id String @id @default(uuid())\n\n  orderItemId String\n  vendorId    String\n\n  source VendorAssignmentSource\n  status VendorAssignmentStatus\n\n  amount Float // nilai kerja (transaksi jika DIRECT, referensi jika PARTNER)\n\n  orderItem OrderItem @relation(fields: [orderItemId], references: [id])\n  vendor    Vendor    @relation(fields: [vendorId], references: [id])\n\n  createdAt DateTime @default(now())\n\n  @@unique([orderItemId, vendorId])\n  @@index([vendorId])\n  @@index([status])\n}\n\n// RULE (LOGIC):\n// - source = DIRECT → vendor = seller\n// - source = PARTNER → vendor = executor\n// - assignment dibuat SETELAH order masuk\n// - vendor di Product hanya default / preferensi\n\n// =======================================\n// PAYMENT\n// =======================================\n\nmodel Payment {\n  id      String    @id @default(uuid())\n  orderId String\n  amount  Float\n  method  String\n  paidAt  DateTime?\n\n  order Order @relation(fields: [orderId], references: [id])\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"PostToUser\"}],\"dbName\":null},\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"published\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"author\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PostToUser\"},{\"name\":\"authorId\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"tokenVersion\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"vendor\",\"kind\":\"object\",\"type\":\"Vendor\",\"relationName\":\"UserToVendor\"},{\"name\":\"partner\",\"kind\":\"object\",\"type\":\"Partner\",\"relationName\":\"PartnerToUser\"},{\"name\":\"admin\",\"kind\":\"object\",\"type\":\"Admin\",\"relationName\":\"AdminToUser\"},{\"name\":\"orders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToUser\"},{\"name\":\"refreshTokens\",\"kind\":\"object\",\"type\":\"RefreshToken\",\"relationName\":\"RefreshTokenToUser\"}],\"dbName\":null},\"RefreshToken\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tokenHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"revokedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastUsedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RefreshTokenToUser\"}],\"dbName\":null},\"Vendor\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"company\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"verified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToVendor\"},{\"name\":\"products\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"VendorProducts\"},{\"name\":\"assignments\",\"kind\":\"object\",\"type\":\"VendorAssignment\",\"relationName\":\"VendorToVendorAssignment\"},{\"name\":\"orders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"VendorOrders\"}],\"dbName\":null},\"Partner\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"organization\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"commission\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PartnerToUser\"},{\"name\":\"products\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"PartnerProducts\"},{\"name\":\"orders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"PartnerOrders\"}],\"dbName\":null},\"Admin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AdminToUser\"}],\"dbName\":null},\"Product\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"ProductType\"},{\"name\":\"vendorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"partnerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"vendor\",\"kind\":\"object\",\"type\":\"Vendor\",\"relationName\":\"VendorProducts\"},{\"name\":\"partner\",\"kind\":\"object\",\"type\":\"Partner\",\"relationName\":\"PartnerProducts\"},{\"name\":\"orderItems\",\"kind\":\"object\",\"type\":\"OrderItem\",\"relationName\":\"OrderItemToProduct\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Order\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"partnerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"vendorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sellerType\",\"kind\":\"enum\",\"type\":\"OrderSellerType\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"OrderStatus\"},{\"name\":\"total\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"OrderToUser\"},{\"name\":\"vendor\",\"kind\":\"object\",\"type\":\"Vendor\",\"relationName\":\"VendorOrders\"},{\"name\":\"partner\",\"kind\":\"object\",\"type\":\"Partner\",\"relationName\":\"PartnerOrders\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"OrderItem\",\"relationName\":\"OrderToOrderItem\"},{\"name\":\"payments\",\"kind\":\"object\",\"type\":\"Payment\",\"relationName\":\"OrderToPayment\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"OrderItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"orderId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"qty\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"eventDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"order\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToOrderItem\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"OrderItemToProduct\"},{\"name\":\"assignments\",\"kind\":\"object\",\"type\":\"VendorAssignment\",\"relationName\":\"OrderItemToVendorAssignment\"}],\"dbName\":null},\"VendorAssignment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"orderItemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"vendorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source\",\"kind\":\"enum\",\"type\":\"VendorAssignmentSource\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"VendorAssignmentStatus\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"orderItem\",\"kind\":\"object\",\"type\":\"OrderItem\",\"relationName\":\"OrderItemToVendorAssignment\"},{\"name\":\"vendor\",\"kind\":\"object\",\"type\":\"Vendor\",\"relationName\":\"VendorToVendorAssignment\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Payment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"orderId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"method\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"paidAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"order\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToPayment\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -185,14 +185,94 @@ export interface PrismaClient<
   get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
-   * `prisma.post`: Exposes CRUD operations for the **Post** model.
+   * `prisma.refreshToken`: Exposes CRUD operations for the **RefreshToken** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Posts
-    * const posts = await prisma.post.findMany()
+    * // Fetch zero or more RefreshTokens
+    * const refreshTokens = await prisma.refreshToken.findMany()
     * ```
     */
-  get post(): Prisma.PostDelegate<ExtArgs, { omit: OmitOpts }>;
+  get refreshToken(): Prisma.RefreshTokenDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.vendor`: Exposes CRUD operations for the **Vendor** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Vendors
+    * const vendors = await prisma.vendor.findMany()
+    * ```
+    */
+  get vendor(): Prisma.VendorDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.partner`: Exposes CRUD operations for the **Partner** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Partners
+    * const partners = await prisma.partner.findMany()
+    * ```
+    */
+  get partner(): Prisma.PartnerDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.admin`: Exposes CRUD operations for the **Admin** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Admins
+    * const admins = await prisma.admin.findMany()
+    * ```
+    */
+  get admin(): Prisma.AdminDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.product`: Exposes CRUD operations for the **Product** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Products
+    * const products = await prisma.product.findMany()
+    * ```
+    */
+  get product(): Prisma.ProductDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.order`: Exposes CRUD operations for the **Order** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Orders
+    * const orders = await prisma.order.findMany()
+    * ```
+    */
+  get order(): Prisma.OrderDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.orderItem`: Exposes CRUD operations for the **OrderItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OrderItems
+    * const orderItems = await prisma.orderItem.findMany()
+    * ```
+    */
+  get orderItem(): Prisma.OrderItemDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.vendorAssignment`: Exposes CRUD operations for the **VendorAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VendorAssignments
+    * const vendorAssignments = await prisma.vendorAssignment.findMany()
+    * ```
+    */
+  get vendorAssignment(): Prisma.VendorAssignmentDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.payment`: Exposes CRUD operations for the **Payment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Payments
+    * const payments = await prisma.payment.findMany()
+    * ```
+    */
+  get payment(): Prisma.PaymentDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {
