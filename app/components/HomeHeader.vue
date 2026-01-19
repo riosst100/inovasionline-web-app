@@ -9,7 +9,7 @@ import { Icon } from '@iconify/vue'
         src="/logo/logo_text.svg"
         alt="EventHub"
         class="w-auto"
-        style="height:25px"
+        style="height:20px"
       /></span>
 
       <div class="flex items-center gap-4 text-gray-600">
