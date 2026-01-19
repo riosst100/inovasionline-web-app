@@ -38,10 +38,26 @@ export const useAuth = () => {
     })
   }
 
-  const logout = async () => {
+  /**
+   * ✅ LOGOUT (DITAMBAH, FLOW TIDAK DIUBAH)
+   */
+  const logout = async (redirect = true) => {
+    try {
+        await $fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // 🔥 WAJIB
+        })
+    } catch {
+        // abaikan error
+    }
+
     accessToken.value = null
-    navigateTo('/login')
-  }
+
+    if (redirect) {
+        navigateTo('/')
+    }
+    }
+
 
   return {
     accessToken,
