@@ -1,16 +1,13 @@
 <!-- components/HomeFooter.vue -->
 <template>
-  <footer class="mt-10 px-4 py-6 text-xs text-gray-500">
-    <p class="font-semibold text-gray-700">EventHub</p>
-    <p class="mt-1">
-      Marketplace event & layanan pendukung
-    </p>
-
-    <div class="mt-3 space-y-1">
+  <footer class="mt-10 text-xs text-gray-500">
+    <!-- <div class="mb-3 space-y-1 bg-white p-3">
       <p>Tentang Kami</p>
       <p>Syarat & Ketentuan</p>
       <p>Kebijakan Privasi</p>
       <p>Kontak</p>
-    </div>
+    </div> -->
+    <hr />
+    <div class="pl-3 mt-3 text-left">Inovasi Online &copy; 2026. All Rights Reserved.</div>
   </footer>
 </template>
