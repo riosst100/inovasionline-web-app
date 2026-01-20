@@ -4,10 +4,16 @@
     <HomeSearch />
     <HomeLocation />
     <HomeCategories />
-    <!-- <HomeBanner /> -->
+    <HomeBanner />
     <!-- <HomeFeatured /> -->
     <!-- <HomeTrust /> -->
     <!-- <HomeCTA /> -->
     <HomeFooter />
+    <BottomNavbar />
   </div>
 </template>
+<style>
+  body {
+    font-size: 13px;
+  }
+</style>

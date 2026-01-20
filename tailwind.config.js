@@ -1,9 +1,13 @@
-/** @type {import('tailwindcss').Config} */
 export default {
-  content: [],
+  content: [
+    './app/**/*.{vue,js,ts}',
+  ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: 'rgb(var(--color-primary) / <alpha-value>)',
+      },
+    },
   },
   plugins: [],
 }
-

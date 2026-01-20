@@ -62,8 +62,13 @@ const categories = [
   },
   {
     id: 2,
+    name: 'Tanaman Hias',
+    icon: '/categories/plants.webp',
+  },
+  {
+    id: 2,
     name: 'Hewan Peliharaan',
     icon: '/categories/pets.webp',
-  }
+  },
 ]
 </script>

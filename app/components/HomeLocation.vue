@@ -7,9 +7,22 @@ const changeLocation = () => {
 </script>
 <template>
   <div
-    class="px-4 py-2 text-sm text-gray-600 flex items-center gap-1"
+    class="px-4 py-2 text-gray-600 flex items-center gap-1"
     @click="changeLocation"
   >
-    <Icon icon="material-symbols:home-pin-outline-rounded" width="24" height="24" /> Jakarta & Sekitarnya
+    <img
+    src="/icon/location.webp"
+    style="width:16px"
+    /><span class="delivery-to">Deliv ke</span> <span class="pin-address">Desa Tiwulandu, Kec. Banjarharjo</span>
   </div>
 </template>
+<style scoped>
+  .delivery-to {
+    color:grey;
+  }
+  .pin-address {
+    padding-left: 2px;
+    padding-right: 2px;
+    font-weight: 500;
+  }
+</style>
