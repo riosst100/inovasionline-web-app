@@ -86,128 +86,6 @@ async function main() {
 
   /**
    * =========================
-   * USERS (SELLER OWNER)
-   * =========================
-   */
-  await prisma.user.createMany({
-    data: [
-      {
-        id: 'user_sari',
-        email: 'sari@vendor.com',
-        password: 'hashed-password',
-        name: 'Bu Sari',
-      },
-      {
-        id: 'user_budi',
-        email: 'budi@vendor.com',
-        password: 'hashed-password',
-        name: 'Pak Budi',
-      },
-      {
-        id: 'user_rina',
-        email: 'rina@vendor.com',
-        password: 'hashed-password',
-        name: 'Mbak Rina',
-      },
-    ],
-    skipDuplicates: true,
-  })
-
-  /**
- * =========================
- * VENDORS
- * =========================
- */
-await prisma.vendor.createMany({
-  data: [
-    {
-      id: 'vendor_bakso_sari',
-      userId: 'user_sari',
-      name: 'Dapur Bu Sari',
-      verified: true,
-      categoryId: 'sub_bakso',
-    },
-    {
-      id: 'vendor_mie_budi',
-      userId: 'user_budi',
-      name: 'Mie Ayam Pak Budi',
-      verified: true,
-      categoryId: 'sub_mie_ayam',
-    },
-    {
-      id: 'vendor_minum_rina',
-      userId: 'user_rina',
-      name: 'Es Segar Mbak Rina',
-      verified: false,
-      categoryId: 'sub_minuman',
-    },
-  ],
-  skipDuplicates: true,
-})
-
-/**
- * =========================
- * PRODUCTS (FOOD)
- * =========================
- */
-await prisma.product.createMany({
-  data: [
-    // BAKSO
-    {
-      id: 'prod_bakso_urat',
-      name: 'Bakso Urat',
-      price: 18000,
-      type: 'OTHER',
-      vendorId: 'vendor_bakso_sari',
-      description: 'Bakso urat sapi asli',
-    },
-    {
-      id: 'prod_bakso_jumbo',
-      name: 'Bakso Jumbo',
-      price: 25000,
-      type: 'OTHER',
-      vendorId: 'vendor_bakso_sari',
-      description: 'Bakso jumbo isi daging',
-    },
-
-    // MIE AYAM
-    {
-      id: 'prod_mie_original',
-      name: 'Mie Ayam Original',
-      price: 15000,
-      type: 'OTHER',
-      vendorId: 'vendor_mie_budi',
-    },
-    {
-      id: 'prod_mie_bakso',
-      name: 'Mie Ayam Bakso',
-      price: 20000,
-      type: 'OTHER',
-      vendorId: 'vendor_mie_budi',
-    },
-
-    // MINUMAN
-    {
-      id: 'prod_es_teh',
-      name: 'Es Teh Manis',
-      price: 5000,
-      type: 'OTHER',
-      vendorId: 'vendor_minum_rina',
-    },
-    {
-      id: 'prod_es_jeruk',
-      name: 'Es Jeruk',
-      price: 7000,
-      type: 'OTHER',
-      vendorId: 'vendor_minum_rina',
-    },
-  ],
-  skipDuplicates: true,
-})
-
-
-  /**
-   * =========================
    * SUB KATEGORI – MAKANAN
    * =========================
    */
@@ -259,6 +137,127 @@ await prisma.product.createMany({
         name: 'Stage',
         slug: 'stage',
         parentId: 'cat_event',
+      },
+    ],
+    skipDuplicates: true,
+  })
+
+  /**
+   * =========================
+   * USERS (SELLER OWNER)
+   * =========================
+   */
+  await prisma.user.createMany({
+    data: [
+      {
+        id: 'user_sari',
+        email: 'sari@vendor.com',
+        password: 'hashed-password',
+        name: 'Bu Sari',
+      },
+      {
+        id: 'user_budi',
+        email: 'budi@vendor.com',
+        password: 'hashed-password',
+        name: 'Pak Budi',
+      },
+      {
+        id: 'user_rina',
+        email: 'rina@vendor.com',
+        password: 'hashed-password',
+        name: 'Mbak Rina',
+      },
+    ],
+    skipDuplicates: true,
+  })
+
+  /**
+   * =========================
+   * VENDORS
+   * =========================
+   */
+  await prisma.vendor.createMany({
+    data: [
+      {
+        id: 'vendor_bakso_sari',
+        userId: 'user_sari',
+        name: 'Dapur Bu Sari',
+        verified: true,
+        categoryId: 'sub_bakso',
+      },
+      {
+        id: 'vendor_mie_budi',
+        userId: 'user_budi',
+        name: 'Mie Ayam Pak Budi',
+        verified: true,
+        categoryId: 'sub_mie_ayam',
+      },
+      {
+        id: 'vendor_minum_rina',
+        userId: 'user_rina',
+        name: 'Es Segar Mbak Rina',
+        verified: false,
+        categoryId: 'sub_minuman',
+      },
+    ],
+    skipDuplicates: true,
+  })
+
+  /**
+   * =========================
+   * PRODUCTS (FOOD)
+   * =========================
+   */
+  await prisma.product.createMany({
+    data: [
+      // BAKSO
+      {
+        id: 'prod_bakso_urat',
+        name: 'Bakso Urat',
+        price: 18000,
+        type: 'OTHER',
+        vendorId: 'vendor_bakso_sari',
+        description: 'Bakso urat sapi asli',
+      },
+      {
+        id: 'prod_bakso_jumbo',
+        name: 'Bakso Jumbo',
+        price: 25000,
+        type: 'OTHER',
+        vendorId: 'vendor_bakso_sari',
+        description: 'Bakso jumbo isi daging',
+      },
+
+      // MIE AYAM
+      {
+        id: 'prod_mie_original',
+        name: 'Mie Ayam Original',
+        price: 15000,
+        type: 'OTHER',
+        vendorId: 'vendor_mie_budi',
+      },
+      {
+        id: 'prod_mie_bakso',
+        name: 'Mie Ayam Bakso',
+        price: 20000,
+        type: 'OTHER',
+        vendorId: 'vendor_mie_budi',
+      },
+
+      // MINUMAN
+      {
+        id: 'prod_es_teh',
+        name: 'Es Teh Manis',
+        price: 5000,
+        type: 'OTHER',
+        vendorId: 'vendor_minum_rina',
+      },
+      {
+        id: 'prod_es_jeruk',
+        name: 'Es Jeruk',
+        price: 7000,
+        type: 'OTHER',
+        vendorId: 'vendor_minum_rina',
       },
     ],
     skipDuplicates: true,
