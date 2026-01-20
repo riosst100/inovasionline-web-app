@@ -1,4 +1,7 @@
 <script setup>
+import HomeHeader from './components/HomeHeader.vue'
+import { Icon } from '@iconify/vue'
+
 defineProps({
   error: Object
 })
@@ -9,61 +12,68 @@ const goHome = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-6">
-    <div class="max-w-md text-center bg-white rounded-2xl shadow-xl p-10">
+  <div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+    <HomeHeader />
 
-      <!-- Kode Error -->
-      <h1 class="text-7xl font-extrabold text-gray-900">
-        {{ error?.statusCode || 404 }}
-      </h1>
+    <div class="flex items-center justify-center px-4 py-[30px]">
+      <div class="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
 
-      <!-- Judul -->
-      <h2 class="mt-4 text-2xl font-semibold text-gray-800">
-        Halaman Belum Tersedia
-      </h2>
+        <img src="/illustration/error_404.webp" />
 
-      <!-- Deskripsi -->
-      <p class="mt-4 text-gray-600 leading-relaxed">
-        Fitur masih dalam tahap pengembangan.
-        Silahkan coba lagi nanti.
-        <br class="hidden sm:block" />
-        Ikuti update terbaru kami melalui social media.
-      </p>
+        <!-- Judul -->
+        <div class="text-[18px] font-semibold text-gray-900">
+          Wah! Halaman tidak ditemukan
+        </div>
+        <!-- Deskripsi -->
+        <p class="mt-2 text-gray-600 leading-relaxed">
+          Halaman yang kamu cari masih dalam proses pengembangan. Coba cek lagi nanti ya.
+        </p>
+        <p class="mt-10 text-gray-600 leading-relaxed">
+          Biar nggak ketinggalan update terbaru, jangan lupa follow sosial media kami ya!
+        </p>
 
-      <!-- Social Media -->
-      <div class="mt-6 flex justify-center gap-4">
-        <a
-          href="#"
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-black text-white hover:opacity-80 transition"
-          aria-label="TikTok"
-        >
-          TikTok
-        </a>
+        <!-- Social Media -->
+        <div class="mt-4 flex justify-center gap-[10px]">
+          <a
+            href="#"
+            class="logo-link"
+            aria-label="TikTok"
+          >
+            <Icon icon="logos:tiktok-icon" width="32" height="32" />
+            <div class="social-media-username">@inovasi.online</div>
+          </a>
 
-        <a
-          href="#"
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:opacity-80 transition"
-          aria-label="Facebook"
-        >
-          FB
-        </a>
+          <a
+            href="#"
+            class="logo-link"
+            aria-label="Facebook"
+          >
+            <Icon icon="logos:facebook" width="32" height="32" />
+            <div class="social-media-username">@inovasi.online</div>
+          </a>
 
-        <a
-          href="#"
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-pink-600 text-white hover:opacity-80 transition"
-          aria-label="Instagram"
-        >
-          IG
-        </a>
+          <a
+            href="#"
+            class="logo-link"
+            aria-label="Instagram"
+          >
+            <img src="/logo/instagram.webp" style="width: 32px;" />
+            <div class="social-media-username">@inovasi.online</div>
+          </a>
+        </div>
       </div>
-
-      <!-- Tombol -->
-      <button
-        @click="goHome"
-        class="mt-8 inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition font-medium"
-      >
-        Kembali ke Home
-      </button>
     </div>
+
+    <BottomNavbar />
   </div>
 </template>
+
+<style scoped>
+  .social-media-username {
+    margin-top: 5px;
+    font-size: 12px;
+  }
+  .logo-link {
+    justify-items: center;
+  }
+</style>

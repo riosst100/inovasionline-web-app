@@ -9,3 +9,7 @@
   --color-muted: 107 114 128;
   --color-danger: 239 68 68;
 }
+
+body {
+  background-color: #e5e7eb;
+}
