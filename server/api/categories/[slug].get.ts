@@ -1,11 +1,4 @@
-import { PrismaClient } from '../../../prisma/generated/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-})
-
-const prisma = new PrismaClient({ adapter })
+import { prisma } from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const slug = event.context.params?.slug
@@ -35,12 +28,12 @@ export default defineEventHandler(async (event) => {
       seoDescription: true,
       children: {
         where: { isActive: true },
+        orderBy: { name: 'asc' },
         select: {
           id: true,
           name: true,
           slug: true,
         },
-        orderBy: { name: 'asc' },
       },
     },
   })
@@ -54,7 +47,6 @@ export default defineEventHandler(async (event) => {
 
   /**
    * 2. KUMPULKAN SEMUA CATEGORY ID
-   * (parent + children)
    */
   const categoryIds = [
     category.id,
@@ -62,7 +54,7 @@ export default defineEventHandler(async (event) => {
   ]
 
   /**
-   * 3. AMBIL SEMUA VENDOR + PRODUK
+   * 3. AMBIL VENDOR + PRODUK
    */
   const vendors = await prisma.vendor.findMany({
     where: {
@@ -70,15 +62,16 @@ export default defineEventHandler(async (event) => {
         in: categoryIds,
       },
     },
+    orderBy: {
+      name: 'asc',
+    },
     select: {
       id: true,
       name: true,
       company: true,
       verified: true,
       products: {
-        where: {
-          isActive: true,
-        },
+        where: { isActive: true },
         select: {
           id: true,
           name: true,
@@ -86,13 +79,10 @@ export default defineEventHandler(async (event) => {
         },
       },
     },
-    orderBy: {
-      name: 'asc',
-    },
   })
 
   /**
-   * 4. FLATTEN PRODUK (BIAR ENAK DI GRID)
+   * 4. FLATTEN PRODUK
    */
   const products = vendors.flatMap((vendor) =>
     vendor.products.map((product) => ({
