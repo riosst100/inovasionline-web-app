@@ -8,14 +8,14 @@ import { Icon } from '@iconify/vue'
       <span class="font-bold text-indigo-600 text-lg">
         <img
             src="/logo/logo-text.svg"
-            alt="EventHub"
+            alt="Inovasi Online Logo"
             class="w-auto"
             style="height:20px"
         />
     </span>
     <div class="flex items-center gap-[10px] text-gray-600">
-        <span class="header-icon"><Icon icon="lineicons:cart-1" width="24" height="24" /></span>
-        <span class="header-icon"><Icon icon="token:chat" width="24" height="24" /></span>
+        <a href="/cart" class="header-icon"><Icon icon="lineicons:cart-1" width="24" height="24" /></a>
+        <a href="/messages" class="header-icon"><Icon icon="token:chat" width="24" height="24" /></a>
       </div>
     </div>
   </header>

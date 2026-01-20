@@ -1,6 +1,6 @@
 <!-- components/HomeSearch.vue -->
 <template>
-  <section class="px-4 mt-4 mb-2">
+  <section class="px-4 pt-[15px] mb-2">
     <div class="relative">
       <!-- Icon prefix -->
       <Icon

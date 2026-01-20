@@ -67,3 +67,8 @@ export type VendorAssignment = Prisma.VendorAssignmentModel
  * 
  */
 export type Payment = Prisma.PaymentModel
+/**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel

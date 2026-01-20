@@ -30,6 +30,7 @@ export type VendorMinAggregateOutputType = {
   name: string | null
   company: string | null
   verified: boolean | null
+  categoryId: string | null
 }
 
 export type VendorMaxAggregateOutputType = {
@@ -38,6 +39,7 @@ export type VendorMaxAggregateOutputType = {
   name: string | null
   company: string | null
   verified: boolean | null
+  categoryId: string | null
 }
 
 export type VendorCountAggregateOutputType = {
@@ -46,6 +48,7 @@ export type VendorCountAggregateOutputType = {
   name: number
   company: number
   verified: number
+  categoryId: number
   _all: number
 }
 
@@ -56,6 +59,7 @@ export type VendorMinAggregateInputType = {
   name?: true
   company?: true
   verified?: true
+  categoryId?: true
 }
 
 export type VendorMaxAggregateInputType = {
@@ -64,6 +68,7 @@ export type VendorMaxAggregateInputType = {
   name?: true
   company?: true
   verified?: true
+  categoryId?: true
 }
 
 export type VendorCountAggregateInputType = {
@@ -72,6 +77,7 @@ export type VendorCountAggregateInputType = {
   name?: true
   company?: true
   verified?: true
+  categoryId?: true
   _all?: true
 }
 
@@ -153,6 +159,7 @@ export type VendorGroupByOutputType = {
   name: string
   company: string | null
   verified: boolean
+  categoryId: string
   _count: VendorCountAggregateOutputType | null
   _min: VendorMinAggregateOutputType | null
   _max: VendorMaxAggregateOutputType | null
@@ -182,6 +189,8 @@ export type VendorWhereInput = {
   name?: Prisma.StringFilter<"Vendor"> | string
   company?: Prisma.StringNullableFilter<"Vendor"> | string | null
   verified?: Prisma.BoolFilter<"Vendor"> | boolean
+  categoryId?: Prisma.StringFilter<"Vendor"> | string
+  category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   products?: Prisma.ProductListRelationFilter
   assignments?: Prisma.VendorAssignmentListRelationFilter
@@ -194,6 +203,8 @@ export type VendorOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   company?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  category?: Prisma.CategoryOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   products?: Prisma.ProductOrderByRelationAggregateInput
   assignments?: Prisma.VendorAssignmentOrderByRelationAggregateInput
@@ -209,6 +220,8 @@ export type VendorWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Vendor"> | string
   company?: Prisma.StringNullableFilter<"Vendor"> | string | null
   verified?: Prisma.BoolFilter<"Vendor"> | boolean
+  categoryId?: Prisma.StringFilter<"Vendor"> | string
+  category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   products?: Prisma.ProductListRelationFilter
   assignments?: Prisma.VendorAssignmentListRelationFilter
@@ -221,6 +234,7 @@ export type VendorOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   company?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   _count?: Prisma.VendorCountOrderByAggregateInput
   _max?: Prisma.VendorMaxOrderByAggregateInput
   _min?: Prisma.VendorMinOrderByAggregateInput
@@ -235,6 +249,7 @@ export type VendorScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Vendor"> | string
   company?: Prisma.StringNullableWithAggregatesFilter<"Vendor"> | string | null
   verified?: Prisma.BoolWithAggregatesFilter<"Vendor"> | boolean
+  categoryId?: Prisma.StringWithAggregatesFilter<"Vendor"> | string
 }
 
 export type VendorCreateInput = {
@@ -242,6 +257,7 @@ export type VendorCreateInput = {
   name: string
   company?: string | null
   verified?: boolean
+  category: Prisma.CategoryCreateNestedOneWithoutVendorsInput
   user?: Prisma.UserCreateNestedOneWithoutVendorInput
   products?: Prisma.ProductCreateNestedManyWithoutVendorInput
   assignments?: Prisma.VendorAssignmentCreateNestedManyWithoutVendorInput
@@ -254,6 +270,7 @@ export type VendorUncheckedCreateInput = {
   name: string
   company?: string | null
   verified?: boolean
+  categoryId: string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutVendorInput
   assignments?: Prisma.VendorAssignmentUncheckedCreateNestedManyWithoutVendorInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutVendorInput
@@ -264,6 +281,7 @@ export type VendorUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.CategoryUpdateOneRequiredWithoutVendorsNestedInput
   user?: Prisma.UserUpdateOneWithoutVendorNestedInput
   products?: Prisma.ProductUpdateManyWithoutVendorNestedInput
   assignments?: Prisma.VendorAssignmentUpdateManyWithoutVendorNestedInput
@@ -276,6 +294,7 @@ export type VendorUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutVendorNestedInput
   assignments?: Prisma.VendorAssignmentUncheckedUpdateManyWithoutVendorNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutVendorNestedInput
@@ -287,6 +306,7 @@ export type VendorCreateManyInput = {
   name: string
   company?: string | null
   verified?: boolean
+  categoryId: string
 }
 
 export type VendorUpdateManyMutationInput = {
@@ -302,6 +322,7 @@ export type VendorUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type VendorNullableScalarRelationFilter = {
@@ -315,6 +336,7 @@ export type VendorCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   company?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
 }
 
 export type VendorMaxOrderByAggregateInput = {
@@ -323,6 +345,7 @@ export type VendorMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   company?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
 }
 
 export type VendorMinOrderByAggregateInput = {
@@ -331,11 +354,22 @@ export type VendorMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   company?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
 }
 
 export type VendorScalarRelationFilter = {
   is?: Prisma.VendorWhereInput
   isNot?: Prisma.VendorWhereInput
+}
+
+export type VendorListRelationFilter = {
+  every?: Prisma.VendorWhereInput
+  some?: Prisma.VendorWhereInput
+  none?: Prisma.VendorWhereInput
+}
+
+export type VendorOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type VendorCreateNestedOneWithoutUserInput = {
@@ -416,11 +450,54 @@ export type VendorUpdateOneRequiredWithoutAssignmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.VendorUpdateToOneWithWhereWithoutAssignmentsInput, Prisma.VendorUpdateWithoutAssignmentsInput>, Prisma.VendorUncheckedUpdateWithoutAssignmentsInput>
 }
 
+export type VendorCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCategoryInput, Prisma.VendorUncheckedCreateWithoutCategoryInput> | Prisma.VendorCreateWithoutCategoryInput[] | Prisma.VendorUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCategoryInput | Prisma.VendorCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.VendorCreateManyCategoryInputEnvelope
+  connect?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+}
+
+export type VendorUncheckedCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCategoryInput, Prisma.VendorUncheckedCreateWithoutCategoryInput> | Prisma.VendorCreateWithoutCategoryInput[] | Prisma.VendorUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCategoryInput | Prisma.VendorCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.VendorCreateManyCategoryInputEnvelope
+  connect?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+}
+
+export type VendorUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCategoryInput, Prisma.VendorUncheckedCreateWithoutCategoryInput> | Prisma.VendorCreateWithoutCategoryInput[] | Prisma.VendorUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCategoryInput | Prisma.VendorCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.VendorUpsertWithWhereUniqueWithoutCategoryInput | Prisma.VendorUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.VendorCreateManyCategoryInputEnvelope
+  set?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  disconnect?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  delete?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  connect?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  update?: Prisma.VendorUpdateWithWhereUniqueWithoutCategoryInput | Prisma.VendorUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.VendorUpdateManyWithWhereWithoutCategoryInput | Prisma.VendorUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.VendorScalarWhereInput | Prisma.VendorScalarWhereInput[]
+}
+
+export type VendorUncheckedUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCategoryInput, Prisma.VendorUncheckedCreateWithoutCategoryInput> | Prisma.VendorCreateWithoutCategoryInput[] | Prisma.VendorUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCategoryInput | Prisma.VendorCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.VendorUpsertWithWhereUniqueWithoutCategoryInput | Prisma.VendorUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.VendorCreateManyCategoryInputEnvelope
+  set?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  disconnect?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  delete?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  connect?: Prisma.VendorWhereUniqueInput | Prisma.VendorWhereUniqueInput[]
+  update?: Prisma.VendorUpdateWithWhereUniqueWithoutCategoryInput | Prisma.VendorUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.VendorUpdateManyWithWhereWithoutCategoryInput | Prisma.VendorUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.VendorScalarWhereInput | Prisma.VendorScalarWhereInput[]
+}
+
 export type VendorCreateWithoutUserInput = {
   id?: string
   name: string
   company?: string | null
   verified?: boolean
+  category: Prisma.CategoryCreateNestedOneWithoutVendorsInput
   products?: Prisma.ProductCreateNestedManyWithoutVendorInput
   assignments?: Prisma.VendorAssignmentCreateNestedManyWithoutVendorInput
   orders?: Prisma.OrderCreateNestedManyWithoutVendorInput
@@ -431,6 +508,7 @@ export type VendorUncheckedCreateWithoutUserInput = {
   name: string
   company?: string | null
   verified?: boolean
+  categoryId: string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutVendorInput
   assignments?: Prisma.VendorAssignmentUncheckedCreateNestedManyWithoutVendorInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutVendorInput
@@ -457,6 +535,7 @@ export type VendorUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.CategoryUpdateOneRequiredWithoutVendorsNestedInput
   products?: Prisma.ProductUpdateManyWithoutVendorNestedInput
   assignments?: Prisma.VendorAssignmentUpdateManyWithoutVendorNestedInput
   orders?: Prisma.OrderUpdateManyWithoutVendorNestedInput
@@ -467,6 +546,7 @@ export type VendorUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutVendorNestedInput
   assignments?: Prisma.VendorAssignmentUncheckedUpdateManyWithoutVendorNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutVendorNestedInput
@@ -477,6 +557,7 @@ export type VendorCreateWithoutProductsInput = {
   name: string
   company?: string | null
   verified?: boolean
+  category: Prisma.CategoryCreateNestedOneWithoutVendorsInput
   user?: Prisma.UserCreateNestedOneWithoutVendorInput
   assignments?: Prisma.VendorAssignmentCreateNestedManyWithoutVendorInput
   orders?: Prisma.OrderCreateNestedManyWithoutVendorInput
@@ -488,6 +569,7 @@ export type VendorUncheckedCreateWithoutProductsInput = {
   name: string
   company?: string | null
   verified?: boolean
+  categoryId: string
   assignments?: Prisma.VendorAssignmentUncheckedCreateNestedManyWithoutVendorInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutVendorInput
 }
@@ -513,6 +595,7 @@ export type VendorUpdateWithoutProductsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.CategoryUpdateOneRequiredWithoutVendorsNestedInput
   user?: Prisma.UserUpdateOneWithoutVendorNestedInput
   assignments?: Prisma.VendorAssignmentUpdateManyWithoutVendorNestedInput
   orders?: Prisma.OrderUpdateManyWithoutVendorNestedInput
@@ -524,6 +607,7 @@ export type VendorUncheckedUpdateWithoutProductsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   assignments?: Prisma.VendorAssignmentUncheckedUpdateManyWithoutVendorNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutVendorNestedInput
 }
@@ -533,6 +617,7 @@ export type VendorCreateWithoutOrdersInput = {
   name: string
   company?: string | null
   verified?: boolean
+  category: Prisma.CategoryCreateNestedOneWithoutVendorsInput
   user?: Prisma.UserCreateNestedOneWithoutVendorInput
   products?: Prisma.ProductCreateNestedManyWithoutVendorInput
   assignments?: Prisma.VendorAssignmentCreateNestedManyWithoutVendorInput
@@ -544,6 +629,7 @@ export type VendorUncheckedCreateWithoutOrdersInput = {
   name: string
   company?: string | null
   verified?: boolean
+  categoryId: string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutVendorInput
   assignments?: Prisma.VendorAssignmentUncheckedCreateNestedManyWithoutVendorInput
 }
@@ -569,6 +655,7 @@ export type VendorUpdateWithoutOrdersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.CategoryUpdateOneRequiredWithoutVendorsNestedInput
   user?: Prisma.UserUpdateOneWithoutVendorNestedInput
   products?: Prisma.ProductUpdateManyWithoutVendorNestedInput
   assignments?: Prisma.VendorAssignmentUpdateManyWithoutVendorNestedInput
@@ -580,6 +667,7 @@ export type VendorUncheckedUpdateWithoutOrdersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutVendorNestedInput
   assignments?: Prisma.VendorAssignmentUncheckedUpdateManyWithoutVendorNestedInput
 }
@@ -589,6 +677,7 @@ export type VendorCreateWithoutAssignmentsInput = {
   name: string
   company?: string | null
   verified?: boolean
+  category: Prisma.CategoryCreateNestedOneWithoutVendorsInput
   user?: Prisma.UserCreateNestedOneWithoutVendorInput
   products?: Prisma.ProductCreateNestedManyWithoutVendorInput
   orders?: Prisma.OrderCreateNestedManyWithoutVendorInput
@@ -600,6 +689,7 @@ export type VendorUncheckedCreateWithoutAssignmentsInput = {
   name: string
   company?: string | null
   verified?: boolean
+  categoryId: string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutVendorInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutVendorInput
 }
@@ -625,6 +715,7 @@ export type VendorUpdateWithoutAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.CategoryUpdateOneRequiredWithoutVendorsNestedInput
   user?: Prisma.UserUpdateOneWithoutVendorNestedInput
   products?: Prisma.ProductUpdateManyWithoutVendorNestedInput
   orders?: Prisma.OrderUpdateManyWithoutVendorNestedInput
@@ -636,8 +727,107 @@ export type VendorUncheckedUpdateWithoutAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutVendorNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutVendorNestedInput
+}
+
+export type VendorCreateWithoutCategoryInput = {
+  id?: string
+  name: string
+  company?: string | null
+  verified?: boolean
+  user?: Prisma.UserCreateNestedOneWithoutVendorInput
+  products?: Prisma.ProductCreateNestedManyWithoutVendorInput
+  assignments?: Prisma.VendorAssignmentCreateNestedManyWithoutVendorInput
+  orders?: Prisma.OrderCreateNestedManyWithoutVendorInput
+}
+
+export type VendorUncheckedCreateWithoutCategoryInput = {
+  id?: string
+  userId?: string | null
+  name: string
+  company?: string | null
+  verified?: boolean
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutVendorInput
+  assignments?: Prisma.VendorAssignmentUncheckedCreateNestedManyWithoutVendorInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutVendorInput
+}
+
+export type VendorCreateOrConnectWithoutCategoryInput = {
+  where: Prisma.VendorWhereUniqueInput
+  create: Prisma.XOR<Prisma.VendorCreateWithoutCategoryInput, Prisma.VendorUncheckedCreateWithoutCategoryInput>
+}
+
+export type VendorCreateManyCategoryInputEnvelope = {
+  data: Prisma.VendorCreateManyCategoryInput | Prisma.VendorCreateManyCategoryInput[]
+  skipDuplicates?: boolean
+}
+
+export type VendorUpsertWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.VendorWhereUniqueInput
+  update: Prisma.XOR<Prisma.VendorUpdateWithoutCategoryInput, Prisma.VendorUncheckedUpdateWithoutCategoryInput>
+  create: Prisma.XOR<Prisma.VendorCreateWithoutCategoryInput, Prisma.VendorUncheckedCreateWithoutCategoryInput>
+}
+
+export type VendorUpdateWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.VendorWhereUniqueInput
+  data: Prisma.XOR<Prisma.VendorUpdateWithoutCategoryInput, Prisma.VendorUncheckedUpdateWithoutCategoryInput>
+}
+
+export type VendorUpdateManyWithWhereWithoutCategoryInput = {
+  where: Prisma.VendorScalarWhereInput
+  data: Prisma.XOR<Prisma.VendorUpdateManyMutationInput, Prisma.VendorUncheckedUpdateManyWithoutCategoryInput>
+}
+
+export type VendorScalarWhereInput = {
+  AND?: Prisma.VendorScalarWhereInput | Prisma.VendorScalarWhereInput[]
+  OR?: Prisma.VendorScalarWhereInput[]
+  NOT?: Prisma.VendorScalarWhereInput | Prisma.VendorScalarWhereInput[]
+  id?: Prisma.StringFilter<"Vendor"> | string
+  userId?: Prisma.StringNullableFilter<"Vendor"> | string | null
+  name?: Prisma.StringFilter<"Vendor"> | string
+  company?: Prisma.StringNullableFilter<"Vendor"> | string | null
+  verified?: Prisma.BoolFilter<"Vendor"> | boolean
+  categoryId?: Prisma.StringFilter<"Vendor"> | string
+}
+
+export type VendorCreateManyCategoryInput = {
+  id?: string
+  userId?: string | null
+  name: string
+  company?: string | null
+  verified?: boolean
+}
+
+export type VendorUpdateWithoutCategoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneWithoutVendorNestedInput
+  products?: Prisma.ProductUpdateManyWithoutVendorNestedInput
+  assignments?: Prisma.VendorAssignmentUpdateManyWithoutVendorNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutVendorNestedInput
+}
+
+export type VendorUncheckedUpdateWithoutCategoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  products?: Prisma.ProductUncheckedUpdateManyWithoutVendorNestedInput
+  assignments?: Prisma.VendorAssignmentUncheckedUpdateManyWithoutVendorNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutVendorNestedInput
+}
+
+export type VendorUncheckedUpdateManyWithoutCategoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -695,6 +885,8 @@ export type VendorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name?: boolean
   company?: boolean
   verified?: boolean
+  categoryId?: boolean
+  category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Vendor$userArgs<ExtArgs>
   products?: boolean | Prisma.Vendor$productsArgs<ExtArgs>
   assignments?: boolean | Prisma.Vendor$assignmentsArgs<ExtArgs>
@@ -708,6 +900,8 @@ export type VendorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   company?: boolean
   verified?: boolean
+  categoryId?: boolean
+  category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Vendor$userArgs<ExtArgs>
 }, ExtArgs["result"]["vendor"]>
 
@@ -717,6 +911,8 @@ export type VendorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   company?: boolean
   verified?: boolean
+  categoryId?: boolean
+  category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Vendor$userArgs<ExtArgs>
 }, ExtArgs["result"]["vendor"]>
 
@@ -726,10 +922,12 @@ export type VendorSelectScalar = {
   name?: boolean
   company?: boolean
   verified?: boolean
+  categoryId?: boolean
 }
 
-export type VendorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "company" | "verified", ExtArgs["result"]["vendor"]>
+export type VendorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "company" | "verified" | "categoryId", ExtArgs["result"]["vendor"]>
 export type VendorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Vendor$userArgs<ExtArgs>
   products?: boolean | Prisma.Vendor$productsArgs<ExtArgs>
   assignments?: boolean | Prisma.Vendor$assignmentsArgs<ExtArgs>
@@ -737,15 +935,18 @@ export type VendorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   _count?: boolean | Prisma.VendorCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type VendorIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Vendor$userArgs<ExtArgs>
 }
 export type VendorIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Vendor$userArgs<ExtArgs>
 }
 
 export type $VendorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Vendor"
   objects: {
+    category: Prisma.$CategoryPayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs> | null
     products: Prisma.$ProductPayload<ExtArgs>[]
     assignments: Prisma.$VendorAssignmentPayload<ExtArgs>[]
@@ -757,6 +958,7 @@ export type $VendorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     name: string
     company: string | null
     verified: boolean
+    categoryId: string
   }, ExtArgs["result"]["vendor"]>
   composites: {}
 }
@@ -1151,6 +1353,7 @@ readonly fields: VendorFieldRefs;
  */
 export interface Prisma__VendorClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  category<T extends Prisma.CategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.Vendor$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   products<T extends Prisma.Vendor$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignments<T extends Prisma.Vendor$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VendorAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1189,6 +1392,7 @@ export interface VendorFieldRefs {
   readonly name: Prisma.FieldRef<"Vendor", 'String'>
   readonly company: Prisma.FieldRef<"Vendor", 'String'>
   readonly verified: Prisma.FieldRef<"Vendor", 'Boolean'>
+  readonly categoryId: Prisma.FieldRef<"Vendor", 'String'>
 }
     
 

@@ -49,18 +49,24 @@ model RefreshToken {
 
 
 model Vendor {
-  id       String  @id @default(uuid())
-  userId   String? @unique
-  name     String
-  company  String?
-  verified Boolean @default(false)
+  id         String   @id @default(uuid())
+  userId     String?  @unique
+  name       String
+  company    String?
+  verified   Boolean  @default(false)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
   user User? @relation(fields: [userId], references: [id])
 
   products    Product[]          @relation("VendorProducts")
   assignments VendorAssignment[]
   orders      Order[]            @relation("VendorOrders")
+
+  @@index([categoryId])
 }
+
 
 model Partner {
   id           String @id @default(uuid())
@@ -247,4 +253,31 @@ model Payment {
   paidAt  DateTime?
 
   order Order @relation(fields: [orderId], references: [id])
+}
+
+model Category {
+  id              String   @id @default(uuid())
+  name            String
+  slug            String   @unique
+
+  parentId        String?
+  parent          Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children        Category[] @relation("CategoryHierarchy")
+
+  isActive        Boolean  @default(true)
+
+  // homepage & landing
+  showOnHomepage  Boolean  @default(false)
+  homepageOrder   Int?
+  icon            String?
+  description     String?
+  seoTitle        String?
+  seoDescription  String?
+
+  vendors         Vendor[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([parentId])
 }
