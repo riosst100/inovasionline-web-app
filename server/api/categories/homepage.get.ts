@@ -1,14 +1,7 @@
-import { PrismaClient } from '../../../prisma/generated/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-})
-
-const prisma = new PrismaClient({ adapter })
+import { prisma } from '../../utils/prisma'
 
 export default defineEventHandler(async () => {
-  const categories = await prisma.category.findMany({
+  return await prisma.category.findMany({
     where: {
       parentId: null,
       isActive: true,
@@ -24,6 +17,4 @@ export default defineEventHandler(async () => {
       icon: true,
     },
   })
-
-  return categories
 })
