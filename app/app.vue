@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 
 const auth = useAuth()
-const booting = ref(true)
+
+// state global, tidak reset saat navigate
+const booting = useState('app-booting', () => true)
 
 onMounted(async () => {
+  // hanya jalan saat first load
+  if (booting.value === false) return
+
   try {
     if (!auth.accessToken.value) {
       await auth.refresh()
@@ -16,6 +21,7 @@ onMounted(async () => {
   }
 })
 </script>
+
 
 <template>
   <!-- WAJIB pakai NuxtLayout agar error.vue bisa takeover -->
