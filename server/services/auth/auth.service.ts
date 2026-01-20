@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 import { signAccessToken } from '../../utils/jwt'
-import { prisma } from '../../utils/db'
+import { prisma } from '../../utils/prisma'
 
 const REFRESH_EXPIRE_DAYS = 30
 

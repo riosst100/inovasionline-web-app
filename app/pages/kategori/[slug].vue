@@ -3,7 +3,12 @@ const route = useRoute()
 
 const { data, pending, error } = await useAsyncData(
   `category-${route.params.slug}`,
-  () => $fetch(`/api/categories/${route.params.slug}`)
+  () => $fetch(`/api/categories/${route.params.slug}`),
+  {
+    server: false,
+    lazy: false,
+    default: () => null,
+  }
 )
 
 if (error.value) {
@@ -16,24 +21,13 @@ if (error.value) {
 const category = computed(() => data.value?.category)
 const vendors = computed(() => data.value?.vendors ?? [])
 const products = computed(() => data.value?.products ?? [])
-
-useSeoMeta({
-  title: () =>
-    category.value?.seoTitle || category.value?.name,
-  description: () =>
-    category.value?.seoDescription ||
-    category.value?.description ||
-    `Daftar produk ${category.value?.name}`,
-})
 </script>
 
 <template>
   <!-- LOADING -->
-  <div v-if="pending" class="px-4 py-20 text-center text-gray-500">
-    Memuat data...
-  </div>
+  <CategorySkeleton v-if="pending || !category" />
 
-  <div v-else>
+  <template v-else>
     <!-- ================= TOP SECTION ================= -->
     <div class="px-4 pt-4 pb-3">
       <h1 class="text-lg font-semibold text-gray-900 mb-3">
@@ -171,7 +165,7 @@ useSeoMeta({
 
       </div>
     </div>
-  </div>
+  </template>
 </template>
 
 <style scoped>
