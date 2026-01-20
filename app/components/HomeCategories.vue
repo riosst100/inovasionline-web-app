@@ -1,10 +1,11 @@
 <template>
   <section class="px-4 mt-4">
     <div class="grid grid-cols-4 gap-4">
-      <div
+      <a
         v-for="category in categories"
         :key="category.id"
         class="flex flex-col items-center gap-2"
+        :href="category.url_path"
       >
         <div
           class="w-14 h-14 rounded-full category-item flex items-center justify-center"
@@ -18,7 +19,7 @@
         <span class="text-xs text-gray-700 text-center">
           {{ category.name }}
         </span>
-      </div>
+      </a>
     </div>
   </section>
 </template>
@@ -31,12 +32,12 @@
 <script setup>
 const categories = [
   {
-    id: 1,
+    url_path: '/categories/food-beverages',
     name: 'Makanan & Minuman',
     icon: '/categories/food-beverages.webp',
   },
   {
-    id: 2,
+    url_path: '/categories/okokokoo',
     name: 'Percetakan',
     icon: '/categories/printing.webp',
   },
@@ -46,32 +47,32 @@ const categories = [
   //   icon: '/categories/jobs.webp',
   // },
   {
-    id: 2,
+    url_path: '/categories/okokokoo',
     name: 'Jasa & Servis',
     icon: '/categories/services.webp',
   },
   {
-    id: 2,
+    url_path: '/categories/okokokoo',
     name: 'Rental / Sewa',
     icon: '/categories/rent.webp',
   },
   {
-    id: 2,
+    url_path: '/categories/okokokoo',
     name: 'Event / Acara',
     icon: '/categories/calendar.webp',
   },
   {
-    id: 2,
+    url_path: '/categories/okokokoo',
     name: 'Tiket Konser',
     icon: '/categories/ticket.webp',
   },
   {
-    id: 2,
+    url_path: '/categories/okokokoo',
     name: 'Tanaman Hias',
     icon: '/categories/plants.webp',
   },
   {
-    id: 2,
+    url_path: '/categories/okokokoo',
     name: 'Hewan Peliharaan',
     icon: '/categories/pets.webp',
   },

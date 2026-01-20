@@ -13,10 +13,18 @@ import { Icon } from '@iconify/vue'
             style="height:20px"
         />
     </span>
-    <div class="flex items-center gap-4 text-gray-600">
-        <span><Icon icon="material-symbols:shopping-cart-outline-rounded" width="24" height="24" /></span>
-        <span><Icon icon="material-symbols:person-rounded" width="24" height="24" /></span>
+    <div class="flex items-center gap-[10px] text-gray-600">
+        <span class="header-icon"><Icon icon="lineicons:cart-1" width="24" height="24" /></span>
+        <span class="header-icon"><Icon icon="token:chat" width="24" height="24" /></span>
       </div>
     </div>
   </header>
 </template>
+
+<style scoped>
+  .header-icon {
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    padding: 5px;
+  }
+</style>
