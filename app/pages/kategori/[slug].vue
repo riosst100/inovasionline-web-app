@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const { data, pending, error } = await useFetch(
-  () => `/api/categories/${route.params.slug}`,
-  { key: `category-${route.params.slug}` }
+const { data, pending, error } = await useAsyncData(
+  `category-${route.params.slug}`,
+  () => $fetch(`/api/categories/${route.params.slug}`)
 )
 
 if (error.value) {

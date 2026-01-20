@@ -33,5 +33,13 @@
 }
 </style>
 <script setup>
-  const { data: categories } = await useFetch('/api/categories/homepage')
+  const { data: categories } = await useAsyncData(
+  'categories-homepage',
+  () => $fetch('/api/categories/homepage'),
+  {
+    server: true,
+    lazy: false,
+    default: () => null,
+  }
+)
 </script>
