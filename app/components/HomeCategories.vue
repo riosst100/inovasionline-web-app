@@ -40,6 +40,11 @@ const categories = [
     name: 'Percetakan',
     icon: '/categories/printing.webp',
   },
+  // {
+  //   id: 2,
+  //   name: 'Lowongan Pekerjaan',
+  //   icon: '/categories/jobs.webp',
+  // },
   {
     id: 2,
     name: 'Jasa & Servis',

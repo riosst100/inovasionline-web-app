@@ -2,16 +2,9 @@
 import { ref, onMounted } from 'vue'
 
 const auth = useAuth()
-
-// LOCAL loading state (BUKAN global auth state)
 const booting = ref(true)
 
 onMounted(async () => {
-  /**
-   * Silent refresh saat app pertama kali load
-   * - Tidak blok NuxtPage
-   * - Tidak bikin infinite loading
-   */
   try {
     if (!auth.accessToken.value) {
       await auth.refresh()
@@ -25,10 +18,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- PAGE TREE (WAJIB SELALU ADA) -->
-  <NuxtPage />
+  <!-- WAJIB pakai NuxtLayout agar error.vue bisa takeover -->
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 
-  <!-- LOADING OVERLAY -->
+  <!-- Loading overlay -->
   <div v-if="booting" class="app-loading">
     <div class="spinner" />
     <p>Loading...</p>
