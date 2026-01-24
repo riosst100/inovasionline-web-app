@@ -25,6 +25,7 @@ onMounted(async () => {
 
 <template>
   <!-- WAJIB pakai NuxtLayout agar error.vue bisa takeover -->
+  <NuxtPwaManifest />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

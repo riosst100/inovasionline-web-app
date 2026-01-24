@@ -2,8 +2,8 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   modules: [
-    '@vite-pwa/nuxt',
-    '@nuxtjs/tailwindcss'
+    '@nuxtjs/tailwindcss',
+    '@vite-pwa/nuxt'
   ],
   css: ['../assets/css/main.css'],
   devtools: { enabled: true },
@@ -17,7 +17,7 @@ export default defineNuxtConfig({
         'inovasionline.com',
         '.inovasionline.com'
       ]
-    }
+    },
   },
   pwa: {
     registerType: 'autoUpdate',
