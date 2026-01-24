@@ -21,22 +21,53 @@ export default defineNuxtConfig({
   },
   pwa: {
     devOptions: {
-      enabled: true // ⬅️ WAJIB di dev
+      enabled: true
     },
 
     registerType: 'autoUpdate',
 
     workbox: {
-      clientsClaim: true,
-      skipWaiting: true
+      navigateFallback: '/', // untuk SPA navigation
+      navigateFallbackDenylist: [/^\/api/],
+
+      runtimeCaching: [
+        {
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'pages',
+          },
+        },
+        {
+          urlPattern: ({ request }) =>
+            request.destination === 'style' ||
+            request.destination === 'script' ||
+            request.destination === 'worker',
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'assets',
+          },
+        },
+        {
+          urlPattern: ({ request }) => request.destination === 'image',
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'images',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30,
+            },
+          },
+        },
+      ],
     },
 
     manifest: {
-      id: '/',        // ⬅️ PENTING
-      scope: '/',     // ⬅️ PENTING
+      id: '/',
+      scope: '/',
+      start_url: '/',
       name: 'Inovasi Online',
       short_name: 'Inovasi',
-      start_url: '/',
       display: 'standalone',
       background_color: '#ffffff',
       theme_color: '#0d47a1',
@@ -44,14 +75,16 @@ export default defineNuxtConfig({
         {
           src: '/icons/icon-192.png',
           sizes: '192x192',
-          type: 'image/png'
+          type: 'image/png',
+          purpose: 'any maskable',
         },
         {
           src: '/icons/icon-512.png',
           sizes: '512x512',
-          type: 'image/png'
-        }
-      ]
-    }
+          type: 'image/png',
+          purpose: 'any maskable',
+        },
+      ],
+    },
   }
 })
