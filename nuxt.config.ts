@@ -20,8 +20,20 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
+    devOptions: {
+      enabled: true // ⬅️ WAJIB di dev
+    },
+
     registerType: 'autoUpdate',
+
+    workbox: {
+      clientsClaim: true,
+      skipWaiting: true
+    },
+
     manifest: {
+      id: '/',        // ⬅️ PENTING
+      scope: '/',     // ⬅️ PENTING
       name: 'Inovasi Online',
       short_name: 'Inovasi',
       start_url: '/',
