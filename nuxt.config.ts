@@ -67,7 +67,7 @@ export default defineNuxtConfig({
       scope: '/',
       start_url: '/',
       name: 'Inovasi Online',
-      short_name: 'Inovasi',
+      short_name: 'Inovasi Online',
       display: 'standalone',
       background_color: '#ffffff',
       theme_color: '#0d47a1',
