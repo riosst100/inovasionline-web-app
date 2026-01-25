@@ -7,7 +7,7 @@ import { Icon } from '@iconify/vue'
     <div class="flex items-center justify-between px-4 h-14">
       <span class="font-bold text-indigo-600 text-lg">
         <img
-            src="/logo/logo-text.svg"
+            src="/logo/logo_text_new.svg"
             alt="Inovasi Online Logo"
             class="w-auto"
             style="height:20px"
