@@ -13,9 +13,9 @@ import { Icon } from '@iconify/vue'
             style="height:22px"
         />
     </span>
-    <div class="flex items-center gap-[10px] text-gray-600">
-        <a href="/cart" class="header-icon"><Icon icon="lineicons:cart-1" width="24" height="24" /></a>
-        <a href="/messages" class="header-icon"><Icon icon="token:chat" width="24" height="24" /></a>
+    <div class="flex items-center gap-[15px] text-gray-600">
+        <a href="/cart" class="header-icon"><Icon icon="lineicons:cart-1" width="28" height="28" /></a>
+        <a href="/messages" class="header-icon"><Icon icon="token:chat" width="28" height="28" /></a>
       </div>
     </div>
   </header>
@@ -23,7 +23,7 @@ import { Icon } from '@iconify/vue'
 
 <style scoped>
   .header-icon {
-    border: 1px solid #e5e7eb;
+    /* border: 1px solid #e5e7eb; */
     border-radius: 5px;
     padding: 5px;
   }
