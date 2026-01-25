@@ -10,6 +10,7 @@
             :key="category.id"
             :to="`/kategori/${category.slug}`"
             class="flex flex-col items-center gap-2"
+            prefetch
           >
             <div
               class="w-14 h-14 rounded-full category-item flex items-center justify-center"
