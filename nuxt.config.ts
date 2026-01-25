@@ -82,7 +82,7 @@ export default defineNuxtConfig({
       name: 'Inovasi Online',
       short_name: 'Inovasi Online',
       display: 'standalone',
-      background_color: '#e2f7f5',
+      background_color: '#ffffff',
       theme_color: '#000000',
       icons: [
         {
@@ -92,7 +92,7 @@ export default defineNuxtConfig({
           purpose: 'any maskable',
         },
         {
-          src: '/icon/icon-512-v3.png',
+          src: '/icon/icon-512-v2.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'any maskable',
