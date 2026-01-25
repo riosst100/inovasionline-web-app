@@ -1,11 +1,13 @@
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(() => {
   const pageLoading = useState('page-loading', () => false)
 
-  nuxtApp.hook('page:start', () => {
+  const router = useRouter()
+
+  router.beforeEach(() => {
     pageLoading.value = true
   })
 
-  nuxtApp.hook('page:finish', () => {
+  router.afterEach(() => {
     pageLoading.value = false
   })
 })
