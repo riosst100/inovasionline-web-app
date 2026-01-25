@@ -1,9 +1,8 @@
 <template>
-  <HomeSearch />
-  <HomeLocation />
-  <HomeCategories />
-  <HomeBanner />
-  <!-- <HomeFeatured /> -->
-  <!-- <HomeTrust /> -->
-  <!-- <HomeCTA /> -->
+  <div class="page">
+    <HomeSearch />
+    <HomeLocation />
+    <HomeCategories />
+    <HomeBanner />
+  </div>
 </template>

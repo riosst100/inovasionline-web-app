@@ -1,5 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  ssr: false,
+  // app: {
+  //   pageTransition: { name: 'page', mode: 'out-in' }
+  // },
   compatibilityDate: '2025-07-15',
   modules: [
     '@nuxtjs/tailwindcss',
@@ -20,18 +24,25 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
-    devOptions: {
-      enabled: false
-    },
-
     registerType: 'autoUpdate',
 
+    // 🚫 JANGAN AKTIFKAN SW DI DEV
+    devOptions: {
+      enabled: false,
+    },
+
     workbox: {
-      navigateFallback: '/', // untuk SPA navigation
-      navigateFallbackDenylist: [/^\/api/],
+      cleanupOutdatedCaches: true,
+
+      // ❌ MATIKAN precache scanning
+      globPatterns: [],
+
+      // ❌ JANGAN precache navigate
+      navigateFallback: undefined,
 
       runtimeCaching: [
         {
+          // HTML / navigation (SSR safe)
           urlPattern: ({ request }) => request.mode === 'navigate',
           handler: 'NetworkFirst',
           options: {
@@ -39,9 +50,10 @@ export default defineNuxtConfig({
           },
         },
         {
+          // JS / CSS
           urlPattern: ({ request }) =>
-            request.destination === 'style' ||
             request.destination === 'script' ||
+            request.destination === 'style' ||
             request.destination === 'worker',
           handler: 'StaleWhileRevalidate',
           options: {
@@ -49,6 +61,7 @@ export default defineNuxtConfig({
           },
         },
         {
+          // Images
           urlPattern: ({ request }) => request.destination === 'image',
           handler: 'CacheFirst',
           options: {
