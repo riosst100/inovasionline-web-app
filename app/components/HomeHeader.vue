@@ -10,7 +10,7 @@ import { Icon } from '@iconify/vue'
             src="/logo/logo_text_v2.svg"
             alt="Inovasi Online Logo"
             class="w-auto"
-            style="height:20px"
+            style="height:22px"
         />
     </span>
     <div class="flex items-center gap-[10px] text-gray-600">
