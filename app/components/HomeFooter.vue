@@ -8,6 +8,6 @@
       <p>Kontak</p>
     </div> -->
     <hr />
-    <div class="pl-3 mt-3 text-center">Inovasi Online &copy; 2026. All Rights Reserved.<br /><br />Created by <b>Rio Susanto</b>.</div>
+    <div class="pl-3 mt-3 text-center">Inovasi Online &copy; 2026. All Rights Reserved.<br /><br />Created by <b>Rio Susanto</b></div>
   </footer>
 </template>

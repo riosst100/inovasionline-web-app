@@ -40,7 +40,7 @@ import 'swiper/css/pagination'
 const modules = [Pagination, Autoplay]
 
 const banners = [
-  '/banner/banner1.webp',
+  '/banner/banner-25-01-2026-1.png',
   '/banner/banner2.webp',
   '/banner/banner3.webp',
 ]
