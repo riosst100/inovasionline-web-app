@@ -1,14 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 import homepageRoutes from './routes/homepage.route.js'
-import compression from 'compression'
 
 const app = express()
 
-app.use(compression())
-app.use(cors())
-app.use(express.json())
+app.use('/api', cors(), express.json(), homepageRoutes)
 
-app.use('/api', homepageRoutes)
+app.get('/health', (_, res) => res.send('OK'))
 
 export default app
