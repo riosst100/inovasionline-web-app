@@ -15,11 +15,14 @@
             <div
               class="w-14 h-14 rounded-full category-item flex items-center justify-center"
             >
-              <img
+              <NuxtImg
                 v-if="category.icon"
                 :src="`/categories/${category.icon}.webp`"
                 :alt="category.name"
                 class="w-7 h-7"
+                placeholder
+                format="avif,webp"
+                quality="75"
               />
             </div>
 

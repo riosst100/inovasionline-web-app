@@ -18,7 +18,10 @@
         :key="index"
       >
         <div class="banner-card">
-          <img
+          <NuxtImg
+            placeholder
+            format="avif,webp"
+            quality="75"
             :src="banner"
             alt="Banner"
             class="banner-img"

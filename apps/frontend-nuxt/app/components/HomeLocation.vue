@@ -10,7 +10,10 @@ const changeLocation = () => {
     class="px-4 py-2 text-gray-600 flex items-center gap-1"
     @click="changeLocation"
   >
-    <img
+    <NuxtImg
+    placeholder
+    format="avif,webp"
+    quality="75"
     src="/icon/location.webp"
     style="width:16px"
     /><span class="delivery-to">Deliv ke</span> <span class="pin-address">Desa Tiwulandu, Kec. Banjarharjo</span>

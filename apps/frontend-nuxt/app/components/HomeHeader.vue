@@ -6,7 +6,10 @@ import { Icon } from '@iconify/vue'
   <header class="bg-white sticky top-0 z-10 border-b">
     <div class="flex items-center justify-between px-4 h-[3.2rem]">
       <span class="font-bold text-indigo-600 text-lg">
-        <img
+        <NuxtImg
+            placeholder
+            format="avif,webp"
+            quality="75"
             src="/logo/logo_text_v2.svg"
             alt="Inovasi Online Logo"
             class="w-auto"

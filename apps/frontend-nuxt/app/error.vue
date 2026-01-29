@@ -18,7 +18,11 @@ const goHome = () => {
     <div class="flex items-center justify-center px-4 py-[30px]">
       <div class="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
 
-        <img src="/illustration/error_404.webp" />
+        <NuxtImg
+          placeholder
+          format="avif,webp"
+          quality="75"
+          src="/illustration/error_404.webp" />
 
         <!-- Judul -->
         <div class="text-[18px] font-semibold text-gray-900">
@@ -57,7 +61,10 @@ const goHome = () => {
             class="logo-link"
             aria-label="Instagram"
           >
-            <img src="/logo/instagram.webp" style="width: 32px;" />
+            <NuxtImg
+            placeholder
+            format="avif,webp"
+            quality="75" src="/logo/instagram.webp" style="width: 32px;" />
             <div class="social-media-username">@inovasi.online</div>
           </a>
         </div>
