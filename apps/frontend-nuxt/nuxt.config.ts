@@ -35,7 +35,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
-        { name: 'theme-color', content: '#5f5f5f' }
+        { name: 'theme-color', content: '#000000' }
       ]
     }
   },
