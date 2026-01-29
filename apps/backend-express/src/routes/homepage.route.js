@@ -10,11 +10,8 @@ router.get('/homepage', async (req, res, next) => {
     const cachedData = cache.get(cacheKey)
 
     if (cachedData) {
-      // return res.json(cachedData)
+      return res.json(cachedData)
     }
-
-    console.log(Object.keys(prisma))
-
 
     const categories = await prisma.category.findMany({
       where: {
