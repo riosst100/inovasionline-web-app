@@ -1,4 +1,4 @@
-name: CI/CD Express VPS
+name: CI/CD Backend Express VPS
 
 on:
   push:
@@ -18,16 +18,20 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Deploy to VPS
+      - name: Deploy Backend Express
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ secrets.APP_PATH }} || exit 1
+            cd ${{ secrets.APP_PATH }}
 
             git pull origin master
 
             export CI=true
 
-            pnpm install --prod --frozen-lockfile
+            # INSTALL BACKEND ONLY
+            pnpm install --filter backend-express --frozen-lockfile
 
-            pm2 reload inovasionline || pm2 start index.js --name inovasionline
+            # START / RELOAD BACKEND
+            pm2 reload inovasionline || pm2 start apps/backend-express/index.js --name inovasionline
+
+            pm2 save
           EOF
