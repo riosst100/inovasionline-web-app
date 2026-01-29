@@ -1,36 +1,9 @@
 {
-  "name": "inovasionline-nuxtjs",
-  "type": "module",
+  "name": "inovasi-online",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
-    "start": "node .output/server/index.mjs",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "@iconify/vue": "^5.0.0",
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
-    "@vite-pwa/nuxt": "^1.1.0",
-    "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.3",
-    "crypto": "^1.0.1",
-    "jsonwebtoken": "^9.0.3",
-    "nuxt": "^4.2.2",
-    "pg": "^8.17.1",
-    "swiper": "^12.0.3",
-    "vue": "^3.5.26",
-    "vue-router": "^4.6.4"
-  },
-  "devDependencies": {
-    "@nuxtjs/tailwindcss": "^6.14.0",
-    "@types/pg": "^8.16.0",
-    "dotenv": "^17.2.3",
-    "prisma": "^7.2.0",
-    "tsx": "^4.21.0"
+    "dev:api": "pnpm --filter backend-express dev",
+    "dev:web": "pnpm --filter web-app dev",
+    "dev": "pnpm -r dev"
   }
 }

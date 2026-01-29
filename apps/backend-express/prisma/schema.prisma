@@ -1,0 +1,298 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =======================================
+// USER & ROLE
+// =======================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
+  name         String
+  phone        String?
+  isActive     Boolean  @default(true)
+  tokenVersion Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  vendor  Vendor?
+  partner Partner?
+  admin   Admin?
+
+  orders        Order[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model Vendor {
+  id       String  @id @default(uuid())
+  userId   String? @unique
+  name     String
+  company  String?
+  verified Boolean @default(false)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  user User? @relation(fields: [userId], references: [id])
+
+  products    Product[]          @relation("VendorProducts")
+  assignments VendorAssignment[]
+  orders      Order[]            @relation("VendorOrders")
+
+  @@index([categoryId])
+}
+
+model Partner {
+  id           String @id @default(uuid())
+  userId       String @unique
+  organization String
+  commission   Float
+
+  user User @relation(fields: [userId], references: [id])
+
+  products Product[] @relation("PartnerProducts")
+  orders   Order[]   @relation("PartnerOrders")
+}
+
+model Admin {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// =======================================
+// PRODUCT
+// =======================================
+
+enum ProductType {
+  EVENT_SERVICE // jasa event (butuh vendor assignment)
+  EVENT_TICKET // tiket konser (tanpa vendor)
+  SOUND
+  STAGE
+  LIGHTING
+  ARTIST
+  OTHER
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  name        String
+  price       Float
+  description String?
+  isActive    Boolean @default(true)
+
+  type ProductType
+
+  vendorId  String?
+  partnerId String?
+
+  vendor  Vendor?  @relation("VendorProducts", fields: [vendorId], references: [id])
+  partner Partner? @relation("PartnerProducts", fields: [partnerId], references: [id])
+
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+
+  // =========================
+  // PERFORMANCE INDEX
+  // =========================
+  @@index([vendorId, isActive])
+}
+
+// RULE (LOGIC):
+// - vendorId XOR partnerId (tidak boleh dua-duanya)
+// - EVENT_TICKET selalu partnerId
+// - EVENT_SERVICE selalu partnerId
+// - SOUND / STAGE bisa vendorId (direct booking)
+
+// =======================================
+// ORDER
+// =======================================
+
+enum OrderStatus {
+  DRAFT
+  PAID
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id        String  @id @default(uuid())
+  userId    String
+  partnerId String?
+  vendorId  String?
+
+  sellerType OrderSellerType
+
+  status OrderStatus
+  total  Float
+
+  user    User     @relation(fields: [userId], references: [id])
+  vendor  Vendor?  @relation("VendorOrders", fields: [vendorId], references: [id])
+  partner Partner? @relation("PartnerOrders", fields: [partnerId], references: [id])
+
+  items    OrderItem[]
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+
+  @@index([partnerId])
+  @@index([vendorId])
+  @@index([status])
+}
+
+enum OrderSellerType {
+  VENDOR
+  PARTNER
+}
+
+// RULE (LOGIC):
+// - partnerId XOR vendorId
+// - partnerId → order via EO
+// - vendorId  → direct vendor order
+
+// =======================================
+// ORDER ITEM
+// =======================================
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  price     Float
+  qty       Int
+
+  eventDate DateTime?
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  assignments VendorAssignment[]
+}
+
+// RULE (LOGIC):
+// - EVENT_TICKET → assignments HARUS kosong
+// - EVENT_SERVICE → assignments boleh ada
+
+// =======================================
+// VENDOR ASSIGNMENT (JOB / TASK)
+// =======================================
+
+enum VendorAssignmentSource {
+  DIRECT // order langsung ke vendor
+  PARTNER // tugas dari EO
+}
+
+enum VendorAssignmentStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model VendorAssignment {
+  id String @id @default(uuid())
+
+  orderItemId String
+  vendorId    String
+
+  source VendorAssignmentSource
+  status VendorAssignmentStatus
+
+  amount Float // nilai kerja (transaksi jika DIRECT, referensi jika PARTNER)
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  vendor    Vendor    @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([orderItemId, vendorId])
+  @@index([vendorId])
+  @@index([status])
+}
+
+// RULE (LOGIC):
+// - source = DIRECT → vendor = seller
+// - source = PARTNER → vendor = executor
+// - assignment dibuat SETELAH order masuk
+// - vendor di Product hanya default / preferensi
+
+// =======================================
+// PAYMENT
+// =======================================
+
+model Payment {
+  id      String    @id @default(uuid())
+  orderId String
+  amount  Float
+  method  String
+  paidAt  DateTime?
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String
+  slug String @unique
+
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
+  isActive Boolean @default(true)
+
+  // homepage & landing
+  showOnHomepage Boolean @default(false)
+  homepageOrder  Int?
+  icon           String?
+  description    String?
+  seoTitle       String?
+  seoDescription String?
+
+  vendors Vendor[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // =========================
+  // PERFORMANCE INDEXES
+  // =========================
+
+  // ambil root category by slug (landing page)
+  @@index([slug, parentId])
+  // ambil children category (landing page)
+  @@index([parentId, isActive])
+  // homepage categories + order
+  @@index([showOnHomepage, isActive, homepageOrder])
+}
