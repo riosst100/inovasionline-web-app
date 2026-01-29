@@ -35,7 +35,8 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
-        { name: 'theme-color', content: '#2b2b2b' },
+        { name: 'theme-color', content: '#000000' },
+        { name: 'color-scheme', content: 'dark' },
       ]
     }
   },
@@ -86,8 +87,8 @@ export default defineNuxtConfig({
       name: 'Inovasi Online',
       short_name: 'Inovasi Online',
       display: 'standalone',
-      background_color: '#2b2b2b',
-      theme_color: '#ffffff',
+      // background_color: '#2b2b2b',
+      // theme_color: '#ffffff',
       icons: [
         {
           src: '/icon/icon-192-v2.png',
