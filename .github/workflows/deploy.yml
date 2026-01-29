@@ -2,7 +2,8 @@ name: CI/CD Express VPS
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
 
 jobs:
   deploy:
@@ -21,7 +22,14 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.APP_PATH }} || exit 1
+
             git pull origin master
-            pnpm install --production
-            pm2 reload inovasionline
+
+            export CI=true
+
+            pnpm install --prod --frozen-lockfile
+
+            pm2 reload inovasionline || pm2 start index.js --name inovasionline
+
+            pm2 save
           EOF
