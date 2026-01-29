@@ -1,4 +1,4 @@
-name: CI/CD Backend Express VPS
+name: CI/CD Backend Express to VPS
 
 on:
   push:
@@ -6,27 +6,45 @@ on:
       - master
 
 jobs:
-  deploy:
+  deploy-backend:
+    name: Deploy Backend Express
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    env:
+      APP_PATH: ${{ secrets.APP_PATH }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      APP_NAME: inovasionline
 
-      - name: Setup SSH
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Deploy Backend Express
+      - name: Deploy to VPS
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-          "bash -lc '
+          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
-            cd ${{ secrets.APP_PATH }}
+
+            echo "🚀 Start deploy Backend Express"
+
+            cd "$APP_PATH"
+
+            echo "📥 Pull latest code"
             git pull origin master
+
+            echo "📦 Install dependencies"
             export CI=true
             pnpm install --filter backend-express --frozen-lockfile
-            pm2 reload inovasionline || pm2 start apps/backend-express/index.js --name inovasionline
-            exit
-          '"
+
+            echo "♻️ Restart service with PM2"
+            pm2 reload "$APP_NAME" || pm2 start apps/backend-express/index.js --name "$APP_NAME"
+
+            echo "✅ Deploy finished"
+          EOF
