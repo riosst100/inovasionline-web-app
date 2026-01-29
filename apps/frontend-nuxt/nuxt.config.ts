@@ -32,14 +32,14 @@ export default defineNuxtConfig({
       ]
     },
   },
-  app: {
-    head: {
-      meta: [
-        { name: 'theme-color', content: '#000000' },
-        { name: 'color-scheme', content: 'dark' },
-      ]
-    }
-  },
+  // app: {
+  //   head: {
+  //     meta: [
+  //       { name: 'theme-color', content: '#000000' },
+  //       { name: 'color-scheme', content: 'dark' },
+  //     ]
+  //   }
+  // },
   pwa: {
     registerType: 'autoUpdate',
     devOptions: {
