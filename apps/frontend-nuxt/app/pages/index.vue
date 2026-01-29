@@ -6,3 +6,8 @@
     <HomeBanner />
   </div>
 </template>
+<script setup>
+definePageMeta({
+  ssr: true
+})
+</script>

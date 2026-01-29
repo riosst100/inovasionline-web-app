@@ -1,56 +1,42 @@
 <template>
-  <ClientOnly>
-    <template #default>
-      <section class="px-4 mt-4">
-        <CategorySkeleton v-if="pending" />
-
-        <div v-else class="grid grid-cols-4 gap-4">
-          <NuxtLink
-            v-for="category in categories"
-            :key="category.id"
-            :to="`/kategori/${category.slug}`"
-            class="flex flex-col items-center gap-2"
-            prefetch
-          >
-            <div
-              class="w-14 h-14 rounded-full category-item flex items-center justify-center"
-            >
-              <NuxtImg
-                v-if="category.icon"
-                :src="`/categories/${category.icon}.webp`"
-                :alt="category.name"
-                class="w-7 h-7"
-                placeholder
-                format="avif,webp"
-                quality="75"
-              />
-            </div>
-
-            <span class="text-xs text-gray-700 text-center">
-              {{ category.name }}
-            </span>
-          </NuxtLink>
+  <section class="px-4 mt-4">
+    <div class="grid grid-cols-4 gap-4">
+      <NuxtLink
+        v-for="category in categories"
+        :key="category.id"
+        :to="`/kategori/${category.slug}`"
+        class="flex flex-col items-center gap-2"
+        prefetch
+      >
+        <div
+          class="w-14 h-14 rounded-full category-item flex items-center justify-center"
+        >
+          <NuxtImg
+            v-if="category.icon"
+            :src="`/categories/${category.icon}.webp`"
+            :alt="category.name"
+            class="w-7 h-7"
+            placeholder
+            format="avif,webp"
+            quality="75"
+          />
         </div>
-      </section>
-    </template>
 
-    <!-- optional fallback -->
-    <template #fallback>
-      <section class="px-4 mt-4">
-        <CategorySkeleton />
-      </section>
-    </template>
-  </ClientOnly>
+        <span class="text-xs text-gray-700 text-center">
+          {{ category.name }}
+        </span>
+      </NuxtLink>
+    </div>
+  </section>
 </template>
 
 <script setup>
 const config = useRuntimeConfig()
 
-const { data: categories, pending } = useAsyncData(
+const { data: categories, pending } = await useAsyncData(
   'categories-homepage',
   () => $fetch(`${config.public.apiBase}/homepage`),
   {
-    server: false,
     default: () => [],
   }
 )
