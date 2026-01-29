@@ -34,4 +34,6 @@ jobs:
             pm2 reload inovasionline || pm2 start apps/backend-express/index.js --name inovasionline
 
             pm2 save
+
+            exit 0
           EOF
