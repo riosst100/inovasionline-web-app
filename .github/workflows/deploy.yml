@@ -28,5 +28,5 @@ jobs:
             export CI=true
             pnpm install --filter backend-express --frozen-lockfile
             pm2 reload inovasionline || pm2 start apps/backend-express/index.js --name inovasionline
-            pm2 save
+            exit
           '"
