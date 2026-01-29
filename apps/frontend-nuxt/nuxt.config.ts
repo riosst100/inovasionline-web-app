@@ -31,24 +31,24 @@ export default defineNuxtConfig({
       ]
     },
   },
+  app: {
+    head: {
+      meta: [
+        { name: 'theme-color', content: '#2b2b2b' },
+      ]
+    }
+  },
   pwa: {
     registerType: 'autoUpdate',
     devOptions: {
       enabled: false,
     },
-
     workbox: {
       cleanupOutdatedCaches: true,
-
-      // ❌ MATIKAN precache scanning
       globPatterns: [],
-
-      // ❌ JANGAN precache navigate
       navigateFallback: undefined,
-
       runtimeCaching: [
         {
-          // HTML / navigation (SSR safe)
           urlPattern: ({ request }) => request.mode === 'navigate',
           handler: 'NetworkFirst',
           options: {
@@ -56,7 +56,6 @@ export default defineNuxtConfig({
           },
         },
         {
-          // JS / CSS
           urlPattern: ({ request }) =>
             request.destination === 'script' ||
             request.destination === 'style' ||
@@ -67,7 +66,6 @@ export default defineNuxtConfig({
           },
         },
         {
-          // Images
           urlPattern: ({ request }) => request.destination === 'image',
           handler: 'CacheFirst',
           options: {
@@ -80,7 +78,6 @@ export default defineNuxtConfig({
         },
       ],
     },
-
     manifest: {
       id: '/',
       scope: '/',
@@ -88,8 +85,8 @@ export default defineNuxtConfig({
       name: 'Inovasi Online',
       short_name: 'Inovasi Online',
       display: 'standalone',
-      background_color: '#ffffff',
-      theme_color: '#000000',
+      background_color: '#2b2b2b',
+      theme_color: '#ffffff',
       icons: [
         {
           src: '/icon/icon-192-v2.png',
