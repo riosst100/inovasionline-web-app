@@ -29,22 +29,11 @@ jobs:
 
       - name: Deploy to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << 'EOF'
+          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << EOF
             set -e
-
-            echo "🚀 Start deploy Backend Express"
-
             cd "$APP_PATH"
-
-            echo "📥 Pull latest code"
             git pull origin master
-
-            echo "📦 Install dependencies"
-            export CI=true
             pnpm install --filter backend-express --frozen-lockfile
-
-            echo "♻️ Restart service with PM2"
             pm2 reload "$APP_NAME" || pm2 start apps/backend-express/index.js --name "$APP_NAME"
-
-            echo "✅ Deploy finished"
           EOF
+
