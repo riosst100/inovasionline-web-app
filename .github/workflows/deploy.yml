@@ -30,6 +30,4 @@ jobs:
             pnpm install --prod --frozen-lockfile
 
             pm2 reload inovasionline || pm2 start index.js --name inovasionline
-
-            pm2 save
           EOF
