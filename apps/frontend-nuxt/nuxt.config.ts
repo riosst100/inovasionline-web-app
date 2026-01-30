@@ -37,6 +37,13 @@ export default defineNuxtConfig({
     head: {
       meta: [
         { name: 'theme-color', content: '#10113c' }
+      ],
+      script: [
+        {
+          src: 'https://accounts.google.com/gsi/client',
+          async: true,
+          defer: true
+        }
       ]
     }
   },
