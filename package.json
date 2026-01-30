@@ -5,5 +5,8 @@
     "dev:api": "pnpm --filter backend-express dev",
     "dev:web": "pnpm --filter web-app dev",
     "dev": "pnpm -r dev"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.6.1"
   }
 }
