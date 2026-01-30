@@ -58,13 +58,29 @@ export const useAuth = () => {
     }
     }
 
+  const loginWithGoogle = async (credential: string) => {
+    const res = await $fetch<LoginResponse>(
+      `${useRuntimeConfig().public.backendUrl}/auth/google`,
+      {
+        method: 'POST',
+        body: { credential },
+        credentials: 'include' // penting untuk cookie
+      }
+    )
+
+    accessToken.value = res.accessToken
+  }
+
+
 
   return {
-    accessToken,
-    authLoading,
-    refresh,
-    login,
-    register,
-    logout
-  }
+  accessToken,
+  authLoading,
+  refresh,
+  login,
+  register,
+  logout,
+  loginWithGoogle // ⬅️ INI
+}
+
 }

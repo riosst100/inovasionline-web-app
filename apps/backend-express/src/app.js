@@ -4,7 +4,6 @@ import passport from 'passport'
 import cors from 'cors'
 import homepageRoutes from './routes/homepage.route.js'
 import authRoutes from "./routes/auth.js"
-import "./auth/google.js"
 
 const app = express()
 

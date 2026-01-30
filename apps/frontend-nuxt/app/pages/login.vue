@@ -18,16 +18,7 @@ onMounted(() => {
     client_id: config.public.googleClientId,
     callback: async (response: any) => {
       try {
-        const res: any = await $fetch(
-          `${config.public.backendUrl}/auth/google`,
-          {
-            method: 'POST',
-            body: { credential: response.credential },
-            credentials: 'include' // ⬅️ penting
-          }
-        )
-
-        auth.setToken(res.token)
+        await auth.loginWithGoogle(response.credential)
       } catch (e) {
         console.error(e)
         error.value = 'Login Google gagal'
@@ -42,6 +33,7 @@ onMounted(() => {
     width: 280
   })
 })
+
 
 
 </script>

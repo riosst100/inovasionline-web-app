@@ -27,7 +27,9 @@ router.post("/google", async (req, res) => {
       expiresIn: "7d",
     })
 
-    res.json({ token: appToken, user })
+    res.json({
+      accessToken: appToken // ⬅️ SAMA
+    })
   } catch (err) {
     console.error(err)
     res.status(401).json({ message: "Invalid Google token" })
