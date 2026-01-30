@@ -18,7 +18,7 @@ router.get(
     })
 
     res.redirect(
-      `http://localhost:3000/login-success?token=${token}`
+      `${process.env.FRONTEND_URL}/login-success?token=${token}`
     )
   }
 )
