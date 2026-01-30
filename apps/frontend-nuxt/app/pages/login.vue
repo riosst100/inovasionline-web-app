@@ -1,9 +1,10 @@
 <script setup lang="ts">
-definePageMeta({
-  ssr: false
-})
+definePageMeta({ ssr: false })
 
 const auth = useAuth()
+const config = useRuntimeConfig()
+const error = ref('')
+const googleBtn = ref<HTMLElement | null>(null)
 
 watchEffect(() => {
   if (auth.accessToken.value) {
@@ -11,35 +12,47 @@ watchEffect(() => {
   }
 })
 
-const email = ref('')
-const password = ref('')
-const error = ref('')
+onMounted(() => {
+  // @ts-ignore
+  google.accounts.id.initialize({
+    client_id: config.public.googleClientId,
+    callback: async (response: any) => {
+      try {
+        const res: any = await $fetch(
+          `${config.public.backendUrl}/auth/google`,
+          {
+            method: 'POST',
+            body: { credential: response.credential },
+            credentials: 'include' // ⬅️ penting
+          }
+        )
 
-const submit = async () => {
-  try {
-    await auth.login(email.value, password.value)
-  } catch {
-    error.value = 'Login gagal'
-  }
-}
+        auth.setToken(res.token)
+      } catch (e) {
+        console.error(e)
+        error.value = 'Login Google gagal'
+      }
+    }
+  })
 
-const config = useRuntimeConfig()
+  // @ts-ignore
+  google.accounts.id.renderButton(googleBtn.value, {
+    theme: 'outline',
+    size: 'large',
+    width: 280
+  })
+})
 
-const loginGoogle = () => {
-  window.location.href = `${config.public.backendUrl}/auth/google`
-}
+
 </script>
 
 <template>
-  <form @submit.prevent="submit">
+  <div>
     <h1>Login</h1>
-    <!-- <input v-model="email" placeholder="Email" />
-    <input v-model="password" type="password" />
-    <button>Login</button> -->
-    <!-- <p v-if="error">{{ error }}</p> -->
 
-    <button @click="loginGoogle">
-      Login dengan Google
-    </button>
-  </form>
+    <!-- HARUS div kosong -->
+    <div ref="googleBtn"></div>
+
+    <p v-if="error" style="color:red">{{ error }}</p>
+  </div>
 </template>

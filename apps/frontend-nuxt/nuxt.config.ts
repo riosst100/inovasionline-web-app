@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL,
     jwtSecret: process.env.JWT_SECRET,
     public: {
+      googleClientId: process.env.GOOGLE_CLIENT_ID,
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
       backendUrl: process.env.BACKEND_URL
     }
