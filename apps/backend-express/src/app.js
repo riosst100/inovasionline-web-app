@@ -4,6 +4,7 @@ import passport from 'passport'
 import cors from 'cors'
 import homepageRoutes from './routes/homepage.route.js'
 import authRoutes from "./routes/auth.js"
+import cookieParser from "cookie-parser"
 
 const app = express()
 
@@ -17,6 +18,7 @@ app.use(cors({
 }))
 
 app.use(express.json())
+app.use(cookieParser())
 app.use(compression())
 app.use(passport.initialize())
 

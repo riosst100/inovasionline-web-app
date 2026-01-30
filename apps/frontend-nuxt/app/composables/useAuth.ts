@@ -3,84 +3,48 @@ type LoginResponse = {
 }
 
 export const useAuth = () => {
-  // access token (null = not logged in)
   const accessToken = useState<string | null>('accessToken', () => null)
-
-  // global loading flag (SATU-SATUNYA)
   const authLoading = useState<boolean>('authLoading', () => true)
 
-  /**
-   * Silent refresh (dipanggil sekali di app.vue)
-   */
-  const refresh = async () => {
-    try {
-      const res = await $fetch<LoginResponse>('/api/auth/refresh', {
-        method: 'POST'
-      })
-      accessToken.value = res.accessToken
-    } catch {
-      accessToken.value = null
-    }
+  // ✅ ambil API saat runtime, bukan di top-level
+  const getAPI = () => {
+    const config = useRuntimeConfig()
+    return config.public.backendUrl
   }
 
-  const login = async (email: string, password: string) => {
-    const res = await $fetch<LoginResponse>('/api/auth/login', {
+  const refresh = async () => {
+    const API = getAPI()
+    const res = await $fetch<LoginResponse>(`${API}/auth/refresh`, {
       method: 'POST',
-      body: { email, password }
+      credentials: 'include'
     })
     accessToken.value = res.accessToken
   }
-
-  const register = async (name: string, email: string, password: string) => {
-    await $fetch('/api/auth/register', {
-      method: 'POST',
-      body: { name, email, password }
-    })
-  }
-
-  /**
-   * ✅ LOGOUT (DITAMBAH, FLOW TIDAK DIUBAH)
-   */
-  const logout = async (redirect = true) => {
-    try {
-        await $fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include', // 🔥 WAJIB
-        })
-    } catch {
-        // abaikan error
-    }
-
-    accessToken.value = null
-
-    if (redirect) {
-        navigateTo('/')
-    }
-    }
 
   const loginWithGoogle = async (credential: string) => {
-    const res = await $fetch<LoginResponse>(
-      `${useRuntimeConfig().public.backendUrl}/auth/google`,
-      {
-        method: 'POST',
-        body: { credential },
-        credentials: 'include' // penting untuk cookie
-      }
-    )
-
+    const API = getAPI()
+    const res = await $fetch<LoginResponse>(`${API}/auth/google`, {
+      method: 'POST',
+      body: { credential },
+      credentials: 'include'
+    })
     accessToken.value = res.accessToken
   }
 
-
+  const logout = async () => {
+    const API = getAPI()
+    await $fetch(`${API}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+    accessToken.value = null
+  }
 
   return {
-  accessToken,
-  authLoading,
-  refresh,
-  login,
-  register,
-  logout,
-  loginWithGoogle // ⬅️ INI
-}
-
+    accessToken,
+    authLoading,
+    refresh,
+    loginWithGoogle,
+    logout
+  }
 }

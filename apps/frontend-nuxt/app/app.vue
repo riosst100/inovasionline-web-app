@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-
 const auth = useAuth()
 
 const booting = useState('app-booting', () => true)
@@ -10,10 +8,9 @@ onMounted(async () => {
   if (!booting.value) return
 
   try {
-    if (!auth.accessToken.value) {
-      await auth.refresh()
-    }
+    await auth.refresh()
   } finally {
+    auth.authLoading.value = false // 🔥 PENTING
     booting.value = false
   }
 })
