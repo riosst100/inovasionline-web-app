@@ -5,6 +5,7 @@ import cors from 'cors'
 import homepageRoutes from './routes/homepage.route.js'
 import authRoutes from "./routes/auth.js"
 import cookieParser from "cookie-parser"
+import categoriesRoute from './routes/categories.js'
 
 const app = express()
 
@@ -23,7 +24,8 @@ app.use(compression())
 app.use(passport.initialize())
 
 app.use('/api', homepageRoutes)
-app.use("/auth", authRoutes)
+app.use('/auth', authRoutes)
+app.use('/api/categories', categoriesRoute)
 app.get('/health', (_, res) => res.send('OK'))
 
 export default app

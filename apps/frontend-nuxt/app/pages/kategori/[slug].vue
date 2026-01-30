@@ -1,11 +1,15 @@
 <script setup lang="ts">
 const route = useRoute()
+const config = useRuntimeConfig()
 
 const { data, pending, error } = await useAsyncData(
   `category-${route.params.slug}`,
-  () => $fetch(`/api/categories/${route.params.slug}`),
+  () =>
+    $fetch(
+      `${config.public.apiBase}/categories/${route.params.slug}`
+    ),
   {
-    server: false,
+    server: true, // karena Express terpisah
     lazy: false,
     default: () => null,
   }
