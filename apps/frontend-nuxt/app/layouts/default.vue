@@ -4,15 +4,15 @@
   import { SpeedInsights } from '@vercel/speed-insights/vue';
   import { Analytics } from '@vercel/analytics/nuxt'
 
-  useHead({
-    script: [
-      {
-        src: 'https://accounts.google.com/gsi/client',
-        async: true,
-        defer: true
-      }
-    ]
-  })
+  // useHead({
+  //   script: [
+  //     {
+  //       src: 'https://accounts.google.com/gsi/client',
+  //       async: true,
+  //       defer: true
+  //     }
+  //   ]
+  // })
 </script>
 
 <template>

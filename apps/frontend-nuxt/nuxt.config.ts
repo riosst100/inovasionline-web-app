@@ -13,7 +13,8 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL,
     jwtSecret: process.env.JWT_SECRET,
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api'
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
+      backendUrl: process.env.BACKEND_URL
     }
   },
   nitro: {

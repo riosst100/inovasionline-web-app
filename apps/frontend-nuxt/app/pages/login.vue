@@ -23,14 +23,11 @@ const submit = async () => {
   }
 }
 
-onMounted(() => {
-  window.handleCredential = async (response: any) => {
-    await $fetch('/api/auth/google', {
-      method: 'POST',
-      body: { credential: response.credential }
-    })
-  }
-})
+const config = useRuntimeConfig()
+
+const loginGoogle = () => {
+  window.location.href = `${config.public.backendUrl}/auth/google`
+}
 </script>
 
 <template>
@@ -40,12 +37,9 @@ onMounted(() => {
     <input v-model="password" type="password" />
     <button>Login</button>
     <p v-if="error">{{ error }}</p>
-    <div
-      id="g_id_onload"
-      data-client_id="418700195085-onl0on3kj8g5f3gk3f2mq888b2c0b0mm.apps.googleusercontent.com"
-      data-callback="handleCredential"
-    ></div>
 
-    <div class="g_id_signin"></div>
+    <button @click="loginGoogle">
+      Login dengan Google
+    </button>
   </form>
 </template>
