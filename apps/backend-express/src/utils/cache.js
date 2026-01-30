@@ -17,11 +17,20 @@ export async function setCache(key, ttl, data) {
 
 export async function getOrSetCache(key, ttl, fetcher) {
   const cached = await getCache(key)
-  if (cached) return cached
+  if (cached) {
+    return {
+      data: cached,
+      cache: 'HIT',
+    }
+  }
 
   const freshData = await fetcher()
   await setCache(key, ttl, freshData)
-  return freshData
+
+  return {
+    data: freshData,
+    cache: 'MISS',
+  }
 }
 
 export async function invalidateCache(key) {

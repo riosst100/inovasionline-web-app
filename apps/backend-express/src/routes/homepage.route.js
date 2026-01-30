@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.get('/homepage', async (req, res, next) => {
   try {
-    const categories = await getOrSetCache(
+    const { data: categories, cache } = await getOrSetCache(
       'homepage-categories',
       600,
       () =>
@@ -28,6 +28,7 @@ router.get('/homepage', async (req, res, next) => {
         })
     )
 
+    res.setHeader('X-Cache', cache)
     res.setHeader('Cache-Control', 'public, max-age=600')
     res.json(categories)
   } catch (err) {
