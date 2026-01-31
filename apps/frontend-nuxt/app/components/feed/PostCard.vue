@@ -99,7 +99,6 @@
     />
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { Icon } from '@iconify/vue'
@@ -115,6 +114,7 @@ const videoRef = ref(null)
 const videoMuted = ref(true)
 const videoPaused = ref(true)
 const isUserInteracting = ref(false)
+const hasAutoPlayed = ref(false) // ⭐ FLAG PENTING
 
 let observer = null
 let clickTimer = null
@@ -135,12 +135,16 @@ const setupObserver = async () => {
       if (!video) return
 
       if (entry.isIntersecting) {
+        // 🚫 JANGAN AUTOPLAY LAGI
+        if (hasAutoPlayed.value) return
+
         try {
           await video.play()
           videoPaused.value = false
+          hasAutoPlayed.value = true // ✅ tandai sudah autoplay
         } catch {}
       } else {
-        // ✅ AUTO PAUSE + AUTO MUTE
+        // AUTO PAUSE SAAT KELUAR VIEWPORT
         video.pause()
         video.muted = true
         videoMuted.value = true
@@ -190,7 +194,7 @@ const handleTap = () => {
 }
 
 // -----------------------
-// PLAY / PAUSE
+// PLAY / PAUSE (MANUAL)
 // -----------------------
 const togglePlay = () => {
   const video = videoRef.value
@@ -226,12 +230,10 @@ const openFullscreen = async () => {
   isUserInteracting.value = true
 
   if (observer) {
-    observer.unobserve(video)
     observer.disconnect()
     observer = null
   }
 
-  // fullscreen selalu unmute
   video.muted = false
   videoMuted.value = false
 
