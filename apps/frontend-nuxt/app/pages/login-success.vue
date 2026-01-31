@@ -5,18 +5,19 @@ const auth = useAuth()
 
 onMounted(async () => {
   try {
-    // 🔑 ambil access token dari refresh cookie
-    await auth.refresh()
+    // kalau sudah punya token → jangan anggap login baru
+    if (!auth.accessToken.value) {
+      await auth.refresh()
+      sessionStorage.setItem('justLoggedIn', 'true') // 🔥 login baru
+    }
 
-    // login sukses
-    navigateTo("/", { replace: true })
+    navigateTo('/', { replace: true })
   } catch (err) {
-    // refresh gagal → balik ke login
-    navigateTo("/login", { replace: true })
+    navigateTo('/login', { replace: true })
   }
 })
 </script>
 
 <template>
-  <p>Logging you in...</p>
+  <p class="text-sm text-gray-500">Logging you in...</p>
 </template>

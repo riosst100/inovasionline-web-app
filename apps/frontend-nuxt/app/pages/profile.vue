@@ -1,15 +1,30 @@
 <script setup lang="ts">
+import MenuGrid from '@/components/profile/MenuGrid.vue'
+
 const auth = useAuth()
 
+/**
+ * 🔐 Guard halaman (wajib login)
+ */
 watchEffect(() => {
-  // ⏳ tunggu auth siap
   if (auth.authLoading.value) return
 
-  // ❌ belum login
   if (!auth.accessToken.value) {
     navigateTo('/login', { replace: true })
   }
 })
+
+/**
+ * 🚪 Logout
+ */
+const handleLogout = async () => {
+  try {
+    await auth.logout()
+    navigateTo('/login', { replace: true })
+  } catch (err) {
+    console.error('Logout gagal', err)
+  }
+}
 
 const orders = [
   { label: 'Belum Bayar', icon: '💳' },
@@ -31,29 +46,24 @@ const finance = [
   { label: 'SeaBank', value: 'Gratis Transfer' },
   { label: 'Asuransi', value: 'Rp1JT' },
 ]
-
-import MenuGrid from '@/components/profile/MenuGrid.vue'
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100 pb-20">
     <ProfileHeader />
 
-    <MenuGrid
-      title="Pesanan Saya"
-      :items="orders"
-    />
+    <!-- 🔴 LOGOUT BUTTON -->
+    <div class="px-4 mt-3">
+      <button
+        @click="handleLogout"
+        class="w-full rounded-xl bg-red-500 py-2 text-white font-semibold"
+      >
+        Logout
+      </button>
+    </div>
 
-    <MenuGrid
-      title="Dompet Saya"
-      :items="wallet"
-    />
-
-    <MenuGrid
-      title="Keuangan"
-      :items="finance"
-    />
-
-    <!-- <BottomNav /> -->
+    <MenuGrid title="Pesanan Saya" :items="orders" />
+    <MenuGrid title="Dompet Saya" :items="wallet" />
+    <MenuGrid title="Keuangan" :items="finance" />
   </div>
 </template>

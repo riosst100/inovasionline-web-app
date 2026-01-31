@@ -1,24 +1,42 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-const showWelcome = ref(true)
+const showWelcome = ref(false)
+const welcomeText = ref('')
+const subtitleText = ref('')
 
 onMounted(() => {
-  // cek apakah user sudah menutup welcome message
-  const hidden = localStorage.getItem('hideWelcomeMessage')
-  if (hidden === 'true') {
-    showWelcome.value = false
+  // 1. hanya muncul saat login sukses
+  const justLoggedIn = sessionStorage.getItem('justLoggedIn')
+  if (justLoggedIn !== 'true') return
+
+  // 2. cek login count
+  const loginCount = Number(localStorage.getItem('loginCount') || '0') + 1
+  localStorage.setItem('loginCount', loginCount.toString())
+
+  if (loginCount === 1) {
+    welcomeText.value = 'Welcome!'
+    subtitleText.value =
+      'Kami senang kamu bergabung bersama kami. Saatnya mulai berjualan atau memesan dengan mudah.'
+  } else {
+    welcomeText.value = 'Selamat datang kembali!'
+    subtitleText.value =
+      'Senang melihatmu kembali. Yuk lanjutkan aktivitasmu hari ini.'
   }
+
+  showWelcome.value = true
+
+  // 3. hapus flag login supaya cuma sekali per login
+  sessionStorage.removeItem('justLoggedIn')
 })
 
 const closeWelcome = () => {
   showWelcome.value = false
-  localStorage.setItem('hideWelcomeMessage', 'true')
 }
 </script>
 
 <template>
-  <section class="px-4 pt-[15px]" v-if="showWelcome">
+  <section v-if="showWelcome" class="px-4 pt-[15px]">
     <div
       class="relative bg-gradient-to-r from-emerald-50 to-white
              border border-emerald-100
@@ -27,8 +45,7 @@ const closeWelcome = () => {
       <!-- Close Button -->
       <button
         @click="closeWelcome"
-        style="right:20px"
-        class="absolute top-3
+        class="absolute top-3 right-4
                text-gray-400 hover:text-gray-600
                transition"
         aria-label="Close"
@@ -37,10 +54,7 @@ const closeWelcome = () => {
       </button>
 
       <div class="flex items-start gap-4">
-        <div
-          class="bg-emerald-500/10 text-emerald-600
-                 rounded-full p-3 shrink-0"
-        >
+        <div class="bg-emerald-500/10 rounded-full p-3 shrink-0">
           <NuxtImg
             src="/icon/party-card.png"
             class="w-10 h-10"
@@ -52,11 +66,10 @@ const closeWelcome = () => {
 
         <div>
           <h2 class="text-sm font-semibold text-gray-800">
-            Welcome, Rio Susanto!
+            {{ welcomeText }}
           </h2>
           <p class="text-sm text-gray-600 mt-1 leading-relaxed">
-            Kami senang kamu bergabung bersama kami.
-            Saatnya mulai berjualan atau memesan apa pun dengan mudah dan nyaman.
+            {{ subtitleText }}
           </p>
         </div>
       </div>
