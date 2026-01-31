@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-around text-sm text-gray-600 border-t pt-3 mt-3">
+  <div class="flex justify-around text-sm text-gray-600 border-t mt-3" style="justify-content: space-between;padding: 10px 30px;">
     <button
       class="flex items-center gap-1 hover:text-blue-500"
       @click="likes++"
