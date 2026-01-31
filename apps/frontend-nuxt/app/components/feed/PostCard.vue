@@ -20,17 +20,37 @@
     />
 
     <!-- Video -->
-    <video
-  ref="videoRef"
-  muted
-  loop
-  playsinline
-  preload="metadata"
-  class="mt-3 rounded-lg w-full cursor-pointer"
-  @click="handleClick"
+    <div
+  class="relative"
+  @mouseenter="showHint = true"
+  @mouseleave="showHint = false"
+  @touchstart.passive="showHint = true"
 >
-  <source :src="post.video" type="video/mp4" />
-</video>
+  <video
+    ref="videoRef"
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    class="rounded-lg w-full cursor-pointer"
+    @click="handleClick"
+  >
+    <source :src="post.video" type="video/mp4" />
+  </video>
+
+  <!-- Overlay hint -->
+  <div
+    v-if="showHint"
+    class="absolute inset-0 flex items-center justify-center
+           bg-black/30 text-white text-sm
+           pointer-events-none transition-opacity"
+  >
+    ▶ Tap untuk fullscreen
+  </div>
+
+
+</div>
+
 
 
 
@@ -62,6 +82,9 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 const videoRef = ref(null)
 let observer = null
 const isUserInteracting = ref(false)
+
+const showHint = ref(false)
+
 
 onMounted(async () => {
   await nextTick()
@@ -99,6 +122,7 @@ const handleClick = async () => {
   if (!video) return
 
   isUserInteracting.value = true
+  showHint.value = false
 
   // matikan observer biar ga pause lagi
   if (observer) {
