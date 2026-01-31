@@ -58,7 +58,7 @@ const finance = [
         @click="handleLogout"
         class="w-full rounded-xl bg-red-500 py-2 text-white font-semibold"
       >
-        Logout
+        Keluar
       </button>
     </div>
 
