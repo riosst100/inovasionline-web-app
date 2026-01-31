@@ -6,15 +6,26 @@ import { signAccessToken, signRefreshToken } from "../utils/jwt.js"
 const router = express.Router()
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
-router.post("/logout", (req, res) => {
-  res.clearCookie("refreshToken", {
-    path: "/auth/refresh"
-  })
+const isProd = process.env.NODE_ENV === "production"
 
-  res.sendStatus(204)
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProd,        // WAJIB true di TWA (HTTPS)
+  sameSite: "none",      // WAJIB untuk TWA
+  path: "/"
+}
+
+/**
+ * LOGOUT
+ */
+router.post("/logout", (req, res) => {
+  res.clearCookie("refreshToken", cookieOptions)
+  return res.sendStatus(204)
 })
 
-
+/**
+ * REFRESH ACCESS TOKEN
+ */
 router.post("/refresh", (req, res) => {
   const refreshToken = req.cookies.refreshToken
 
@@ -30,25 +41,27 @@ router.post("/refresh", (req, res) => {
 
     const user = {
       id: decoded.id
-      // fetch user dari DB kalau perlu
     }
 
+    // FLOW TETAP: cuma generate access token baru
     const accessToken = signAccessToken(user)
 
-    res.json({ accessToken })
+    return res.json({ accessToken })
   } catch {
-    res.status(401).json({ message: "Invalid refresh token" })
+    return res.status(401).json({ message: "Invalid refresh token" })
   }
 })
 
-
+/**
+ * GOOGLE LOGIN
+ */
 router.post("/google", async (req, res) => {
   const { credential } = req.body
 
   try {
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: process.env.GOOGLE_CLIENT_ID
     })
 
     const payload = ticket.getPayload()
@@ -56,23 +69,18 @@ router.post("/google", async (req, res) => {
     const user = {
       id: payload.sub,
       email: payload.email,
-      name: payload.name,
+      name: payload.name
     }
 
     const accessToken = signAccessToken(user)
     const refreshToken = signRefreshToken({ id: user.id })
 
-    // 🍪 simpan refresh token
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: false, // true di production (https)
-      sameSite: "lax",
-      path: "/auth/refresh"
-    })
+    // SIMPAN REFRESH TOKEN DI COOKIE (TWA SAFE)
+    res.cookie("refreshToken", refreshToken, cookieOptions)
 
-    res.json({ accessToken })
-  } catch {
-    res.status(401).json({ message: "Invalid Google token" })
+    return res.json({ accessToken })
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid Google token" })
   }
 })
 
