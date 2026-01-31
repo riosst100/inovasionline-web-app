@@ -23,12 +23,8 @@
     />
 
     <!-- Video -->
-    <div
-      v-if="post.video"
-      class="relative"
-      @mouseenter="showHintTemporarily()"
-      @touchstart.passive="showHintTemporarily()"
-    >
+    <div v-if="post.video" class="relative">
+      <!-- VIDEO -->
       <video
         ref="videoRef"
         muted
@@ -41,15 +37,35 @@
         <source :src="post.video" type="video/mp4" />
       </video>
 
-      <!-- Overlay hint -->
+      <!-- PLAY OVERLAY (PAUSE STATE) -->
       <div
-        v-if="showHint"
+        v-if="videoPaused"
         class="absolute inset-0 flex items-center justify-center
-               bg-black/30 text-white text-sm
-               pointer-events-none transition-opacity"
+               bg-black/30 text-white text-6xl
+               pointer-events-none"
       >
-        • 1 tap: mute • 2 tap: fullscreen
+        ▶️
       </div>
+
+      <!-- FULLSCREEN BUTTON (TOP LEFT) -->
+      <button
+        class="absolute top-2 left-2 bg-black/60 text-white
+               w-8 h-8 rounded-full flex items-center justify-center
+               text-xs"
+        @click.stop="openFullscreen"
+      >
+        ⛶
+      </button>
+
+      <!-- MUTE BUTTON (BOTTOM RIGHT) -->
+      <button
+        class="absolute bottom-2 right-2 bg-black/60 text-white
+               w-8 h-8 rounded-full flex items-center justify-center
+               text-xs"
+        @click.stop="toggleMute"
+      >
+        {{ videoMuted ? '🔇' : '🔊' }}
+      </button>
     </div>
 
     <!-- Actions -->
@@ -77,26 +93,16 @@ defineProps({ post: Object })
 // STATE
 // -----------------------
 const videoRef = ref(null)
-const showHint = ref(false)
+const videoMuted = ref(true)
+const videoPaused = ref(true)
 const isUserInteracting = ref(false)
+
 let observer = null
-let hintTimer = null
-
-// click detection
 let clickTimer = null
-const CLICK_DELAY = 250 // ms (ideal for mobile)
+const CLICK_DELAY = 250
 
 // -----------------------
-// HINT
-// -----------------------
-const showHintTemporarily = (duration = 2000) => {
-  showHint.value = true
-  if (hintTimer) clearTimeout(hintTimer)
-  hintTimer = setTimeout(() => (showHint.value = false), duration)
-}
-
-// -----------------------
-// OBSERVER
+// INTERSECTION OBSERVER
 // -----------------------
 const setupObserver = async () => {
   await nextTick()
@@ -105,13 +111,21 @@ const setupObserver = async () => {
   observer = new IntersectionObserver(
     async ([entry]) => {
       if (isUserInteracting.value) return
+
       if (entry.isIntersecting) {
-        try { await videoRef.value.play() } catch {}
+        try {
+          await videoRef.value.play()
+          videoPaused.value = false
+        } catch {}
       } else {
         videoRef.value.pause()
+        videoPaused.value = true
       }
     },
-    { threshold: 0.5, rootMargin: '0px 0px -20% 0px' }
+    {
+      threshold: 0.5,
+      rootMargin: '0px 0px -20% 0px',
+    }
   )
 
   observer.observe(videoRef.value)
@@ -130,7 +144,6 @@ onBeforeUnmount(() => {
     observer.unobserve(videoRef.value)
     observer.disconnect()
   }
-  if (hintTimer) clearTimeout(hintTimer)
   if (clickTimer) clearTimeout(clickTimer)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
@@ -140,39 +153,54 @@ onBeforeUnmount(() => {
 // -----------------------
 const handleTap = () => {
   if (clickTimer) {
-    // 🔥 DOUBLE TAP
+    // DOUBLE TAP → FULLSCREEN
     clearTimeout(clickTimer)
     clickTimer = null
     openFullscreen()
   } else {
-    // ⏱ WAIT FOR DOUBLE TAP
+    // SINGLE TAP → PLAY / PAUSE
     clickTimer = setTimeout(() => {
-      toggleMute()
+      togglePlay()
       clickTimer = null
     }, CLICK_DELAY)
   }
 }
 
 // -----------------------
-// SINGLE TAP = MUTE
+// PLAY / PAUSE
+// -----------------------
+const togglePlay = () => {
+  const video = videoRef.value
+  if (!video) return
+
+  if (video.paused) {
+    video.play()
+    videoPaused.value = false
+  } else {
+    video.pause()
+    videoPaused.value = true
+  }
+}
+
+// -----------------------
+// MUTE
 // -----------------------
 const toggleMute = () => {
   const video = videoRef.value
   if (!video) return
 
   video.muted = !video.muted
+  videoMuted.value = video.muted
 }
 
 // -----------------------
-// DOUBLE TAP = FULLSCREEN
+// FULLSCREEN
 // -----------------------
 const openFullscreen = async () => {
   const video = videoRef.value
   if (!video) return
 
   isUserInteracting.value = true
-  showHint.value = false
-  if (hintTimer) clearTimeout(hintTimer)
 
   if (observer) {
     observer.unobserve(video)
@@ -180,7 +208,6 @@ const openFullscreen = async () => {
     observer = null
   }
 
-  video.muted = false
   try { await video.play() } catch {}
 
   if (video.requestFullscreen) {
