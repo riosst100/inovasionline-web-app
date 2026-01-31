@@ -1,10 +1,10 @@
 <template>
   <div
-    class="bg-white p-4"
+    class="bg-white"
     style="margin: 5px 0;"
   >
     <!-- Header -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 p-4">
       <img :src="post.avatar" class="w-10 h-10 rounded-full" />
       <div>
         <p class="font-semibold text-sm">{{ post.user }}</p>
@@ -13,13 +13,13 @@
     </div>
 
     <!-- Content -->
-    <p class="mt-3 text-sm">{{ post.content }}</p>
+    <p class="mb-3 text-sm px-4">{{ post.content }}</p>
 
     <!-- Image -->
     <img
       v-if="post.image"
       :src="post.image"
-      class="mt-3 rounded-lg w-full"
+      class="mt-3 w-full"
     />
 
     <!-- Video -->
@@ -31,7 +31,7 @@
         loop
         playsinline
         preload="metadata"
-        class="rounded-lg w-full cursor-pointer"
+        class="w-full cursor-pointer"
         @click="handleTap"
       >
         <source :src="post.video" type="video/mp4" />
@@ -40,7 +40,7 @@
       <!-- PLAY OVERLAY (PAUSE STATE) -->
 <div
   v-if="videoPaused"
-  class="absolute inset-0 rounded-lg
+  class="absolute inset-0
          bg-black/30
          flex items-center justify-center
          pointer-events-none"
