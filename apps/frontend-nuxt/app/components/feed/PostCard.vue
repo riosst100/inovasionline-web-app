@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white"
+    class="bg-white pb-4"
     style="margin: 5px 0;"
   >
     <!-- Header -->
