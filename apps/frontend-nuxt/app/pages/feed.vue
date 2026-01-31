@@ -47,7 +47,7 @@ const posts = ref([
     user: 'Video Creator',
     avatar: 'https://via.placeholder.com/40',
     content: 'Cek video terbaru ini 🎥',
-    video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    video: 'https://res.cloudinary.com/dbbaahmxq/video/upload/v1769864402/Download_hfyps1.mp4',
     likes: 50,
     shares: 10,
     comments: [
