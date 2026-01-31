@@ -1,31 +1,26 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 
-const auth = useAuth()
 const config = useRuntimeConfig()
 const error = ref('')
 const googleBtn = ref<HTMLElement | null>(null)
 
-watchEffect(() => {
-  if (auth.accessToken.value) {
-    navigateTo('/', { replace: true })
-  }
-})
-
+/**
+ * Google REDIRECT login
+ */
 onMounted(() => {
   // @ts-ignore
   google.accounts.id.initialize({
     client_id: config.public.googleClientId,
-    callback: async (response: any) => {
-      try {
-        await auth.loginWithGoogle(response.credential)
-      } catch (e) {
-        console.error(e)
-        error.value = 'Login Google gagal'
-      }
-    }
+
+    // 🔑 PINDAH KE REDIRECT MODE
+    ux_mode: 'redirect',
+
+    // 🔑 GOOGLE AKAN REDIRECT KE URL INI
+    login_uri: `${window.location.origin}/login/google`
   })
 
+  // Tombol tetap sama
   // @ts-ignore
   google.accounts.id.renderButton(googleBtn.value, {
     theme: 'outline',
@@ -33,16 +28,13 @@ onMounted(() => {
     width: 280
   })
 })
-
-
-
 </script>
 
 <template>
   <div>
     <h1>Login</h1>
 
-    <!-- HARUS div kosong -->
+    <!-- container WAJIB kosong -->
     <div ref="googleBtn"></div>
 
     <p v-if="error" style="color:red">{{ error }}</p>
