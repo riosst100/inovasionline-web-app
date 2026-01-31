@@ -37,17 +37,27 @@
         <source :src="post.video" type="video/mp4" />
       </video>
 
-      <!-- PLAY OVERLAY (PAUSE STATE ONLY) -->
-      <div
-        v-if="videoPaused"
-        class="absolute inset-0 flex items-center justify-center
-               bg-black/30 text-white pointer-events-none"
-      >
-        <Icon
-          icon="ph:play-circle-light"
-          class="w-20 h-20"
-        />
-      </div>
+      <!-- PLAY OVERLAY (PAUSE STATE) -->
+<div
+  v-if="videoPaused"
+  class="absolute inset-0 rounded-lg
+         bg-black/30
+         flex items-center justify-center
+         pointer-events-none"
+>
+  <!-- PLAY BUTTON -->
+  <div
+    class="bg-black/40 rounded-full
+           w-16 h-16
+           flex items-center justify-center"
+  >
+    <Icon
+      icon="ph:play-fill"
+      class="w-8 h-8 text-white"
+    />
+  </div>
+</div>
+
 
       <!-- FULLSCREEN BUTTON (TOP LEFT) -->
       <button
@@ -55,7 +65,10 @@
                w-8 h-8 rounded-full flex items-center justify-center"
         @click.stop="openFullscreen"
       >
-        ⛶
+        <Icon
+          icon="mingcute:fullscreen-line"
+          class="w-4 h-4"
+        />
       </button>
 
       <!-- MUTE BUTTON (BOTTOM RIGHT) -->
@@ -64,7 +77,12 @@
                w-8 h-8 rounded-full flex items-center justify-center"
         @click.stop="toggleMute"
       >
-        {{ videoMuted ? '🔇' : '🔊' }}
+        <Icon
+          :icon="videoMuted
+            ? 'mingcute:volume-mute-fill'
+            : 'mingcute:volume-fill'"
+          class="w-4 h-4"
+        />
       </button>
     </div>
 
@@ -124,8 +142,8 @@ const setupObserver = async () => {
       } else {
         // ✅ AUTO PAUSE + AUTO MUTE
         video.pause()
-        // video.muted = true
-        // videoMuted.value = true
+        video.muted = true
+        videoMuted.value = true
         videoPaused.value = true
       }
     },
@@ -160,12 +178,10 @@ onBeforeUnmount(() => {
 // -----------------------
 const handleTap = () => {
   if (clickTimer) {
-    // DOUBLE TAP → FULLSCREEN
     clearTimeout(clickTimer)
     clickTimer = null
     openFullscreen()
   } else {
-    // SINGLE TAP → PLAY / PAUSE
     clickTimer = setTimeout(() => {
       togglePlay()
       clickTimer = null
@@ -215,7 +231,7 @@ const openFullscreen = async () => {
     observer = null
   }
 
-  // ✅ fullscreen always audible
+  // fullscreen selalu unmute
   video.muted = false
   videoMuted.value = false
 
