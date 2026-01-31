@@ -1,17 +1,22 @@
 <script setup>
-import { onMounted } from "vue"
+definePageMeta({ ssr: false })
 
-const route = useRoute()
+const auth = useAuth()
 
-onMounted(() => {
-  const token = route.query.token
+onMounted(async () => {
+  try {
+    // 🔑 ambil access token dari refresh cookie
+    await auth.refresh()
 
-  if (token) {
-    localStorage.setItem("token", token)
-    navigateTo("/")
+    // login sukses
+    navigateTo("/", { replace: true })
+  } catch (err) {
+    // refresh gagal → balik ke login
+    navigateTo("/login", { replace: true })
   }
 })
 </script>
+
 <template>
   <p>Logging you in...</p>
 </template>

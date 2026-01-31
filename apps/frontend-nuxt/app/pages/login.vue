@@ -2,25 +2,17 @@
 definePageMeta({ ssr: false })
 
 const config = useRuntimeConfig()
-const error = ref('')
 const googleBtn = ref<HTMLElement | null>(null)
+const error = ref('')
 
-/**
- * Google REDIRECT login
- */
 onMounted(() => {
   // @ts-ignore
   google.accounts.id.initialize({
     client_id: config.public.googleClientId,
-
-    // 🔑 PINDAH KE REDIRECT MODE
     ux_mode: 'redirect',
-
-    // 🔑 GOOGLE AKAN REDIRECT KE URL INI
-    login_uri: `${window.location.origin}/login/google`
+    login_uri: `${config.public.backendUrl}/auth/google/callback`
   })
 
-  // Tombol tetap sama
   // @ts-ignore
   google.accounts.id.renderButton(googleBtn.value, {
     theme: 'outline',
@@ -32,11 +24,14 @@ onMounted(() => {
 
 <template>
   <div>
-    <h1>Login</h1>
+    <!-- LOGIN UI cuma muncul di /login -->
+    <div v-if="$route.path === '/login'">
+      <h1>Login</h1>
+      <div ref="googleBtn"></div>
+      <p v-if="error" style="color:red">{{ error }}</p>
+    </div>
 
-    <!-- container WAJIB kosong -->
-    <div ref="googleBtn"></div>
-
-    <p v-if="error" style="color:red">{{ error }}</p>
+    <!-- 🔑 WAJIB: TEMPAT RENDER CHILD ROUTE -->
+    <NuxtPage />
   </div>
 </template>

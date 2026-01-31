@@ -22,6 +22,8 @@ export const useAuth = () => {
   }
 
   const loginWithGoogle = async (credential: string) => {
+    console.log('loginWithGoogle')
+    console.log('credential',credential)
     const API = getAPI()
     const res = await $fetch<LoginResponse>(`${API}/auth/google`, {
       method: 'POST',

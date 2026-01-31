@@ -15,7 +15,8 @@ export default defineNuxtConfig({
     public: {
       googleClientId: process.env.GOOGLE_CLIENT_ID,
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
-      backendUrl: process.env.BACKEND_URL
+      backendUrl: process.env.BACKEND_URL,
+      appUrl: process.env.APP_URL,
     }
   },
   nitro: {

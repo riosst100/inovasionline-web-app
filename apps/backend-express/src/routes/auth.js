@@ -6,13 +6,16 @@ import { signAccessToken, signRefreshToken } from "../utils/jwt.js"
 const router = express.Router()
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
+const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000
 const isProd = process.env.NODE_ENV === "production"
 
 const cookieOptions = {
   httpOnly: true,
-  secure: isProd,        // WAJIB true di TWA (HTTPS)
-  sameSite: "none",      // WAJIB untuk TWA
-  path: "/"
+  secure: isProd,                     // 🔑 LOCAL = false | PROD = true
+  sameSite: isProd ? "none" : "lax",  // 🔑 penting
+  ...(isProd && { domain: ".inovasionline.com" }),
+  path: "/auth/refresh",
+  maxAge: REFRESH_MAX_AGE
 }
 
 /**
@@ -20,43 +23,45 @@ const cookieOptions = {
  */
 router.post("/logout", (req, res) => {
   res.clearCookie("refreshToken", cookieOptions)
-  return res.sendStatus(204)
+  res.sendStatus(204)
 })
 
 /**
- * REFRESH ACCESS TOKEN
+ * REFRESH TOKEN (ROLLING)
  */
 router.post("/refresh", (req, res) => {
-  const refreshToken = req.cookies.refreshToken
-
-  if (!refreshToken) {
+  const oldRefreshToken = req.cookies.refreshToken
+  if (!oldRefreshToken) {
     return res.status(401).json({ message: "No refresh token" })
   }
 
   try {
     const decoded = jwt.verify(
-      refreshToken,
+      oldRefreshToken,
       process.env.JWT_REFRESH_SECRET
     )
 
-    const user = {
-      id: decoded.id
-    }
+    const user = { id: decoded.id }
 
-    // FLOW TETAP: cuma generate access token baru
-    const accessToken = signAccessToken(user)
+    const newAccessToken = signAccessToken(user)
+    const newRefreshToken = signRefreshToken(user)
 
-    return res.json({ accessToken })
+    res.cookie("refreshToken", newRefreshToken, cookieOptions)
+
+    return res.json({ accessToken: newAccessToken })
   } catch {
     return res.status(401).json({ message: "Invalid refresh token" })
   }
 })
 
 /**
- * GOOGLE LOGIN
+ * GOOGLE CALLBACK
  */
-router.post("/google", async (req, res) => {
-  const { credential } = req.body
+router.post("/google/callback", async (req, res) => {
+  const credential = req.body?.credential
+  if (!credential) {
+    return res.redirect(`${process.env.FRONTEND_URL}/login`)
+  }
 
   try {
     const ticket = await client.verifyIdToken({
@@ -65,22 +70,13 @@ router.post("/google", async (req, res) => {
     })
 
     const payload = ticket.getPayload()
+    const refreshToken = signRefreshToken({ id: payload.sub })
 
-    const user = {
-      id: payload.sub,
-      email: payload.email,
-      name: payload.name
-    }
-
-    const accessToken = signAccessToken(user)
-    const refreshToken = signRefreshToken({ id: user.id })
-
-    // SIMPAN REFRESH TOKEN DI COOKIE (TWA SAFE)
     res.cookie("refreshToken", refreshToken, cookieOptions)
 
-    return res.json({ accessToken })
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid Google token" })
+    return res.redirect(`${process.env.FRONTEND_URL}/login-success`)
+  } catch {
+    return res.redirect(`${process.env.FRONTEND_URL}/login`)
   }
 })
 

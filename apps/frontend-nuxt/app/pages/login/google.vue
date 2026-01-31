@@ -6,6 +6,7 @@ const error = ref('')
 
 onMounted(async () => {
   const params = new URLSearchParams(window.location.search)
+  console.log('params',params)
   const credential = params.get('credential')
 
   if (!credential) {

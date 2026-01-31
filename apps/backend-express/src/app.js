@@ -10,18 +10,21 @@ import categoriesRoute from './routes/categories.js'
 const app = express()
 
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL
-  ],
+  origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   credentials: true
 }))
 
+
+
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(compression())
 app.use(passport.initialize())
+
+app.set('trust proxy', 1)
 
 app.use('/api', homepageRoutes)
 app.use('/auth', authRoutes)
