@@ -18,13 +18,9 @@ watchEffect(() => {
  * 🚪 Logout
  */
 const handleLogout = async () => {
-  try {
-    await auth.logout()
-    navigateTo('/login', { replace: true })
-  } catch (err) {
-    console.error('Logout gagal', err)
-  }
+  await auth.logout()
 }
+
 
 const orders = [
   { label: 'Belum Bayar', icon: '💳' },
