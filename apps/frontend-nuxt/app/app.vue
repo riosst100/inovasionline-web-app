@@ -27,8 +27,8 @@ onMounted(async () => {
   <div v-if="pageLoading" class="top-loading-bar" />
 
   <!-- booting overlay -->
-  <div v-if="booting" class="app-loading">
+  <!-- <div v-if="booting" class="app-loading">
     <div class="spinner" />
     <p>Loading...</p>
-  </div>
+  </div> -->
 </template>
