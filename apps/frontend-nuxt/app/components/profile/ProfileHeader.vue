@@ -1,5 +1,5 @@
 <template>
-  <div class="text-white p-4" style="background: linear-gradient(179deg, #00bf61, #00cb68);">
+  <div class="text-white p-4" style="background: linear-gradient(170deg, #00bf61, #37f799)">
     <div class="flex items-center gap-3">
       <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-orange-500 font-bold">
         <NuxtImg
@@ -13,7 +13,7 @@
 
       <div>
         <h2 class="font-semibold text-lg">inovasiaktif</h2>
-        <p class="text-sm opacity-90">Platinum • 4 Pengikut</p>
+        <p class="text-sm opacity-90">Desa Tiwulandu, Kec. Banjarharjo</p>
       </div>
     </div>
   </div>
