@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white rounded-xl p-4 shadow-sm" style="margin: 8px;margin-bottom: 15px;">
+  <div
+    class="bg-white rounded-xl p-4 shadow-sm"
+    style="margin: 8px; margin-bottom: 15px;"
+  >
     <!-- Header -->
     <div class="flex items-center gap-3">
       <img :src="post.avatar" class="w-10 h-10 rounded-full" />
@@ -21,39 +24,33 @@
 
     <!-- Video -->
     <div
-  class="relative"
-  @mouseenter="showHint = true"
-  @mouseleave="showHint = false"
-  @touchstart.passive="showHint = true"
->
-  <video
-    ref="videoRef"
-    muted
-    loop
-    playsinline
-    preload="metadata"
-    class="rounded-lg w-full cursor-pointer"
-    @click="handleClick"
-  >
-    <source :src="post.video" type="video/mp4" />
-  </video>
+      v-if="post.video"
+      class="relative"
+      @mouseenter="showHintTemporarily()"
+      @touchstart.passive="showHintTemporarily()"
+    >
+      <video
+        ref="videoRef"
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        class="rounded-lg w-full cursor-pointer"
+        @click="handleClick"
+      >
+        <source :src="post.video" type="video/mp4" />
+      </video>
 
-  <!-- Overlay hint -->
-  <div
-    v-if="showHint"
-    class="absolute inset-0 flex items-center justify-center
-           bg-black/30 text-white text-sm
-           pointer-events-none transition-opacity"
-  >
-    ▶ Tap untuk fullscreen
-  </div>
-
-
-</div>
-
-
-
-
+      <!-- Overlay hint -->
+      <div
+        v-if="showHint"
+        class="absolute inset-0 flex items-center justify-center
+               bg-black/30 text-white text-sm
+               pointer-events-none transition-opacity"
+      >
+        ▶ Tap untuk fullscreen
+      </div>
+    </div>
 
     <!-- Actions -->
     <ActionBar
@@ -70,6 +67,7 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import ActionBar from './ActionBar.vue'
 import CommentList from './CommentList.vue'
 
@@ -77,54 +75,86 @@ defineProps({
   post: Object,
 })
 
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
-
+// -----------------------
+// STATE
+// -----------------------
 const videoRef = ref(null)
-let observer = null
-const isUserInteracting = ref(false)
-
 const showHint = ref(false)
+const isUserInteracting = ref(false)
+let observer = null
+let hintTimer = null
 
+// -----------------------
+// HINT HANDLER
+// -----------------------
+const showHintTemporarily = (duration = 2000) => {
+  showHint.value = true
 
-onMounted(async () => {
+  if (hintTimer) clearTimeout(hintTimer)
+
+  hintTimer = setTimeout(() => {
+    showHint.value = false
+  }, duration)
+}
+
+// -----------------------
+// INTERSECTION OBSERVER
+// -----------------------
+const setupObserver = async () => {
   await nextTick()
   if (!videoRef.value) return
 
   observer = new IntersectionObserver(
     async ([entry]) => {
-      // ⛔ jangan ganggu kalau user lagi interaksi
       if (isUserInteracting.value) return
 
       if (entry.isIntersecting) {
         try {
           await videoRef.value.play()
-        } catch (e) {
-          // abaikan silently
-        }
+        } catch {}
       } else {
         videoRef.value.pause()
       }
     },
-    { threshold: 0.6 }
+    {
+      threshold: 0.5,
+      rootMargin: '0px 0px -20% 0px',
+    }
   )
 
   observer.observe(videoRef.value)
+}
+
+// -----------------------
+// LIFECYCLE
+// -----------------------
+onMounted(() => {
+  setupObserver()
+  document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onBeforeUnmount(() => {
   if (observer && videoRef.value) {
     observer.unobserve(videoRef.value)
+    observer.disconnect()
+    observer = null
   }
+  if (hintTimer) clearTimeout(hintTimer)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 
+// -----------------------
+// FULLSCREEN HANDLER
+// -----------------------
 const handleClick = async () => {
   const video = videoRef.value
   if (!video) return
 
   isUserInteracting.value = true
   showHint.value = false
+  if (hintTimer) clearTimeout(hintTimer)
 
-  // matikan observer biar ga pause lagi
+  // Matikan observer biar ga pause
   if (observer) {
     observer.unobserve(video)
     observer.disconnect()
@@ -132,16 +162,25 @@ const handleClick = async () => {
   }
 
   video.muted = false
-
   try {
     await video.play()
-  } catch (e) {}
+  } catch {}
 
-  // fullscreen (cross browser)
+  // Fullscreen (cross browser)
   if (video.requestFullscreen) {
     video.requestFullscreen()
   } else if (video.webkitEnterFullscreen) {
     video.webkitEnterFullscreen() // iOS Safari
+  }
+}
+
+// -----------------------
+// KELUAR FULLSCREEN
+// -----------------------
+const onFullscreenChange = () => {
+  if (!document.fullscreenElement && videoRef.value) {
+    isUserInteracting.value = false
+    setupObserver()
   }
 }
 </script>
