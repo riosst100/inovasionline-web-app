@@ -1,6 +1,5 @@
 <script setup>
 definePageMeta({
-  ssr: false,
   layout: false
 })
 
