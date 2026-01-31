@@ -36,7 +36,7 @@
         playsinline
         preload="metadata"
         class="rounded-lg w-full cursor-pointer"
-        @click="handleClick"
+        @click="handleTap"
       >
         <source :src="post.video" type="video/mp4" />
       </video>
@@ -48,7 +48,7 @@
                bg-black/30 text-white text-sm
                pointer-events-none transition-opacity"
       >
-        ▶ Tap untuk fullscreen
+        • 1 tap: mute • 2 tap: fullscreen
       </div>
     </div>
 
@@ -71,9 +71,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import ActionBar from './ActionBar.vue'
 import CommentList from './CommentList.vue'
 
-defineProps({
-  post: Object,
-})
+defineProps({ post: Object })
 
 // -----------------------
 // STATE
@@ -84,21 +82,21 @@ const isUserInteracting = ref(false)
 let observer = null
 let hintTimer = null
 
+// click detection
+let clickTimer = null
+const CLICK_DELAY = 250 // ms (ideal for mobile)
+
 // -----------------------
-// HINT HANDLER
+// HINT
 // -----------------------
 const showHintTemporarily = (duration = 2000) => {
   showHint.value = true
-
   if (hintTimer) clearTimeout(hintTimer)
-
-  hintTimer = setTimeout(() => {
-    showHint.value = false
-  }, duration)
+  hintTimer = setTimeout(() => (showHint.value = false), duration)
 }
 
 // -----------------------
-// INTERSECTION OBSERVER
+// OBSERVER
 // -----------------------
 const setupObserver = async () => {
   await nextTick()
@@ -107,19 +105,13 @@ const setupObserver = async () => {
   observer = new IntersectionObserver(
     async ([entry]) => {
       if (isUserInteracting.value) return
-
       if (entry.isIntersecting) {
-        try {
-          await videoRef.value.play()
-        } catch {}
+        try { await videoRef.value.play() } catch {}
       } else {
         videoRef.value.pause()
       }
     },
-    {
-      threshold: 0.5,
-      rootMargin: '0px 0px -20% 0px',
-    }
+    { threshold: 0.5, rootMargin: '0px 0px -20% 0px' }
   )
 
   observer.observe(videoRef.value)
@@ -137,16 +129,44 @@ onBeforeUnmount(() => {
   if (observer && videoRef.value) {
     observer.unobserve(videoRef.value)
     observer.disconnect()
-    observer = null
   }
   if (hintTimer) clearTimeout(hintTimer)
+  if (clickTimer) clearTimeout(clickTimer)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 
 // -----------------------
-// FULLSCREEN HANDLER
+// TAP HANDLER
 // -----------------------
-const handleClick = async () => {
+const handleTap = () => {
+  if (clickTimer) {
+    // 🔥 DOUBLE TAP
+    clearTimeout(clickTimer)
+    clickTimer = null
+    openFullscreen()
+  } else {
+    // ⏱ WAIT FOR DOUBLE TAP
+    clickTimer = setTimeout(() => {
+      toggleMute()
+      clickTimer = null
+    }, CLICK_DELAY)
+  }
+}
+
+// -----------------------
+// SINGLE TAP = MUTE
+// -----------------------
+const toggleMute = () => {
+  const video = videoRef.value
+  if (!video) return
+
+  video.muted = !video.muted
+}
+
+// -----------------------
+// DOUBLE TAP = FULLSCREEN
+// -----------------------
+const openFullscreen = async () => {
   const video = videoRef.value
   if (!video) return
 
@@ -154,7 +174,6 @@ const handleClick = async () => {
   showHint.value = false
   if (hintTimer) clearTimeout(hintTimer)
 
-  // Matikan observer biar ga pause
   if (observer) {
     observer.unobserve(video)
     observer.disconnect()
@@ -162,20 +181,17 @@ const handleClick = async () => {
   }
 
   video.muted = false
-  try {
-    await video.play()
-  } catch {}
+  try { await video.play() } catch {}
 
-  // Fullscreen (cross browser)
   if (video.requestFullscreen) {
     video.requestFullscreen()
   } else if (video.webkitEnterFullscreen) {
-    video.webkitEnterFullscreen() // iOS Safari
+    video.webkitEnterFullscreen()
   }
 }
 
 // -----------------------
-// KELUAR FULLSCREEN
+// EXIT FULLSCREEN
 // -----------------------
 const onFullscreenChange = () => {
   if (!document.fullscreenElement && videoRef.value) {
