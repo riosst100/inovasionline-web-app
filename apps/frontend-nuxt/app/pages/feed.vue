@@ -1,18 +1,23 @@
 <template>
-  <div class="min-h-screen bg-gray pb-20">
-    <!-- Feed -->
-    <div class="space-y-4 mt-2">
-      <PostCard
-        v-for="post in posts"
-        :key="post.id"
-        :post="post"
-      />
+  <div class="min-h-screen bg-gray-100 pb-24">
+    <!-- FEED -->
+    <div class="mt-2 space-y-4">
+      <template v-for="(post, index) in posts" :key="post.id + '-' + index">
+        <PostCard :post="post" />
+
+        <!-- IKLAN SETELAH POST KE-2 -->
+        <AdCard v-if="index === 1" />
+
+        <!-- IKLAN SETIAP 6 POST (OPSIONAL) -->
+        <AdCard v-if="index > 1 && index % 6 === 0" />
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
 import PostCard from '@/components/feed/PostCard.vue'
+import AdCard from '@/components/feed/AdCard.vue'
 
 const posts = ref([
   {
@@ -50,7 +55,7 @@ const posts = ref([
     ],
   },
   {
-    id: 2,
+    id: 4,
     user: 'Tech Store',
     avatar: 'https://via.placeholder.com/40',
     content: 'Produk terbaru kami sudah rilis!',
@@ -60,7 +65,7 @@ const posts = ref([
     comments: [],
   },
   {
-    id: 2,
+    id: 5,
     user: 'Tech Store',
     avatar: 'https://via.placeholder.com/40',
     content: 'Produk terbaru kami sudah rilis!',
@@ -70,38 +75,14 @@ const posts = ref([
     comments: [],
   },
   {
-    id: 2,
-    user: 'Tech Store',
-    avatar: 'https://via.placeholder.com/40',
-    content: 'Produk terbaru kami sudah rilis!',
-    image: 'https://via.placeholder.com/400x250',
-    likes: 20,
-    shares: 5,
-    comments: [],
-  },
-  {
-    id: 3,
+    id: 6,
     user: 'Video Creator',
     avatar: 'https://via.placeholder.com/40',
     content: 'Cek video terbaru ini 🎥',
     video: 'https://www.w3schools.com/html/mov_bbb.mp4',
     likes: 50,
     shares: 10,
-    comments: [
-      { id: 1, user: 'Andi', text: 'Videonya keren!' },
-    ],
-  },
-  {
-    id: 3,
-    user: 'Video Creator',
-    avatar: 'https://via.placeholder.com/40',
-    content: 'Cek video terbaru ini 🎥',
-    video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    likes: 50,
-    shares: 10,
-    comments: [
-      { id: 1, user: 'Andi', text: 'Videonya keren!' },
-    ],
+    comments: [],
   },
 ])
 </script>
