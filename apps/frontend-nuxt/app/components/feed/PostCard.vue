@@ -5,7 +5,13 @@
   >
     <!-- Header -->
     <div class="flex items-center gap-3 p-4">
-      <img :src="post.avatar" class="w-10 h-10 rounded-full" />
+      <NuxtImg
+        src="/user.png"
+        class="w-10 h-10 rounded-full"
+        placeholder
+        format="avif,webp"
+        quality="75"
+      />
       <div>
         <p class="font-semibold text-sm">{{ post.user }}</p>
         <p class="text-xs text-gray-400">Just now</p>
