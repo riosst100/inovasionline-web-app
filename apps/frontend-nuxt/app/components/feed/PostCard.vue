@@ -146,8 +146,8 @@ const setupObserver = async () => {
       } else {
         // AUTO PAUSE SAAT KELUAR VIEWPORT
         video.pause()
-        video.muted = true
-        videoMuted.value = true
+        // video.muted = true
+        // videoMuted.value = true
         videoPaused.value = true
       }
     },
