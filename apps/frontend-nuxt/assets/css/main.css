@@ -27,3 +27,7 @@ h1 {
 .page-leave-to {
   opacity: 0;
 }
+
+.bg-gray {
+  background: rgb(229 231 235);
+}

@@ -37,7 +37,7 @@ const menus = [
   },
   {
     name: 'Brebes Info',
-    to: '/artikel',
+    to: '/feed',
     icon: 'ph:newspaper',
   },
   {
