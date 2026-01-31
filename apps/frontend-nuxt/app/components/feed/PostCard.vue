@@ -37,21 +37,22 @@
         <source :src="post.video" type="video/mp4" />
       </video>
 
-      <!-- PLAY OVERLAY (PAUSE STATE) -->
+      <!-- PLAY OVERLAY (PAUSE STATE ONLY) -->
       <div
         v-if="videoPaused"
         class="absolute inset-0 flex items-center justify-center
-               bg-black/30 text-white text-6xl
-               pointer-events-none"
+               bg-black/30 text-white pointer-events-none"
       >
-        ▶️
+        <Icon
+          icon="ph:play-circle-light"
+          class="w-20 h-20"
+        />
       </div>
 
       <!-- FULLSCREEN BUTTON (TOP LEFT) -->
       <button
-        class="absolute top-2 left-2 bg-black/60 text-white
-               w-8 h-8 rounded-full flex items-center justify-center
-               text-xs"
+        class="absolute top-2 left-2 bg-black/15 text-white
+               w-8 h-8 rounded-full flex items-center justify-center"
         @click.stop="openFullscreen"
       >
         ⛶
@@ -59,9 +60,8 @@
 
       <!-- MUTE BUTTON (BOTTOM RIGHT) -->
       <button
-        class="absolute bottom-2 right-2 bg-black/60 text-white
-               w-8 h-8 rounded-full flex items-center justify-center
-               text-xs"
+        class="absolute bottom-2 right-2 bg-black/15 text-white
+               w-8 h-8 rounded-full flex items-center justify-center"
         @click.stop="toggleMute"
       >
         {{ videoMuted ? '🔇' : '🔊' }}
@@ -84,6 +84,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { Icon } from '@iconify/vue'
 import ActionBar from './ActionBar.vue'
 import CommentList from './CommentList.vue'
 
@@ -112,13 +113,19 @@ const setupObserver = async () => {
     async ([entry]) => {
       if (isUserInteracting.value) return
 
+      const video = videoRef.value
+      if (!video) return
+
       if (entry.isIntersecting) {
         try {
-          await videoRef.value.play()
+          await video.play()
           videoPaused.value = false
         } catch {}
       } else {
-        videoRef.value.pause()
+        // ✅ AUTO PAUSE + AUTO MUTE
+        video.pause()
+        video.muted = true
+        videoMuted.value = true
         videoPaused.value = true
       }
     },
@@ -207,6 +214,10 @@ const openFullscreen = async () => {
     observer.disconnect()
     observer = null
   }
+
+  // ✅ fullscreen always audible
+  video.muted = false
+  videoMuted.value = false
 
   try { await video.play() } catch {}
 
