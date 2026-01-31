@@ -73,17 +73,18 @@
 
       <!-- MUTE BUTTON (BOTTOM RIGHT) -->
       <button
-        class="absolute bottom-2 right-2 bg-black/15 text-white
-               w-8 h-8 rounded-full flex items-center justify-center"
-        @click.stop="toggleMute"
-      >
-        <Icon
-          :icon="videoMuted
-            ? 'mingcute:volume-mute-fill'
-            : 'mingcute:volume-fill'"
-          class="w-4 h-4"
-        />
-      </button>
+  class="absolute bottom-2 right-2 bg-black/15 text-white
+         w-8 h-8 rounded-full flex items-center justify-center"
+  @click.stop="toggleMute"
+>
+  <Icon
+    :icon="isGlobalMuted
+      ? 'mingcute:volume-mute-fill'
+      : 'mingcute:volume-fill'"
+    class="w-4 h-4"
+  />
+</button>
+
     </div>
 
     <!-- Actions -->
@@ -100,25 +101,38 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import ActionBar from './ActionBar.vue'
 import CommentList from './CommentList.vue'
 
 defineProps({ post: Object })
 
+// 🔥 GLOBAL AUDIO (DITAMBAH)
+const { isGlobalMuted } = useVideoAudio()
+
 // -----------------------
-// STATE
+// STATE (TETAP ADA)
 // -----------------------
 const videoRef = ref(null)
-const videoMuted = ref(true)
+const videoMuted = ref(true)      // ⬅️ tetap ada
 const videoPaused = ref(true)
 const isUserInteracting = ref(false)
-const hasAutoPlayed = ref(false) // ⭐ FLAG PENTING
+const hasAutoPlayed = ref(false)
 
 let observer = null
 let clickTimer = null
 const CLICK_DELAY = 250
+
+// -----------------------
+// SYNC GLOBAL → LOCAL (DITAMBAH)
+// -----------------------
+watch(isGlobalMuted, (muted) => {
+  videoMuted.value = muted
+  if (videoRef.value) {
+    videoRef.value.muted = muted
+  }
+})
 
 // -----------------------
 // INTERSECTION OBSERVER
@@ -135,19 +149,16 @@ const setupObserver = async () => {
       if (!video) return
 
       if (entry.isIntersecting) {
-        // 🚫 JANGAN AUTOPLAY LAGI
         if (hasAutoPlayed.value) return
 
         try {
+          video.muted = isGlobalMuted.value // ⬅️ PAKAI GLOBAL
           await video.play()
           videoPaused.value = false
-          hasAutoPlayed.value = true // ✅ tandai sudah autoplay
+          hasAutoPlayed.value = true
         } catch {}
       } else {
-        // AUTO PAUSE SAAT KELUAR VIEWPORT
         video.pause()
-        // video.muted = true
-        // videoMuted.value = true
         videoPaused.value = true
       }
     },
@@ -201,6 +212,7 @@ const togglePlay = () => {
   if (!video) return
 
   if (video.paused) {
+    video.muted = isGlobalMuted.value
     video.play()
     videoPaused.value = false
   } else {
@@ -210,14 +222,11 @@ const togglePlay = () => {
 }
 
 // -----------------------
-// MUTE
+// MUTE (SEKARANG GLOBAL)
 // -----------------------
 const toggleMute = () => {
-  const video = videoRef.value
-  if (!video) return
-
-  video.muted = !video.muted
-  videoMuted.value = video.muted
+  isGlobalMuted.value = !isGlobalMuted.value
+  videoMuted.value = isGlobalMuted.value
 }
 
 // -----------------------
@@ -234,8 +243,10 @@ const openFullscreen = async () => {
     observer = null
   }
 
-  video.muted = false
+  // fullscreen selalu unmute (GLOBAL)
+  isGlobalMuted.value = false
   videoMuted.value = false
+  video.muted = false
 
   try { await video.play() } catch {}
 
