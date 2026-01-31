@@ -44,6 +44,12 @@ export default defineNuxtConfig({
           src: 'https://accounts.google.com/gsi/client',
           async: true,
           defer: true
+        },
+        {
+          src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1196624064411452',
+          async: true,
+          defer: true,
+          crossorigin: 'anonymous'
         }
       ]
     }
