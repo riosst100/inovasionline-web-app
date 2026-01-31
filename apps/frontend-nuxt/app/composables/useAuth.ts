@@ -21,18 +21,6 @@ export const useAuth = () => {
     accessToken.value = res.accessToken
   }
 
-  const loginWithGoogle = async (credential: string) => {
-    console.log('loginWithGoogle')
-    console.log('credential',credential)
-    const API = getAPI()
-    const res = await $fetch<LoginResponse>(`${API}/auth/google`, {
-      method: 'POST',
-      body: { credential },
-      credentials: 'include'
-    })
-    accessToken.value = res.accessToken
-  }
-
   const logout = async () => {
     const API = getAPI()
     await $fetch(`${API}/auth/logout`, {
@@ -46,7 +34,6 @@ export const useAuth = () => {
     accessToken,
     authLoading,
     refresh,
-    loginWithGoogle,
     logout
   }
 }

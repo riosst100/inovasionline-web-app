@@ -1,5 +1,5 @@
 <template>
-  <div class="text-white p-4" style="background: linear-gradient(170deg, #00bf61, #37f799)">
+  <div class="text-white p-4" style="background: linear-gradient(170deg, #00bf61, #11e07b)">
     <div class="flex items-center gap-3">
       <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-orange-500 font-bold">
         <NuxtImg

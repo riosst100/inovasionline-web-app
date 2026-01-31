@@ -1,8 +1,13 @@
-// prisma.config.ts
-import { defineConfig } from 'prisma/config'
+import { defineConfig, env } from "prisma/config";
+import "dotenv/config"; // WAJIB kalau mau load env secara otomatis
 
 export default defineConfig({
+  schema: "prisma/schema.prisma",
+  datasource: {
+    url: env("DATABASE_URL"),
+  },
   migrations: {
+    path: "prisma/migrations",
     seed: 'node ./prisma/seed.js',
   },
 })
