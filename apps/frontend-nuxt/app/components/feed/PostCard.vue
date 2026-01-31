@@ -21,15 +21,18 @@
 
     <!-- Video -->
     <video
-        v-if="post.video"
-        autoplay
-        muted
-        loop
-        playsinline
-        class="mt-3 rounded-lg w-full"
-        >
-        <source :src="post.video" type="video/mp4" />
-    </video>
+  ref="videoRef"
+  muted
+  loop
+  playsinline
+  preload="metadata"
+  class="mt-3 rounded-lg w-full cursor-pointer"
+  @click="handleClick"
+>
+  <source :src="post.video" type="video/mp4" />
+</video>
+
+
 
 
     <!-- Actions -->
@@ -53,4 +56,68 @@ import CommentList from './CommentList.vue'
 defineProps({
   post: Object,
 })
+
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+const videoRef = ref(null)
+let observer = null
+const isUserInteracting = ref(false)
+
+onMounted(async () => {
+  await nextTick()
+  if (!videoRef.value) return
+
+  observer = new IntersectionObserver(
+    async ([entry]) => {
+      // ⛔ jangan ganggu kalau user lagi interaksi
+      if (isUserInteracting.value) return
+
+      if (entry.isIntersecting) {
+        try {
+          await videoRef.value.play()
+        } catch (e) {
+          // abaikan silently
+        }
+      } else {
+        videoRef.value.pause()
+      }
+    },
+    { threshold: 0.6 }
+  )
+
+  observer.observe(videoRef.value)
+})
+
+onBeforeUnmount(() => {
+  if (observer && videoRef.value) {
+    observer.unobserve(videoRef.value)
+  }
+})
+
+const handleClick = async () => {
+  const video = videoRef.value
+  if (!video) return
+
+  isUserInteracting.value = true
+
+  // matikan observer biar ga pause lagi
+  if (observer) {
+    observer.unobserve(video)
+    observer.disconnect()
+    observer = null
+  }
+
+  video.muted = false
+
+  try {
+    await video.play()
+  } catch (e) {}
+
+  // fullscreen (cross browser)
+  if (video.requestFullscreen) {
+    video.requestFullscreen()
+  } else if (video.webkitEnterFullscreen) {
+    video.webkitEnterFullscreen() // iOS Safari
+  }
+}
 </script>
