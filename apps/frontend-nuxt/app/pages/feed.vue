@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100 pb-24">
+  <div class="min-h-screen bg-gray pb-24">
     <!-- FEED -->
     <div class="mt-2 space-y-4">
       <template v-for="(post, index) in posts" :key="post.id + '-' + index">

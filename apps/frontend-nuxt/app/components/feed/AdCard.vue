@@ -1,11 +1,11 @@
 <template>
-  <div class="mx-4 my-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+  <div class="mx-4 my-4 rounded-xl bg-gray-50 p-4" style="margin-bottom: 15px;">
     <div class="mb-1 text-xs text-gray-400">
       Iklan
     </div>
 
     <ins
-      class="adsbygoogle block min-h-[120px]"
+      class="adsbygoogle block"
       style="display:block"
       data-ad-client="ca-pub-1196624064411452"
       data-ad-slot="2813516817"
