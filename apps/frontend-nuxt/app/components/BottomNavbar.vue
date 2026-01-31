@@ -31,22 +31,22 @@ const route = useRoute()
 
 const menus = [
   {
-    name: 'Home',
+    name: 'Beranda',
     to: '/',
     icon: 'ph:house-fill',
   },
   {
-    name: 'Wishlist',
-    to: '/wishlist',
-    icon: 'ph:heart',
+    name: 'Brebes Info',
+    to: '/artikel',
+    icon: 'ph:newspaper',
   },
   {
-    name: 'Transaction',
-    to: '/transaction',
-    icon: 'ph:receipt',
+    name: 'Notifikasi',
+    to: '/notifikasi',
+    icon: 'ph:bell',
   },
   {
-    name: 'Profile',
+    name: 'Saya',
     to: '/profile',
     icon: 'ph:user',
   },
