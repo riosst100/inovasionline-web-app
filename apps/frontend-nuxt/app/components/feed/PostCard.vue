@@ -21,12 +21,16 @@
 
     <!-- Video -->
     <video
-      v-if="post.video"
-      controls
-      class="mt-3 rounded-lg w-full"
-    >
-      <source :src="post.video" type="video/mp4" />
+        v-if="post.video"
+        autoplay
+        muted
+        loop
+        playsinline
+        class="mt-3 rounded-lg w-full"
+        >
+        <source :src="post.video" type="video/mp4" />
     </video>
+
 
     <!-- Actions -->
     <ActionBar

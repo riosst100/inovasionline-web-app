@@ -36,7 +36,7 @@ const menus = [
     icon: 'ph:house-fill',
   },
   {
-    name: 'Brebes Info',
+    name: 'Feed',
     to: '/feed',
     icon: 'ph:newspaper',
   },
