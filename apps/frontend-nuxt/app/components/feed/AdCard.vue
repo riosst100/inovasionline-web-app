@@ -1,7 +1,7 @@
 <template>
-  <div class="mx-4 my-4 bg-gray-50 p-4" style="margin-bottom: 15px;">
+  <div class="mx-4 my-4 bg-gray-50 p-2" style="margin-bottom: 15px;">
     <div class="mb-1 text-xs text-gray-400">
-      Iklan
+      Bersponsor
     </div>
 
     <ins

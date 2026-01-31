@@ -1,7 +1,7 @@
 <template>
   <div
-    class="bg-white rounded-xl p-4 shadow-sm"
-    style="margin: 10px 8px;"
+    class="bg-white p-4"
+    style="margin: 5px 0;"
   >
     <!-- Header -->
     <div class="flex items-center gap-3">
