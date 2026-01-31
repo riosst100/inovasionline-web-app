@@ -37,7 +37,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
-        { name: 'theme-color', content: '#10113c' }
+        { name: 'theme-color', content: '#10113c' },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+        }
       ],
       script: [
         {
