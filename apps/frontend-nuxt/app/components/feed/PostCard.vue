@@ -68,26 +68,26 @@
       <!-- FULLSCREEN BUTTON (TOP LEFT) -->
       <button
         class="absolute top-2 left-2 bg-black/15 text-white
-               w-8 h-8 rounded-full flex items-center justify-center"
+               w-10 h-10 rounded-full flex items-center justify-center"
         @click.stop="openFullscreen"
       >
         <Icon
           icon="mingcute:fullscreen-line"
-          class="w-4 h-4"
+          class="w-5 h-5"
         />
       </button>
 
       <!-- MUTE BUTTON (BOTTOM RIGHT) -->
       <button
   class="absolute bottom-2 right-2 bg-black/15 text-white
-         w-8 h-8 rounded-full flex items-center justify-center"
+         w-10 h-10 rounded-full flex items-center justify-center"
   @click.stop="toggleMute"
 >
   <Icon
     :icon="isGlobalMuted
       ? 'mingcute:volume-mute-fill'
       : 'mingcute:volume-fill'"
-    class="w-4 h-4"
+    class="w-5 h-5"
   />
 </button>
 
