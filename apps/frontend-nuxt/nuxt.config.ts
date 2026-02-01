@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt'
   ],
   css: ['../assets/css/main.css'],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL,
     jwtSecret: process.env.JWT_SECRET,

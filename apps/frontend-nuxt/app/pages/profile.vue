@@ -1,26 +1,19 @@
 <script setup lang="ts">
 import MenuGrid from '@/components/profile/MenuGrid.vue'
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const auth = useAuth()
 
 /**
- * 🔐 Guard halaman (wajib login)
- */
-watchEffect(() => {
-  if (auth.authLoading.value) return
-
-  if (!auth.accessToken.value) {
-    navigateTo('/login', { replace: true })
-  }
-})
-
-/**
  * 🚪 Logout
+ * biarkan middleware auth yang handle redirect
  */
 const handleLogout = async () => {
   await auth.logout()
 }
-
 
 const orders = [
   { label: 'Belum Bayar', icon: '💳' },
