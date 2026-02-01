@@ -1,5 +1,5 @@
 <template>
-  <footer class="mt-6 text-gray-500 text-center" style="font-size:11px;color:#8e8e8e">
+  <footer class="mt-6 text-gray-500 text-center" style="font-size:11px;color:#8e8e8e;margin-bottom: 100px;">
     <div class="mb-3 space-y-1 p-3">
       <NuxtLink
         to="/about-us"
