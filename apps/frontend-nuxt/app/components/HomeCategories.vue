@@ -41,25 +41,13 @@ const {
 } = await useAsyncData(
   'categories-homepage',
   async () => {
-    console.log('FETCHING categories...')
-
     const res = await $fetch(`${config.public.apiBase}/homepage`)
-    console.log('API RESPONSE:', res)
-
     return res
   },
   {
-    default: () => [],
-    onError(err) {
-      console.error('ASYNC DATA ERROR:', err)
-    }
+    default: () => []
   }
 )
-
-// log kalau error muncul
-if (error.value) {
-  console.error('USEASYNC ERROR STATE:', error.value)
-}
 </script>
 
 
