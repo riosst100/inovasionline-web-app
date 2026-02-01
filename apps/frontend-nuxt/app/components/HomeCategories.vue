@@ -33,14 +33,35 @@
 <script setup>
 const config = useRuntimeConfig()
 
-const { data: categories, pending } = await useAsyncData(
+const {
+  data: categories,
+  pending,
+  error,
+  refresh
+} = await useAsyncData(
   'categories-homepage',
-  () => $fetch(`${config.public.apiBase}/homepage`),
+  async () => {
+    console.log('FETCHING categories...')
+
+    const res = await $fetch(`${config.public.apiBase}/homepage`)
+    console.log('API RESPONSE:', res)
+
+    return res
+  },
   {
     default: () => [],
+    onError(err) {
+      console.error('ASYNC DATA ERROR:', err)
+    }
   }
 )
+
+// log kalau error muncul
+if (error.value) {
+  console.error('USEASYNC ERROR STATE:', error.value)
+}
 </script>
+
 
 
 <style scoped>
