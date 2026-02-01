@@ -11,9 +11,10 @@ const auth = useAuth()
  * 🚪 Logout
  * biarkan middleware auth yang handle redirect
  */
-const handleLogout = async () => {
-  await auth.logout()
+const handleLogout = () => {
+  navigateTo('/logout-loading')
 }
+
 
 const orders = [
   { label: 'Belum Bayar', icon: '💳' },
