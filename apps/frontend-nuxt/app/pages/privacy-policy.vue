@@ -1,64 +1,57 @@
 <script setup lang="ts">
 </script>
 
+<script setup>
+useSeoMeta({
+  title: 'Privacy Policy – Inovasi Online',
+  description: 'Kebijakan Privasi Inovasi Online di www.inovasionline.com'
+})
+</script>
+
 <template>
-  <main class="privacy">
-    <header class="privacy-header">
-      <h1>Kebijakan Privasi</h1>
-      <p class="subtitle">
-        Privasi Anda penting bagi kami. Halaman ini menjelaskan bagaimana data
-        pengguna dikelola dalam aplikasi.
-      </p>
-    </header>
-
-    <section>
-      <p>
-        Aplikasi ini menghargai dan melindungi privasi setiap pengguna. Kami
-        mengumpulkan informasi yang diperlukan untuk menyediakan layanan
-        marketplace, termasuk jual beli produk, jasa, dan layanan servis.
-      </p>
-    </section>
-
-    <section>
-      <h2>Informasi yang Dikumpulkan</h2>
-      <ul>
-        <li>Informasi akun seperti nama dan email</li>
-        <li>Data penggunaan aplikasi</li>
-        <li>Informasi perangkat secara umum</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Penggunaan Informasi</h2>
-      <p>
-        Informasi digunakan untuk menjalankan layanan aplikasi, komunikasi antar
-        pengguna, dan peningkatan kualitas layanan.
-      </p>
-    </section>
-
-    <section>
-      <h2>Keamanan Data</h2>
-      <p>
-        Kami menjaga keamanan data pengguna dengan langkah-langkah yang wajar dan
-        sesuai standar.
-      </p>
-    </section>
-
-    <section>
-      <h2>Pembagian Informasi</h2>
-      <p>
-        Kami tidak menjual atau membagikan data pribadi pengguna kepada pihak
-        ketiga, kecuali diwajibkan oleh hukum.
-      </p>
-    </section>
-
-    <footer class="privacy-footer">
-      <p>
-        Dengan menggunakan aplikasi ini, Anda menyetujui kebijakan privasi ini.
-      </p>
-    </footer>
-  </main>
+  <section class="prose max-w-none p-4">
+    <h2>Privacy Policy</h2>
+    <p>
+      Inovasi Online (“kami”, “website”, “www.inovasionline.com”) berkomitmen
+      untuk melindungi data pribadi dan privasi pengguna.
+    </p>
+    <br />
+    <h2>Informasi yang Kami Kumpulkan</h2>
+    <p>
+      Kami dapat mengumpulkan informasi seperti nama, alamat email, alamat IP,
+      dan data lain jika Anda mengirimkannya secara sukarela.
+    </p>
+    <br />
+    <h2>Penggunaan Cookies</h2>
+    <p>
+      Kami menggunakan cookies untuk meningkatkan pengalaman pengguna dan
+      menganalisis penggunaan situs.
+    </p>
+    <br />
+    <h2>Google AdSense</h2>
+    <p>
+      Situs ini menggunakan Google AdSense untuk menampilkan iklan. Google
+      menggunakan cookie DoubleClick untuk menayangkan iklan berdasarkan kunjungan Anda
+      ke situs ini dan situs lain di Internet. Anda dapat menonaktifkan
+      personalized ads melalui 
+      <a href="https://policies.google.com/technologies/ads" target="_blank">
+        Kebijakan Iklan Google
+      </a>.
+    </p>
+    <br />
+    <h2>Informasi Lokasi</h2>
+    <p>
+      Kantor kami berada di Desa Tiwulandu, Kec. Banjarharjo, Kab. Brebes,
+      Jawa Tengah, Indonesia.
+    </p>
+    <br />
+    <h2>Persetujuan</h2>
+    <p>
+      Dengan menggunakan situs ini, Anda setuju pada kebijakan privasi ini.
+    </p>
+  </section>
 </template>
+
 
 <style scoped>
 .privacy {
