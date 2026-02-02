@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import MenuGrid from '@/components/profile/MenuGrid.vue'
 
-// definePageMeta({
-//   middleware: 'auth'
-// })
+definePageMeta({
+  middleware: 'auth'
+})
 
 /**
  * 🚪 Logout
