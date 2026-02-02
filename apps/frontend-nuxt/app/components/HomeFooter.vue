@@ -1,6 +1,22 @@
 <template>
-  <footer class="mt-6 text-gray-500 text-center" style="font-size:11px;color:#8e8e8e;margin-bottom: 100px;">
+  <footer class="mt-6 text-gray-500 text-center" style="font-size:12px;color:#8e8e8e;margin-bottom: 100px;">
     <div class="mb-3 space-y-1 p-3">
+      
+      <NuxtLink
+        to="/terms-and-conditions"
+        class="hover:text-gray-700"
+      >
+        Syarat & Ketentuan
+      </NuxtLink>
+      <span class="delimiter"></span>
+       
+      <NuxtLink
+        to="/privacy-policy"
+        class="hover:text-gray-700"
+      >
+        Kebijakan Privasi
+      </NuxtLink>
+      <div stlye="margin-bottom:15px"></div>
       <NuxtLink
         to="/about-us"
         class="hover:text-gray-700"
@@ -15,21 +31,7 @@
         Kontak Kami
       </NuxtLink>
       <!-- <div stlye="margin-bottom:15px"></div> -->
-       <span class="delimiter"></span>
-      <NuxtLink
-        to="/terms-and-conditions"
-        class="hover:text-gray-700"
-      >
-        Syarat & Ketentuan
-      </NuxtLink>
-      <!-- <span class="delimiter"></span> -->
-       <div stlye="margin-bottom:15px"></div>
-      <NuxtLink
-        to="/privacy-policy"
-        class="hover:text-gray-700"
-      >
-        Kebijakan Privasi
-      </NuxtLink>
+       <!-- <span class="delimiter"></span> -->
     </div>
 
     <hr />

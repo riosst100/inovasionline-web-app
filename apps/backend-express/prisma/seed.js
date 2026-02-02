@@ -26,11 +26,19 @@ async function main() {
         icon: 'food-beverages',
       },
       {
+        id: 'cat_jastip',
+        name: 'Jastip',
+        slug: 'jastip',
+        showOnHomepage: true,
+        homepageOrder: 2,
+        icon: 'jastip',
+      },
+      {
         id: 'cat_printing',
         name: 'Percetakan',
         slug: 'printing',
         showOnHomepage: true,
-        homepageOrder: 2,
+        homepageOrder: 3,
         icon: 'printing',
       },
       {

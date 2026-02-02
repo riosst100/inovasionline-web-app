@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import MenuGrid from '@/components/profile/MenuGrid.vue'
 
-definePageMeta({
-  middleware: 'auth'
-})
-
-const auth = useAuth()
+// definePageMeta({
+//   middleware: 'auth'
+// })
 
 /**
  * 🚪 Logout
@@ -14,7 +12,6 @@ const auth = useAuth()
 const handleLogout = () => {
   navigateTo('/logout-loading')
 }
-
 
 const orders = [
   { label: 'Belum Bayar', icon: '💳' },
@@ -42,18 +39,19 @@ const finance = [
   <div class="min-h-screen bg-gray-100 pb-20">
     <ProfileHeader />
 
-    <!-- 🔴 LOGOUT BUTTON -->
-    <div class="px-4 mt-3">
-      <button
-        @click="handleLogout"
-        class="w-full rounded-xl bg-red-500 py-2 text-white font-semibold"
-      >
-        Keluar
-      </button>
-    </div>
+    
 
     <MenuGrid title="Pesanan Saya" :items="orders" />
     <MenuGrid title="Dompet Saya" :items="wallet" />
     <MenuGrid title="Keuangan" :items="finance" />
+    <!-- 🔴 LOGOUT BUTTON -->
+    <div class="px-4 mt-3 text-center">
+      <div
+        @click="handleLogout"
+        class="w-full text-red-500 py-2 cursor-pointer"
+      >
+        Ganti Akun / Keluar
+      </div>
+    </div>
   </div>
 </template>

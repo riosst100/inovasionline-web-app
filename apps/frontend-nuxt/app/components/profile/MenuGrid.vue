@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white mt-3 p-4">
+  <div class="bg-white mt-1 p-4">
     <div class="flex justify-between mb-3">
       <h3 class="font-semibold">{{ title }}</h3>
       <span class="text-sm text-orange-500 cursor-pointer">

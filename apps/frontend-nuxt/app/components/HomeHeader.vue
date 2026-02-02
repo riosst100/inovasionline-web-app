@@ -6,7 +6,9 @@ import { Icon } from '@iconify/vue'
   <header class="bg-white sticky top-0 z-10 border-b">
     <div class="flex items-center justify-between px-4 h-[3.2rem]">
       <span class="font-bold text-indigo-600 text-lg">
-        <NuxtImg
+        <NuxtLink
+        to="/">
+          <NuxtImg
             placeholder
             format="avif,webp"
             quality="75"
@@ -14,7 +16,8 @@ import { Icon } from '@iconify/vue'
             alt="Inovasi Online Logo"
             class="w-auto"
             style="height:22px"
-        />
+          />
+        </NuxtLink>
     </span>
     <div class="flex items-center gap-[15px] text-gray-600">
         <a href="/cart" class="header-icon"><Icon icon="lineicons:cart-1" width="29" height="29" /></a>
