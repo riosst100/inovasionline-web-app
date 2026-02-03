@@ -120,7 +120,7 @@ useSwipe(document, {
 </script>
 
 <style scoped>
-.header-icon{
+.header-icon {
   border-radius: 5px;
   padding: 5px;
 }
