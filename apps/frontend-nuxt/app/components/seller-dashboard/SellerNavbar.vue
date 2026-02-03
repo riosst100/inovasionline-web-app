@@ -3,10 +3,16 @@
   <header class="bg-white sticky top-0 z-20 border-b">
     <div class="flex items-center justify-between px-4 h-[3.2rem]">
       <div class="flex items-center gap-[15px] text-gray-600">
-        <div class="header-icon text-2xl md:hidden" @click="toggleSidebar">
-          ☰
-        </div>
-        <h1 class="font-semibold">Pusat Penjual</h1>
+        <div @click="toggleSidebar" class="header-icon text-2xl md:hidden"><Icon icon="glyphs:bars-bold" width="29" height="29" /></div>
+        <NuxtLink
+          to="/seller-dashboard"
+        >
+          <h1 class="font-semibold">Pusat Penjual</h1>
+        </NuxtLink>
+      </div>
+      <div class="flex items-center gap-[15px] text-gray-600">
+        <a href="/seller-dashboard/notifications" class="header-icon"><Icon icon="ph:bell" width="29" height="29" /></a>
+        <a href="/seller-dashboard/messages" class="header-icon"><Icon icon="token:chat" width="29" height="29" /></a>
       </div>
     </div>
   </header>
@@ -46,6 +52,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { Icon } from '@iconify/vue'
+import { useRoute } from 'vue-router'
 
 const WIDTH = 256
 
