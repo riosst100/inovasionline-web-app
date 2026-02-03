@@ -38,9 +38,9 @@ const finance = [
 <template>
   <div class="min-h-screen bg-gray-100 pb-20">
     <ProfileHeader />
-
-    
-
+    <NuxtLink to="/seller-dashboard" class="block p-2 rounded hover:bg-gray-100">
+      Pusat Penjual
+    </NuxtLink>
     <MenuGrid title="Pesanan Saya" :items="orders" />
     <MenuGrid title="Dompet Saya" :items="wallet" />
     <MenuGrid title="Keuangan" :items="finance" />
