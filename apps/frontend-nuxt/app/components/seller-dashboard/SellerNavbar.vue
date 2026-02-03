@@ -1,127 +1,122 @@
 <template>
   <!-- HEADER -->
-  <header class="bg-white sticky top-0 z-10 border-b">
+  <header class="bg-white sticky top-0 z-20 border-b">
     <div class="flex items-center justify-between px-4 h-[3.2rem]">
       <div class="flex items-center gap-[15px] text-gray-600">
-        <div
-          @click="toggleSidebar"
-          class="header-icon text-2xl md:hidden"
-        >
-          <Icon icon="glyphs:bars-bold" width="29" height="29" />
+        <div class="header-icon text-2xl md:hidden" @click="toggleSidebar">
+          ☰
         </div>
-
-        <NuxtLink to="/seller-dashboard">
-          <h1 class="font-semibold">Pusat Penjual</h1>
-        </NuxtLink>
-      </div>
-
-      <div class="flex items-center gap-[15px] text-gray-600">
-        <a href="/cart" class="header-icon">
-          <Icon icon="lineicons:cart-1" width="29" height="29" />
-        </a>
-        <a href="/messages" class="header-icon">
-          <Icon icon="token:chat" width="29" height="29" />
-        </a>
+        <h1 class="font-semibold">Pusat Penjual</h1>
       </div>
     </div>
   </header>
 
-  <div class="min-h-screen bg-gray-100 relative overflow-hidden">
+  <div
+    class="relative min-h-screen bg-gray-100 overflow-hidden"
+    @touchstart.passive="onTouchStart"
+    @touchmove.prevent="onTouchMove"
+    @touchend="onTouchEnd"
+  >
     <!-- OVERLAY -->
     <div
       v-show="sidebarVisible"
-      class="fixed inset-0 bg-black z-30 md:hidden transition-opacity duration-300"
+      class="fixed inset-0 bg-black z-10 md:hidden"
       :style="{ opacity: overlayOpacity }"
       @click="closeSidebar"
     />
 
     <!-- SIDEBAR -->
     <aside
-      ref="sidebarRef"
-      class="
-        fixed top-0 left-0 z-40
-        h-full w-64 bg-white shadow
-        transform
-        md:translate-x-0
-      "
+      class="fixed top-0 left-0 z-20 h-full w-64 bg-white shadow"
       :class="dragging ? 'transition-none' : 'transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]'"
       :style="{ transform: `translateX(${translateX}px)` }"
     >
-      <div class="p-4 font-bold text-xl flex justify-between items-center">
-        <span>Seller Panel</span>
-        <button class="md:hidden text-2xl" @click="closeSidebar">✕</button>
+      <div class="p-4 font-bold text-xl flex justify-between">
+        Seller Panel
+        <button class="md:hidden" @click="closeSidebar">✕</button>
       </div>
-
-      <nav class="p-4 space-y-2">
-        <NuxtLink to="/seller" class="block p-2 rounded hover:bg-gray-100" @click="closeSidebar">
-          Dashboard
-        </NuxtLink>
-        <NuxtLink to="/seller/products" class="block p-2 rounded hover:bg-gray-100" @click="closeSidebar">
-          Products
-        </NuxtLink>
-        <NuxtLink to="/seller/orders" class="block p-2 rounded hover:bg-gray-100" @click="closeSidebar">
-          Orders
-        </NuxtLink>
-      </nav>
     </aside>
+
+    <!-- CONTENT -->
+    <div class="p-6">
+      <p>Konten halaman seller…</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { Icon } from '@iconify/vue'
-import { useSwipe } from '@vueuse/core'
 import { ref, computed } from 'vue'
 
-const SIDEBAR_WIDTH = 256
+const WIDTH = 256
 
 const sidebarOpen = ref(false)
 const dragging = ref(false)
-const dragX = ref(0)
+
+const startX = ref(0)
+const startTranslate = ref(0)
+const currentTranslate = ref(-WIDTH)
 
 const sidebarVisible = computed(
   () => sidebarOpen.value || dragging.value
 )
 
-const translateX = computed(() => {
-  if (dragging.value) {
-    return Math.min(
-      0,
-      Math.max(-SIDEBAR_WIDTH, -SIDEBAR_WIDTH + dragX.value)
-    )
-  }
-  return sidebarOpen.value ? 0 : -SIDEBAR_WIDTH
-})
+// posisi sidebar final
+const translateX = computed(() => currentTranslate.value)
 
+// overlay ikut progress
 const overlayOpacity = computed(() => {
-  const progress = 1 - Math.abs(translateX.value) / SIDEBAR_WIDTH
+  const progress = 1 - Math.abs(translateX.value) / WIDTH
   return Math.min(0.4, Math.max(0, progress * 0.4))
 })
 
-const openSidebar = () => (sidebarOpen.value = true)
-const closeSidebar = () => (sidebarOpen.value = false)
-const toggleSidebar = () => (sidebarOpen.value = !sidebarOpen.value)
+function clamp(val, min, max) {
+  return Math.min(max, Math.max(min, val))
+}
 
-useSwipe(document, {
-  threshold: 0,
-  onSwipeStart() {
-    dragging.value = true
-    dragX.value = 0
-  },
-  onSwipe(_, direction, length) {
-    if (direction === 'right') dragX.value = length
-    if (direction === 'left') dragX.value = -length
-  },
-  onSwipeEnd() {
-    dragging.value = false
-    sidebarOpen.value = dragX.value > SIDEBAR_WIDTH / 2
-    dragX.value = 0
-  }
-})
+function onTouchStart(e) {
+  // hanya edge swipe atau sidebar sudah open
+  if (!sidebarOpen.value && e.touches[0].clientX > 30) return
+
+  dragging.value = true
+  startX.value = e.touches[0].clientX
+  startTranslate.value = currentTranslate.value
+}
+
+function onTouchMove(e) {
+  if (!dragging.value) return
+
+  const delta = e.touches[0].clientX - startX.value
+  currentTranslate.value = clamp(
+    startTranslate.value + delta,
+    -WIDTH,
+    0
+  )
+}
+
+function onTouchEnd() {
+  if (!dragging.value) return
+  dragging.value = false
+
+  const shouldOpen = currentTranslate.value > -WIDTH / 2
+
+  sidebarOpen.value = shouldOpen
+  currentTranslate.value = shouldOpen ? 0 : -WIDTH
+}
+
+function toggleSidebar() {
+  sidebarOpen.value = !sidebarOpen.value
+  currentTranslate.value = sidebarOpen.value ? 0 : -WIDTH
+}
+
+function closeSidebar() {
+  sidebarOpen.value = false
+  currentTranslate.value = -WIDTH
+}
 </script>
 
 <style scoped>
 .header-icon {
-  border-radius: 5px;
   padding: 5px;
+  border-radius: 5px;
 }
 </style>
