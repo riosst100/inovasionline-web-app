@@ -62,6 +62,13 @@ model Vendor {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
+  image String?
+
+  desa   String? // desa / kelurahan
+  patokan        String?
+  kecamatan  String? // kecamatan
+  kota      String? // kota / kabupaten
+
   user User? @relation(fields: [userId], references: [id])
 
   products    Product[]          @relation("VendorProducts")

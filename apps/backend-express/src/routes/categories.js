@@ -64,6 +64,11 @@ router.get('/:slug', async (req, res, next) => {
             id: true,
             name: true,
             company: true,
+            image: true,
+            patokan: true,
+            desa: true,
+            kecamatan: true,
+            kota: true,
             verified: true,
             products: {
               where: { isActive: true },

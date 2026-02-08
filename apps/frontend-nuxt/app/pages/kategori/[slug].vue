@@ -69,45 +69,67 @@ const products = computed(() => data.value?.products ?? [])
 
       <!-- ================= CONTENT ================= -->
       <div class="px-4 pb-8">
-        <div class="bg-white rounded-2xl p-4">
-
-          <!-- ========== SEMUA SELLER ========== -->
+        <div class="bg-white rounded-2xl">
+          
+          <!-- ========== LIST SELLER VERTIKAL ========== -->
           <div v-if="vendors.length" class="mt-2">
             <h2 class="text-base font-semibold text-gray-900 mb-3">
-              Semua Seller
+              Top Seller
             </h2>
 
-            <div class="flex gap-3 overflow-x-auto no-scrollbar">
+            <div class="space-y-4">
               <div
                 v-for="vendor in vendors"
                 :key="vendor.id"
                 class="
-                  min-w-[140px]
+                  flex
+                  items-center
+                  gap-3
                   bg-white
-                  border border-gray-100
                   rounded-xl
                   p-3
+                  border border-gray-100
                   shadow-sm
-                  shrink-0
                 "
               >
-                <div class="h-16 bg-gray-200 rounded-lg mb-2" />
+                <!-- IMAGE -->
+                <img
+                  :src="vendor.image || '/images/vendor-placeholder.png'"
+                  class="w-20 h-20 rounded-lg object-cover shrink-0"
+                  alt=""
+                />
 
-                <p class="text-sm font-semibold text-gray-900 leading-tight">
-                  {{ vendor.name }}
-                </p>
 
-                <p class="text-xs text-gray-500 mt-0.5">
-                  {{ vendor.products?.length || 0 }} produk
-                </p>
+                <!-- CONTENT -->
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-gray-900 leading-tight">
+                    {{ vendor.name }}
+                  </p>
+
+                  <p class="text-xs text-gray-600 mt-1">
+                    Desa {{ vendor.desa}}, Kec. {{ vendor.kecamatan}}
+                  </p>
+
+                  <!-- META INFO -->
+                  <div class="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                    <span class="flex items-center gap-0.5">
+                      <span class="text-yellow-400">★</span>
+                      {{ vendor.rating || '0.0' }}
+                    </span>
+
+                    <span>•</span>
+                    <span>100+ pesanan</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
+
           <!-- ========== SEMUA PRODUK ========== -->
           <div v-if="products.length" class="mt-8">
             <h2 class="text-base font-semibold text-gray-900 mb-3">
-              Semua Produk
+              Makanan Terlaris
             </h2>
 
             <div class="grid grid-cols-2 gap-4">
