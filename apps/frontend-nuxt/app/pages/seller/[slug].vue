@@ -190,7 +190,17 @@ if (error.value) {
   })
 }
 
-const seller = computed(() => data.value?.seller ?? [])
+const seller = computed(() => data.value?.seller ?? null)
+
+const pageTitle = usePageTitle()
+
+watchEffect(() => {
+  pageTitle.value = seller.value?.name || 'Seller Profile'
+})
+
+useHead(() => ({
+  title: pageTitle.value
+}))
 
 // const seller = {
 //   name: 'Food Order Restaurant',
