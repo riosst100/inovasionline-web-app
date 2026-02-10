@@ -64,9 +64,7 @@
         />
       </div>
     </div>
-
-    <!-- CONTENT -->
-    <div class="rounded-t-3xl bg-neutral-900 px-5 pt-14">
+    <div>
       <div class="seller-header">
         <!-- nama + info -->
         <h1 class="font-semibold" style="font-size:16px">
@@ -175,6 +173,10 @@ import { ref } from 'vue'
 
 const tabs = ['Menu', 'Review', 'Information']
 const activeTab = ref('Menu')
+
+definePageMeta({
+  layout: 'shop'
+})
 
 const route = useRoute()
 const config = useRuntimeConfig()
