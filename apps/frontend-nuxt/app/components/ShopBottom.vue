@@ -5,12 +5,12 @@
     style="bottom:30px"
   >
     <div
-      class="flex items-center gap-3 rounded-xl bg-[rgb(var(--color-primary))] px-4 py-3 shadow-lg"
-      style="justify-content: center;"
+      class="flex items-center gap-3 bg-[rgb(var(--color-primary))] px-6 py-3 shadow-lg"
+      style="justify-content: center;border-radius:30px"
     >
       <!-- Icon -->
       <div class="relative">
-        <Icon icon="lineicons:cart-1" class="text-white" width="25" />
+        <Icon icon="lineicons:cart-1" class="text-white" width="28" />
         <!-- <a href="/cart" class="header-icon"><Icon icon="lineicons:cart-1" width="29" height="29" /></a> -->
 
         <!-- badge jumlah -->
@@ -23,7 +23,7 @@
       </div>
 
       <!-- Text -->
-      <div class="text-sm font-semibold text-white">
+      <div class="text-sm text-white" style="font-weight: 500;">
         Keranjang Belanja
       </div>
     </div>
