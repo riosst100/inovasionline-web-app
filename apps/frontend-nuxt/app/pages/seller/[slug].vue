@@ -1,70 +1,42 @@
-<style scoped>
-  .profile-image {
-    border: 3px solid white;
-  }
-  .seller-header {
-    padding-left: 100px;
-    padding-top: 9px;
-    padding-bottom: 17px;
-    padding-right: 10px;
-  }
-  .seller-tabs {
-    width: 100%;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 0px;
-    border-top: 1px solid rgb(229 231 235 / var(--tw-border-opacity, 1));
-  }
-  .seller-tabs-item {
-    width: 100%;
-    padding-top: 9px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgb(229 231 235 / var(--tw-border-opacity, 1));
-  }
-  .seller-tabs-item-active,.seller-tabs-item:hover {
-    color: rgb(var(--color-primary) / var(--tw-text-opacity, 1));
-    font-weight: 600;
-    border-bottom: 3px solid rgb(var(--color-primary) / var(--tw-text-opacity, 1));
-  }
-</style>
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen flex flex-col">
 
     <!-- HEADER / BANNER -->
-    <div class="relative">
-      <!-- banner diperkecil -->
+    <div class="relative shrink-0">
       <NuxtImg
         placeholder
         format="avif,webp"
         quality="75"
-        :src="seller.image || '/images/vendor-placeholder.png'"
+        :src="seller?.image || '/images/vendor-placeholder.png'"
         alt=""
         class="w-full object-cover"
-        style="height:9rem"
+        style="height:8rem"
       />
-      <!-- profile photo -->
+
       <div class="absolute" style="bottom:-60px;left:10px">
         <NuxtImg
           placeholder
           format="avif,webp"
           quality="75"
-          :src="seller.image || '/images/vendor-placeholder.png'"
+          :src="seller?.image || '/images/vendor-placeholder.png'"
           alt=""
           class="h-20 w-20 rounded-xl profile-image object-cover"
         />
       </div>
     </div>
-    <div>
+
+    <!-- HEADER INFO -->
+    <div class="shrink-0">
       <div class="seller-header">
-        <!-- nama + info -->
         <h1 class="font-semibold" style="font-size:16px">
-          {{ seller.name }}
+          {{ seller?.name }}
         </h1>
+
         <p class="mt-1 text-xs text-gray-600">
-          Desa {{ seller.desa}}, Kec. {{ seller.kecamatan}}
+          Desa {{ seller?.desa }}, Kec. {{ seller?.kecamatan }}
         </p>
       </div>
+
       <!-- Tabs -->
       <div class="flex gap-0 seller-tabs">
         <button
@@ -72,235 +44,189 @@
           :key="tab"
           @click="activeTab = tab"
           class="seller-tabs-item px-4 py-2 transition"
-          :class="activeTab === tab
-            ? 'seller-tabs-item-active'
-            : ''"
+          :class="activeTab === tab ? 'seller-tabs-item-active' : ''"
         >
           {{ tab }}
         </button>
       </div>
+    </div>
 
-      <!-- TAB CONTENT -->
-      <div class="mt-6 pb-10">
-        <!-- Menu -->
-        <div v-if="activeTab === 'Menu'" class="space-y-4">
-          <!-- Product List -->
-          <div class="space-y-6 py-0 px-2">
-            <!-- Dimsum -->
-            <div>
-              <h3 class="mb-3 text-sm font-semibold text-gray-700">
-                Dimsum
-              </h3>
-              <div class="space-y-3">
-                <div
-                  v-for="item in dimsumProducts"
-                  :key="item.id"
-                  class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3"
-                >
-                  <img
-                    :src="item.image"
-                    class="h-16 w-16 rounded-lg object-cover"
-                  />
-                  <div class="flex-1">
-                    <p class="text-sm font-semibold text-gray-800">
-                      {{ item.name }}
-                    </p>
-                    <p class="text-xs text-gray-500">
-                      Terjual {{ item.sold }}
-                    </p>
-                    <p class="mt-1 text-sm font-semibold text-[rgb(var(--color-primary))]">
-                      Rp {{ item.price.toLocaleString('id-ID') }}
-                    </p>
-                  </div>
-                  <button
-                    @click="addToCart(item)"
-                    class="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white"
-                  >
-                    + Pesan
-                  </button>
-                </div>
-              </div>
-            </div>
-            <!-- Wonton -->
-            <div>
-              <h3 class="mb-3 text-sm font-semibold text-gray-700">
-                Wonton
-              </h3>
-              <div class="space-y-3">
-                <div
-                  v-for="item in wontonProducts"
-                  :key="item.id"
-                  class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3"
-                >
-                  <img
-                    :src="item.image"
-                    class="h-16 w-16 rounded-lg object-cover"
-                  />
+    <!-- TAB CONTENT (SCROLL AREA) -->
+    <div class="flex-1 overflow-y-auto mt-4 pb-10">
 
-                  <div class="flex-1">
-                    <p class="text-sm font-semibold text-gray-800">
-                      {{ item.name }}
-                    </p>
+      <!-- Menu -->
+      <div v-if="activeTab === 'Menu'">
 
-                    <p class="text-xs text-gray-500">
-                      Terjual {{ item.sold }}
-                    </p>
-
-                    <p class="mt-1 text-sm font-semibold text-[rgb(var(--color-primary))]">
-                      Rp {{ item.price.toLocaleString('id-ID') }}
-                    </p>
-                  </div>
-
-                  <button
-                    @click="addToCart(item)"
-                    class="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white"
-                  >
-                    + Pesan
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Review -->
-        <div v-if="activeTab === 'Review'" class="space-y-5">
-          <div
-            v-for="review in reviews"
-            :key="review.id"
-            class="flex gap-4"
-          >
-            <img
-              :src="review.avatar"
-              class="h-10 w-10 rounded-lg object-cover"
-            />
-
-            <div class="flex-1">
-              <div class="flex items-center justify-between">
-                <p class="font-medium">{{ review.name }}</p>
-                <span class="text-xs text-neutral-400">{{ review.time }}</span>
-              </div>
-
-              <div class="text-yellow-400 text-sm">★★★★★</div>
-
-              <p class="mt-1 text-sm text-neutral-300">
-                {{ review.comment }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Information -->
         <div
-          v-if="activeTab === 'Information'"
-          class="space-y-3 text-sm text-neutral-300"
+          v-if="noProducts"
+          class="flex flex-col items-center justify-center py-12 text-center text-gray-500"
         >
-          <div>
-            <p class="text-neutral-400">Phone</p>
-            <p>{{ seller.phone }}</p>
+          <p class="text-sm font-medium">Belum ada produk</p>
+          <p class="mt-1 text-xs">Penjual belum menambahkan produk.</p>
+        </div>
+
+        <div v-else class="space-y-6" style="padding: 0px 10px;">
+
+          <div
+            v-for="group in groupedProducts"
+            :key="group.category.id"
+          >
+            <h3 class="mb-3 text-sm font-semibold text-gray-700">
+              {{ group.category.name }}
+            </h3>
+
+            <div class="space-y-3">
+              <div
+                v-for="item in group.items"
+                :key="item.id"
+                class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3"
+              >
+                <img
+                  :src="item.image || '/images/product-placeholder.png'"
+                  class="h-16 w-16 rounded-lg object-cover"
+                />
+
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-gray-800">
+                    {{ item.name }}
+                  </p>
+
+                  <p class="mt-1 text-sm font-semibold text-[rgb(var(--color-primary))]">
+                    Rp {{ Number(item.price).toLocaleString('id-ID') }}
+                  </p>
+                </div>
+
+                <button
+                  @click="addToCart(item)"
+                  class="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white"
+                >
+                  + Pesan
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <p class="text-neutral-400">Opening Hours</p>
-            <p>{{ seller.hours }}</p>
-          </div>
+        </div>
+      </div>
 
-          <div>
-            <p class="text-neutral-400">Description</p>
-            <p>{{ seller.description }}</p>
+      <!-- Review -->
+      <div v-if="activeTab === 'Review'" class="space-y-5 px-4">
+        <div
+          v-for="review in reviews"
+          :key="review.id"
+          class="flex gap-4"
+        >
+          <img
+            :src="review.avatar"
+            class="h-10 w-10 rounded-lg object-cover"
+          />
+
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <p class="font-medium">{{ review.name }}</p>
+              <span class="text-xs text-gray-400">{{ review.time }}</span>
+            </div>
+
+            <div class="text-yellow-400 text-sm">★★★★★</div>
+
+            <p class="mt-1 text-sm text-gray-600">
+              {{ review.comment }}
+            </p>
           </div>
         </div>
       </div>
+
+      <!-- Information -->
+      <div
+        v-if="activeTab === 'Information'"
+        class="space-y-3 px-4 text-sm text-gray-600"
+      >
+        <div>
+          <p class="text-gray-400">Patokan</p>
+          <p>{{ seller?.patokan }}</p>
+        </div>
+
+        <div>
+          <p class="text-gray-400">Wilayah</p>
+          <p>
+            {{ seller?.desa }}, {{ seller?.kecamatan }}, {{ seller?.kota }}
+          </p>
+        </div>
+      </div>
+
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+definePageMeta({ layout: 'shop' })
 
 const tabs = ['Menu', 'Review', 'Information']
 const activeTab = ref('Menu')
 
-definePageMeta({
-  layout: 'shop'
-})
-
 const route = useRoute()
 const config = useRuntimeConfig()
 
-const { data, pending, error } = await useAsyncData(
+const { data, error } = await useAsyncData(
   `seller-${route.params.slug}`,
-  () =>
-    $fetch(
-      `${config.public.apiBase}/seller/${route.params.slug}`
-    ),
-  {
-    server: true, // karena Express terpisah
-    lazy: false,
-    default: () => null,
-  }
+  () => $fetch(`${config.public.apiBase}/seller/${route.params.slug}`)
 )
 
 if (error.value) {
   throw createError({
     statusCode: 404,
-    statusMessage: 'Seller tidak ditemukan',
+    statusMessage: 'Seller tidak ditemukan'
   })
 }
 
 const seller = computed(() => data.value?.seller ?? null)
+const products = computed(() => data.value?.seller?.products ?? [])
 
+const groupedProducts = computed(() => {
+  const map = {}
+
+  for (const p of products.value) {
+    if (!p?.category) continue
+
+    const key = p.category.id
+
+    if (!map[key]) {
+      map[key] = {
+        category: p.category,
+        items: []
+      }
+    }
+
+    map[key].items.push(p)
+  }
+
+  return Object.values(map)
+})
+
+const noProducts = computed(() => groupedProducts.value.length === 0)
+
+/* page title */
 const pageTitle = usePageTitle()
 
-watchEffect(() => {
-  pageTitle.value = seller.value?.name || 'Seller Profile'
-})
+if (seller.value) {
+  pageTitle.value = seller.value.name
+} else {
+  pageTitle.value = 'Seller Profile'
+}
 
 useHead(() => ({
   title: pageTitle.value
 }))
 
-const dimsumProducts = ref([
-  {
-    id: 1,
-    name: 'Dimsum Ayam Original',
-    price: 12000,
-    sold: 120,
-    image: 'https://images.unsplash.com/photo-1625944526369-7a4dfe3a8c1c?q=80&w=400&auto=format&fit=crop'
-  },
-  {
-    id: 2,
-    name: 'Dimsum Udang',
-    price: 15000,
-    sold: 86,
-    image: 'https://images.unsplash.com/photo-1604908554166-2b1f7b2c0b4f?q=80&w=400&auto=format&fit=crop'
-  }
-])
-
-const wontonProducts = ref([
-  {
-    id: 3,
-    name: 'Wonton Goreng',
-    price: 14000,
-    sold: 95,
-    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=400&auto=format&fit=crop'
-  },
-  {
-    id: 4,
-    name: 'Wonton Kuah',
-    price: 16000,
-    sold: 64,
-    image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=400&auto=format&fit=crop'
-  }
-])
-
-// contoh handler
 function addToCart (product) {
   console.log('Tambah ke pesanan:', product)
 }
 
-
-const reviews = [
+const reviews = ref([
   {
     id: 1,
     name: 'Jhon Smith',
@@ -308,5 +234,37 @@ const reviews = [
     comment: 'Great food and very fast service!',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
   }
-]
+])
 </script>
+
+<style scoped>
+.profile-image {
+  border: 3px solid white;
+}
+.seller-header {
+  padding-left: 100px;
+  padding-top: 9px;
+  padding-bottom: 17px;
+  padding-right: 10px;
+}
+.seller-tabs {
+  width: 100%;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0px;
+  border-top: 1px solid rgb(229 231 235 / var(--tw-border-opacity, 1));
+}
+.seller-tabs-item {
+  width: 100%;
+  padding-top: 9px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgb(229 231 235 / var(--tw-border-opacity, 1));
+}
+.seller-tabs-item-active,
+.seller-tabs-item:hover {
+  color: rgb(var(--color-primary) / var(--tw-text-opacity, 1));
+  font-weight: 600;
+  border-bottom: 3px solid rgb(var(--color-primary) / var(--tw-text-opacity, 1));
+}
+</style>

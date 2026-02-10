@@ -120,6 +120,8 @@ model Product {
 
   type ProductType
 
+  image String?
+
   vendorId  String?
   partnerId String?
 
@@ -127,6 +129,9 @@ model Product {
   partner Partner? @relation("PartnerProducts", fields: [partnerId], references: [id])
 
   orderItems OrderItem[]
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
   createdAt DateTime @default(now())
 
@@ -278,6 +283,8 @@ model Category {
   parentId String?
   parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children Category[] @relation("CategoryHierarchy")
+
+  products Product[]
 
   isActive Boolean @default(true)
 

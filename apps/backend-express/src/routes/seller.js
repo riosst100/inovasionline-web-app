@@ -34,10 +34,23 @@ router.get('/:slug', async (req, res, next) => {
             verified: true,
             products: {
               where: { isActive: true },
+              orderBy: {
+                name: 'asc',
+              },
               select: {
                 id: true,
                 name: true,
                 price: true,
+                image: true,
+
+                // ✅ ambil kategori produk
+                category: {
+                  select: {
+                    id: true,
+                    name: true,
+                    slug: true
+                  }
+                }
               },
             },
           },
@@ -47,20 +60,8 @@ router.get('/:slug', async (req, res, next) => {
           return null
         }
 
-        // 4️⃣ FLATTEN PRODUCTS
-        const products = seller.products.map((product) => ({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          vendor: {
-            id: vendor.id,
-            name: vendor.name,
-          },
-        }))
-
         return {
-          seller,
-          products,
+          seller
         }
       }
     )

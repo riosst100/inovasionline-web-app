@@ -6,7 +6,6 @@ export const useAuth = () => {
   const accessToken = useState<string | null>('accessToken', () => null)
   const authLoading = useState<boolean>('authLoading', () => true)
 
-  // ✅ ambil API saat runtime, bukan di top-level
   const getAPI = () => {
     const config = useRuntimeConfig()
     return config.public.backendUrl
@@ -14,20 +13,39 @@ export const useAuth = () => {
 
   const refresh = async () => {
     const API = getAPI()
-    const res = await $fetch<LoginResponse>(`${API}/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include'
-    })
-    accessToken.value = res.accessToken
+
+    try {
+      const res = await $fetch<LoginResponse>(`${API}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+
+      accessToken.value = res.accessToken
+      return res
+
+    } catch (err: any) {
+
+      // refresh gagal (401, 403, dll) = normal
+      accessToken.value = null
+      return null
+    } finally {
+      authLoading.value = false
+    }
   }
 
   const logout = async () => {
     const API = getAPI()
-    await $fetch(`${API}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include'
-    })
-    accessToken.value = null
+
+    try {
+      await $fetch(`${API}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+    } catch (e) {
+      // boleh diabaikan
+    } finally {
+      accessToken.value = null
+    }
   }
 
   return {
