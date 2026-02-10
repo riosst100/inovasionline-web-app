@@ -4,8 +4,8 @@
   }
   .seller-header {
     padding-left: 100px;
-    padding-top: 8px;
-    padding-bottom: 18px;
+    padding-top: 9px;
+    padding-bottom: 17px;
     padding-right: 10px;
   }
   .seller-tabs {
@@ -41,7 +41,7 @@
         :src="seller.image || '/images/vendor-placeholder.png'"
         alt=""
         class="w-full object-cover"
-        style="height:7rem"
+        style="height:9rem"
       />
       <!-- profile photo -->
       <div class="absolute" style="bottom:-60px;left:10px">
