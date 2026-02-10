@@ -1,4 +1,7 @@
 <script setup lang="ts">
+
+import CategoryBanner from '@/components/category/CategoryBanner.vue'
+
 const route = useRoute()
 const config = useRuntimeConfig()
 
@@ -67,10 +70,11 @@ const products = computed(() => data.value?.products ?? [])
         </div>
       </div>
 
+      <CategoryBanner />
+
       <!-- ================= CONTENT ================= -->
-      <div class="px-4 pb-8">
+      <div class="px-4 pt-4">
         <div class="bg-white rounded-2xl">
-          
           <!-- ========== LIST SELLER VERTIKAL ========== -->
           <div v-if="vendors.length" class="mt-2">
             <h2 class="text-base font-semibold text-gray-900 mb-3">
@@ -78,8 +82,9 @@ const products = computed(() => data.value?.products ?? [])
             </h2>
 
             <div class="space-y-4">
-              <div
+              <NuxtLink
                 v-for="vendor in vendors"
+                :to="`/seller/${vendor.id}`"
                 :key="vendor.id"
                 class="
                   flex
@@ -93,12 +98,14 @@ const products = computed(() => data.value?.products ?? [])
                 "
               >
                 <!-- IMAGE -->
-                <img
+                <NuxtImg
+                  placeholder
+                  format="avif,webp"
+                  quality="75"
                   :src="vendor.image || '/images/vendor-placeholder.png'"
-                  class="w-20 h-20 rounded-lg object-cover shrink-0"
                   alt=""
+                  class="w-20 h-20 rounded-lg object-cover shrink-0"
                 />
-
 
                 <!-- CONTENT -->
                 <div class="flex-1">
@@ -121,7 +128,7 @@ const products = computed(() => data.value?.products ?? [])
                     <span>100+ pesanan</span>
                   </div>
                 </div>
-              </div>
+              </NuxtLink>
             </div>
           </div>
 
@@ -166,7 +173,7 @@ const products = computed(() => data.value?.products ?? [])
           </div>
 
           <!-- ========== EMPTY STATE ========== -->
-          <div
+          <!-- <div
             v-if="!products.length"
             class="
               py-20
@@ -188,7 +195,7 @@ const products = computed(() => data.value?.products ?? [])
             <p class="text-xs text-gray-400 mt-1">
               Coba subkategori lain atau kembali nanti
             </p>
-          </div>
+          </div> -->
 
         </div>
       </div>
