@@ -84,24 +84,82 @@
       <div class="mt-6 pb-10">
         <!-- Menu -->
         <div v-if="activeTab === 'Menu'" class="space-y-4">
-          <div
-            v-for="item in menu"
-            :key="item.id"
-            class="flex items-center gap-4 rounded-xl bg-neutral-800 p-3"
-          >
-            <img
-              :src="item.image"
-              class="h-16 w-16 rounded-lg object-cover"
-            />
-
-            <div class="flex-1">
-              <p class="font-medium">{{ item.name }}</p>
-              <p class="text-sm text-neutral-400">{{ item.desc }}</p>
+          <!-- Product List -->
+          <div class="space-y-6 py-0 px-2">
+            <!-- Dimsum -->
+            <div>
+              <h3 class="mb-3 text-sm font-semibold text-gray-700">
+                Dimsum
+              </h3>
+              <div class="space-y-3">
+                <div
+                  v-for="item in dimsumProducts"
+                  :key="item.id"
+                  class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3"
+                >
+                  <img
+                    :src="item.image"
+                    class="h-16 w-16 rounded-lg object-cover"
+                  />
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-800">
+                      {{ item.name }}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      Terjual {{ item.sold }}
+                    </p>
+                    <p class="mt-1 text-sm font-semibold text-[rgb(var(--color-primary))]">
+                      Rp {{ item.price.toLocaleString('id-ID') }}
+                    </p>
+                  </div>
+                  <button
+                    @click="addToCart(item)"
+                    class="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white"
+                  >
+                    + Pesan
+                  </button>
+                </div>
+              </div>
             </div>
+            <!-- Wonton -->
+            <div>
+              <h3 class="mb-3 text-sm font-semibold text-gray-700">
+                Wonton
+              </h3>
+              <div class="space-y-3">
+                <div
+                  v-for="item in wontonProducts"
+                  :key="item.id"
+                  class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3"
+                >
+                  <img
+                    :src="item.image"
+                    class="h-16 w-16 rounded-lg object-cover"
+                  />
 
-            <p class="text-sm font-semibold text-orange-400">
-              {{ item.price }}
-            </p>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-800">
+                      {{ item.name }}
+                    </p>
+
+                    <p class="text-xs text-gray-500">
+                      Terjual {{ item.sold }}
+                    </p>
+
+                    <p class="mt-1 text-sm font-semibold text-[rgb(var(--color-primary))]">
+                      Rp {{ item.price.toLocaleString('id-ID') }}
+                    </p>
+                  </div>
+
+                  <button
+                    @click="addToCart(item)"
+                    class="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white"
+                  >
+                    + Pesan
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -202,42 +260,45 @@ useHead(() => ({
   title: pageTitle.value
 }))
 
-// const seller = {
-//   name: 'Food Order Restaurant',
-//   address: '70th Street, 80 R 20th St, RU',
-//   openTime: '10:00 - 05:00',
-//   rating: 4.9,
-//   reviews: 1220,
-//   phone: '+7 999 123 4567',
-//   hours: 'Everyday, 10:00 - 05:00',
-//   description:
-//     'A cozy restaurant serving modern food with fresh ingredients and fast service.',
-//   cover:
-//     'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1200&auto=format&fit=crop',
-
-//   // FOTO PROFILE (kotak)
-//   avatar:
-//     'https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=400&auto=format&fit=crop'
-// }
-
-const menu = [
+const dimsumProducts = ref([
   {
     id: 1,
-    name: 'Grilled Chicken Bowl',
-    desc: 'Chicken, rice, vegetables',
-    price: '$8.50',
-    image:
-      'https://images.unsplash.com/photo-1604908177522-0400c6f2c7c3?q=80&w=400&auto=format&fit=crop'
+    name: 'Dimsum Ayam Original',
+    price: 12000,
+    sold: 120,
+    image: 'https://images.unsplash.com/photo-1625944526369-7a4dfe3a8c1c?q=80&w=400&auto=format&fit=crop'
   },
   {
     id: 2,
-    name: 'Beef Burger',
-    desc: 'Beef, cheese, special sauce',
-    price: '$6.90',
-    image:
-      'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=400&auto=format&fit=crop'
+    name: 'Dimsum Udang',
+    price: 15000,
+    sold: 86,
+    image: 'https://images.unsplash.com/photo-1604908554166-2b1f7b2c0b4f?q=80&w=400&auto=format&fit=crop'
   }
-]
+])
+
+const wontonProducts = ref([
+  {
+    id: 3,
+    name: 'Wonton Goreng',
+    price: 14000,
+    sold: 95,
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=400&auto=format&fit=crop'
+  },
+  {
+    id: 4,
+    name: 'Wonton Kuah',
+    price: 16000,
+    sold: 64,
+    image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=400&auto=format&fit=crop'
+  }
+])
+
+// contoh handler
+function addToCart (product) {
+  console.log('Tambah ke pesanan:', product)
+}
+
 
 const reviews = [
   {

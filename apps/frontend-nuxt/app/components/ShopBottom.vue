@@ -6,25 +6,25 @@
   >
     <div
       class="flex items-center gap-3 bg-[rgb(var(--color-primary))] px-6 py-3 shadow-lg"
-      style="justify-content: center;border-radius:30px"
+      style="justify-content: center;border-radius:30px;gap:8px"
     >
       <!-- Icon -->
       <div class="relative">
-        <Icon icon="lineicons:cart-1" class="text-white" width="28" />
+        <Icon icon="material-symbols-light:order-approve-rounded" class="text-white" width="28" />
         <!-- <a href="/cart" class="header-icon"><Icon icon="lineicons:cart-1" width="29" height="29" /></a> -->
 
         <!-- badge jumlah -->
-        <span
+        <!-- <span
           v-if="cartCount > 0"
           class="absolute -top-2 -right-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-semibold text-white"
         >
           {{ cartCount }}
-        </span>
+        </span> -->
       </div>
 
       <!-- Text -->
       <div class="text-sm text-white" style="font-weight: 500;">
-        Keranjang Belanja
+        Buat Pesanan (2 produk)
       </div>
     </div>
   </div>
