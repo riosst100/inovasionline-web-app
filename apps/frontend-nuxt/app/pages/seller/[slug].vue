@@ -77,7 +77,7 @@
       </div>
 
       <!-- Tabs -->
-      <div class="mt-5 flex gap-0 seller-tabs">
+      <div class="flex gap-0 seller-tabs">
         <button
           v-for="tab in tabs"
           :key="tab"
