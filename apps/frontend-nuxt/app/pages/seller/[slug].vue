@@ -4,8 +4,8 @@
   }
   .seller-header {
     padding-left: 100px;
-    padding-top: 5px;
-    padding-bottom: 10px;
+    padding-top: 8px;
+    padding-bottom: 18px;
     padding-right: 10px;
   }
   .seller-tabs {
@@ -18,7 +18,9 @@
   }
   .seller-tabs-item {
     width: 100%;
-    border-bottom: 1px solid grey;
+    padding-top: 9px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgb(229 231 235 / var(--tw-border-opacity, 1));
   }
   .seller-tabs-item-active,.seller-tabs-item:hover {
     color: rgb(var(--color-primary) / var(--tw-text-opacity, 1));
@@ -38,22 +40,11 @@
         quality="75"
         :src="seller.image || '/images/vendor-placeholder.png'"
         alt=""
-        class="h-24 w-full object-cover"
+        class="w-full object-cover"
+        style="height:7rem"
       />
-
-      <!-- back button -->
-      <button
-        class="absolute top-4 left-4 rounded-full bg-black/50 p-2"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-
       <!-- profile photo -->
-      <div class="absolute" style="bottom:-50px;left:10px">
+      <div class="absolute" style="bottom:-60px;left:10px">
         <NuxtImg
           placeholder
           format="avif,webp"
@@ -70,12 +61,10 @@
         <h1 class="font-semibold" style="font-size:16px">
           {{ seller.name }}
         </h1>
-
         <p class="mt-1 text-xs text-gray-600">
           Desa {{ seller.desa}}, Kec. {{ seller.kecamatan}}
         </p>
       </div>
-
       <!-- Tabs -->
       <div class="flex gap-0 seller-tabs">
         <button

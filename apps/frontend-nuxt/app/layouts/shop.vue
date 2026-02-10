@@ -1,6 +1,6 @@
 <script setup>
-  import BottomNavbar from '~/components/BottomNavbar.vue';
-  import HomeHeader from '~/components/HomeHeader.vue';
+  import ShopBottom from '~/components/ShopBottom.vue';
+  import SubPageHeader from '~/components/SubPageHeader.vue';
   import { SpeedInsights } from '@vercel/speed-insights/vue';
   import { Analytics } from '@vercel/analytics/nuxt'
 
@@ -16,12 +16,12 @@
 </script>
 
 <template>
-  <HomeHeader />
+  <SubPageHeader />
     <main class="bg-white pb-6">
       <NuxtPage />
     </main>
   <HomeFooter />
-  <BottomNavbar />
+  <ShopBottom />
   <SpeedInsights />
   <Analytics />
 </template>
