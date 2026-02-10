@@ -28,7 +28,7 @@
 <style scoped>
     .header {
         position: fixed;
-        background: #0000007a;
+        background: #00000063;
         width: 100%;
     }
     .header-icon {
