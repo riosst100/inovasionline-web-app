@@ -4,6 +4,9 @@ import { getOrSetCache } from '../utils/cache.js'
 
 const router = express.Router()
 
+// ===============================
+// SELLER INFO (ringan, untuk SSR)
+// ===============================
 router.get('/:slug', async (req, res, next) => {
   try {
     const { slug } = req.params
@@ -12,7 +15,7 @@ router.get('/:slug', async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid seller url' })
     }
 
-    const cacheKey = `seller-${slug}`
+    const cacheKey = `seller-info-${slug}`
 
     const { data, cache } = await getOrSetCache(
       cacheKey,
@@ -20,7 +23,7 @@ router.get('/:slug', async (req, res, next) => {
       async () => {
         const seller = await prisma.vendor.findFirst({
           where: {
-            id: slug,
+            id: slug
           },
           select: {
             id: true,
@@ -31,38 +34,13 @@ router.get('/:slug', async (req, res, next) => {
             desa: true,
             kecamatan: true,
             kota: true,
-            verified: true,
-            products: {
-              where: { isActive: true },
-              orderBy: {
-                name: 'asc',
-              },
-              select: {
-                id: true,
-                name: true,
-                price: true,
-                image: true,
-
-                // ✅ ambil kategori produk
-                category: {
-                  select: {
-                    id: true,
-                    name: true,
-                    slug: true
-                  }
-                }
-              },
-            },
-          },
+            verified: true
+          }
         })
 
-        if (!seller) {
-          return null
-        }
+        if (!seller) return null
 
-        return {
-          seller
-        }
+        return { seller }
       }
     )
 
@@ -77,5 +55,68 @@ router.get('/:slug', async (req, res, next) => {
     next(err)
   }
 })
+
+// ==================================
+// SELLER PRODUCTS (berat, CSR only)
+// ==================================
+router.get('/:slug/products', async (req, res, next) => {
+  try {
+    const { slug } = req.params
+
+    if (!slug) {
+      return res.status(400).json({ message: 'Invalid seller url' })
+    }
+
+    const cacheKey = `seller-products-${slug}`
+
+    const { data, cache } = await getOrSetCache(
+      cacheKey,
+      120, // boleh lebih pendek
+      async () => {
+        const seller = await prisma.vendor.findFirst({
+          where: {
+            id: slug
+          },
+          select: {
+            products: {
+              where: { isActive: true },
+              orderBy: {
+                name: 'asc'
+              },
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                image: true,
+                category: {
+                  select: {
+                    id: true,
+                    name: true,
+                    slug: true
+                  }
+                }
+              }
+            }
+          }
+        })
+
+        if (!seller) return null
+
+        return seller.products
+      }
+    )
+
+    if (!data) {
+      return res.status(404).json({ message: 'Seller not found' })
+    }
+
+    res.setHeader('X-Cache', cache)
+    res.setHeader('Cache-Control', 'public, max-age=120')
+    res.json(data)
+  } catch (err) {
+    next(err)
+  }
+})
+
 
 export default router

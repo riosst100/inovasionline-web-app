@@ -1,39 +1,49 @@
 <script setup lang="ts">
-
 import CategoryBanner from '@/components/category/CategoryBanner.vue'
+
+definePageMeta({
+  ssr: false
+})
 
 const route = useRoute()
 const config = useRuntimeConfig()
 
-const { data, pending, error } = await useAsyncData(
-  `category-${route.params.slug}`,
+const { data, pending, error } = useAsyncData(
+  () => `category-${route.params.slug}`,
   () =>
     $fetch(
       `${config.public.apiBase}/categories/${route.params.slug}`
     ),
   {
-    server: true, // karena Express terpisah
-    lazy: false,
-    default: () => null,
+    server: false
   }
 )
-
-if (error.value) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: 'Kategori tidak ditemukan',
-  })
-}
 
 const category = computed(() => data.value?.category)
 const vendors = computed(() => data.value?.vendors ?? [])
 const products = computed(() => data.value?.products ?? [])
+
+// 👉 khusus CSR, jangan throw createError
+const isNotFound = computed(() => {
+  return !!error.value && !pending.value
+})
 </script>
 
 <template>
   <div class="page">
+
+    <!-- NOT FOUND -->
+    <div
+      v-if="isNotFound"
+      class="py-20 text-center text-sm text-gray-500"
+    >
+      Kategori tidak ditemukan
+    </div>
+
     <!-- LOADING -->
-    <CategorySkeleton v-if="pending || !category" />
+    <CategorySkeleton
+      v-else-if="pending || !category"
+    />
 
     <template v-else>
       <!-- ================= TOP SECTION ================= -->

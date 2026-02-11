@@ -57,16 +57,28 @@
       <!-- Menu -->
       <div v-if="activeTab === 'Menu'">
 
-        <div
-          v-if="noProducts"
-          class="flex flex-col items-center justify-center py-12 text-center text-gray-500"
-        >
-          <p class="text-sm font-medium">Belum ada produk</p>
-          <p class="mt-1 text-xs">Penjual belum menambahkan produk.</p>
-        </div>
+        <!-- loading produk / skeleton -->
+<div
+  v-if="!productsLoaded || productsPending"
+>
+  <SellerProductsSkeleton />
+</div>
 
-        <div v-else class="space-y-6" style="padding: 0px 10px;">
+<!-- kosong -->
+<div
+  v-else-if="noProducts"
+  class="flex flex-col items-center justify-center py-12 text-center text-gray-500"
+>
+  <p class="text-sm font-medium">Belum ada produk</p>
+  <p class="mt-1 text-xs">Penjual belum menambahkan produk.</p>
+</div>
 
+<!-- ada data -->
+<div
+  v-else
+  class="space-y-6"
+  style="padding: 0px 10px;"
+>
           <div
             v-for="group in groupedProducts"
             :key="group.category.id"
@@ -162,6 +174,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import SellerProductsSkeleton from '@/components/skeletons/SellerProductsSkeleton'
 
 definePageMeta({ layout: 'shop' })
 
@@ -171,8 +184,11 @@ const activeTab = ref('Menu')
 const route = useRoute()
 const config = useRuntimeConfig()
 
-const { data, error } = await useAsyncData(
-  `seller-${route.params.slug}`,
+/* ===============================
+   SSR – hanya data seller ringan
+   =============================== */
+const { data: sellerRes, error } = await useAsyncData(
+  () => `seller-info-${route.params.slug}`,
   () => $fetch(`${config.public.apiBase}/seller/${route.params.slug}`)
 )
 
@@ -183,9 +199,28 @@ if (error.value) {
   })
 }
 
-const seller = computed(() => data.value?.seller ?? null)
-const products = computed(() => data.value?.seller?.products ?? [])
+const seller = computed(() => sellerRes.value?.seller ?? null)
 
+/* ===============================
+   CSR – products (berat)
+   =============================== */
+const { data: productsRes, pending: productsPending } = useAsyncData(
+  () => `seller-products-${route.params.slug}`,
+  () =>
+    $fetch(
+      `${config.public.apiBase}/seller/${route.params.slug}/products`
+    ),
+  {
+    server: false,
+    lazy: true
+  }
+)
+
+const products = computed(() => productsRes.value ?? [])
+
+/* ===============================
+   grouping
+   =============================== */
 const groupedProducts = computed(() => {
   const map = {}
 
@@ -207,19 +242,39 @@ const groupedProducts = computed(() => {
   return Object.values(map)
 })
 
-const noProducts = computed(() => groupedProducts.value.length === 0)
+const noProducts = computed(
+  () => !productsPending.value && groupedProducts.value.length === 0
+)
 
-/* page title */
+const productsLoaded = computed(() => {
+  return productsPending.value || productsRes.value !== undefined
+})
+
+
 const pageTitle = usePageTitle()
 
-if (seller.value) {
-  pageTitle.value = seller.value.name
-} else {
-  pageTitle.value = 'Seller Profile'
-}
+watchEffect(() => {
+  pageTitle.value = seller.value?.name || 'Seller Profile'
+})
 
+
+/* ===============================
+   title / share meta (SSR ready)
+   =============================== */
 useHead(() => ({
-  title: pageTitle.value
+  title: seller.value?.name || 'Seller Profile',
+  meta: [
+    {
+      property: 'og:title',
+      content: seller.value?.name || 'Seller Profile'
+    },
+    {
+      property: 'og:image',
+      content:
+        seller.value?.image ||
+        '/images/vendor-placeholder.png'
+    }
+  ]
 }))
 
 function addToCart (product) {
