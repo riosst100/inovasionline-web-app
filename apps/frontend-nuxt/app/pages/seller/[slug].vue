@@ -52,7 +52,7 @@
     </div>
 
     <!-- TAB CONTENT (SCROLL AREA) -->
-    <div class="flex-1 overflow-y-auto mt-4 pb-10">
+    <div class="flex-1 overflow-y-auto mt-4">
 
       <!-- Menu -->
       <div v-if="activeTab === 'Menu'">
@@ -91,8 +91,8 @@
               <div
                 v-for="item in group.items"
                 :key="item.id"
-                class="flex items-start gap-3 rounded-xl border border-gray-200 bg-white"
-                style="margin-top: 8px;padding: 0 10px 0 0;"
+                class="flex items-start gap-3 border-b border-gray-200 bg-white"
+                style="margin-top: 8px;padding: 0 8px 8px 0;"
               >
                 <img
                   :src="item.image || '/images/product-placeholder.png'"
