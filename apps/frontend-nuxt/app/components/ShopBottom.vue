@@ -12,7 +12,7 @@
       </div>
       <div class="text-sm text-white" style="font-weight: 500;">
         <!-- Buat Pesanan ({{ cartCount }} produk) -->
-         Silahkan tambahkan produk
+         Silahkan tambahkan pesanan
       </div>
     </div>
   </div>

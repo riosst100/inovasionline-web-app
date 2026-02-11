@@ -91,8 +91,8 @@
               <div
                 v-for="item in group.items"
                 :key="item.id"
-                class="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-2"
-                style="margin-top: 8px;"
+                class="flex items-start gap-3 rounded-xl border border-gray-200 bg-white"
+                style="margin-top: 8px;padding: 0 10px 0 0;"
               >
                 <img
                   :src="item.image || '/images/product-placeholder.png'"
@@ -100,7 +100,7 @@
                   style="height:80px;width:80px"
                 />
 
-                <div class="flex-1">
+                <div class="flex-1 mt-1">
                   <p class="font-semibold">
                     {{ item.name }}
                   </p>
