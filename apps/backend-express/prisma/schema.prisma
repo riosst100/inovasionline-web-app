@@ -63,6 +63,7 @@ model Vendor {
   category   Category @relation(fields: [categoryId], references: [id])
 
   image String?
+  image_banner String?
 
   desa   String? // desa / kelurahan
   patokan        String?

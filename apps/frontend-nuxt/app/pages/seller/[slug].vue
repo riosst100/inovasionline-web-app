@@ -7,8 +7,8 @@
         placeholder
         format="avif,webp"
         quality="75"
-        :src="seller?.image || '/images/vendor-placeholder.png'"
-        alt=""
+        :src="seller?.image_banner || '/banner/store-banner-placeholder.png'"
+        alt="Logo Seller"
         class="w-full object-cover"
         style="height:8rem"
       />
@@ -18,7 +18,7 @@
           placeholder
           format="avif,webp"
           quality="75"
-          :src="seller?.image || '/images/vendor-placeholder.png'"
+          :src="seller?.image || '/logo/store-placeholder.png'"
           alt=""
           class="h-20 w-20 rounded-xl profile-image object-cover"
         />
@@ -83,7 +83,7 @@
             v-for="group in groupedProducts"
             :key="group.category.id"
           >
-            <h3 class="mb-3 text-sm font-semibold text-gray-700">
+            <h3 class="mb-3 text-sm font-bold text-gray-700">
               {{ group.category.name }}
             </h3>
 

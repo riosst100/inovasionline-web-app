@@ -20,7 +20,7 @@ import { Icon } from '@iconify/vue'
         </NuxtLink>
     </span>
     <div class="flex items-center gap-[15px] text-gray-600">
-        <a href="/cart" class="header-icon"><Icon icon="lineicons:cart-1" width="29" height="29" /></a>
+        <a href="/cart" class="header-icon"><Icon icon="ph:bell" width="25" height="25" /></a>
         <a href="/messages" class="header-icon"><Icon icon="token:chat" width="29" height="29" /></a>
       </div>
     </div>

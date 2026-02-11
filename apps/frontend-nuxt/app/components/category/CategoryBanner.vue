@@ -1,11 +1,11 @@
 <template>
-  <section class="mt-2">
+  <section>
     <Swiper
       :modules="modules"
       :slides-per-view="1"
-      :space-between="16"
-      :slides-offset-before="16"
-      :slides-offset-after="16"
+      :space-between="0"
+      :slides-offset-before="0"
+      :slides-offset-after="0"
       :loop="true"
       :autoplay="{
         delay: 3000,
@@ -50,7 +50,7 @@ const banners = [
 </script>
 <style scoped>
 .banner-card {
-  border-radius: 16px; /* atau rounded-app */
+  border-radius: 0px; /* atau rounded-app */
   overflow: hidden;   /* penting */
 }
 

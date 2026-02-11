@@ -30,6 +30,7 @@ router.get('/:slug', async (req, res, next) => {
             name: true,
             company: true,
             image: true,
+            image_banner: true,
             patokan: true,
             desa: true,
             kecamatan: true,

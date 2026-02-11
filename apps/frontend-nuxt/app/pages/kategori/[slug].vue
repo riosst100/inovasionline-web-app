@@ -2,7 +2,8 @@
 import CategoryBanner from '@/components/category/CategoryBanner.vue'
 
 definePageMeta({
-  ssr: false
+  ssr: false,
+  layout: 'sub-page'
 })
 
 const route = useRoute()
@@ -22,6 +23,12 @@ const { data, pending, error } = useAsyncData(
 const category = computed(() => data.value?.category)
 const vendors = computed(() => data.value?.vendors ?? [])
 const products = computed(() => data.value?.products ?? [])
+
+const pageTitle = usePageTitle()
+
+watchEffect(() => {
+  pageTitle.value = category.value?.name || 'Kategori'
+})
 
 // 👉 khusus CSR, jangan throw createError
 const isNotFound = computed(() => {
@@ -46,47 +53,43 @@ const isNotFound = computed(() => {
     />
 
     <template v-else>
-      <!-- ================= TOP SECTION ================= -->
-      <div class="px-4 pt-4 pb-3">
-        <h1 class="text-lg font-semibold text-gray-900 mb-3">
-          {{ category.name }}
-        </h1>
-
-        <!-- SUB CATEGORY -->
-        <div
-          v-if="category.children?.length"
-          class="flex gap-2 overflow-x-auto no-scrollbar"
-        >
-          <button
-            v-for="sub in category.children"
-            :key="sub.id"
-            class="
-              px-4 py-1.5
-              rounded-full
-              text-sm
-              font-medium
-              border
-              shrink-0
-              transition
-              bg-white
-              border-gray-200
-              text-gray-700
-              hover:bg-gray-100
-              active:scale-95
-            "
-          >
-            {{ sub.name }}
-          </button>
-        </div>
+      <div style="padding-top:0px">
+        <CategoryBanner />
       </div>
-
-      <CategoryBanner />
-
-      <!-- ================= CONTENT ================= -->
-      <div class="px-4 pt-4">
+      <div class="px-4 pt-1">
         <div class="bg-white rounded-2xl">
           <!-- ========== LIST SELLER VERTIKAL ========== -->
-          <div v-if="vendors.length" class="mt-2">
+           <div v-if="vendors.length" class="mt-2">
+            <h2 class="text-base font-semibold text-gray-900 mb-3">
+              Kategori
+            </h2>
+            <div
+              v-if="category.children?.length"
+              class="flex gap-2 overflow-x-auto no-scrollbar"
+            >
+              <button
+                v-for="sub in category.children"
+                :key="sub.id"
+                class="
+                  px-4 py-1.5
+                  rounded-full
+                  text-sm
+                  font-medium
+                  border
+                  shrink-0
+                  transition
+                  bg-white
+                  border-gray-200
+                  text-gray-700
+                  hover:bg-gray-100
+                  active:scale-95
+                "
+              >
+                {{ sub.name }}
+              </button>
+            </div>
+          </div>
+          <div v-if="vendors.length" class="mt-6">
             <h2 class="text-base font-semibold text-gray-900 mb-3">
               Top Seller
             </h2>
@@ -112,7 +115,7 @@ const isNotFound = computed(() => {
                   placeholder
                   format="avif,webp"
                   quality="75"
-                  :src="vendor.image || '/images/vendor-placeholder.png'"
+                  :src="vendor.image || '/logo/store-placeholder.png'"
                   alt=""
                   class="w-20 h-20 rounded-lg object-cover shrink-0"
                 />

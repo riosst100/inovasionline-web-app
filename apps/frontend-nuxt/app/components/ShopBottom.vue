@@ -11,7 +11,7 @@
         <Icon icon="material-symbols-light:order-approve-rounded" class="text-white" width="28" />
       </div>
       <div class="text-sm text-white" style="font-weight: 500;">
-        <!-- Buat Pesanan ({{ cartCount }} produk) -->
+        <!-- Buat Pesanan ({{ cartCount }}) -->
          Silahkan tambahkan pesanan
       </div>
     </div>

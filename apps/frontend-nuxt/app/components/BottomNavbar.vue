@@ -36,14 +36,14 @@ const menus = [
     icon: 'ph:house-fill',
   },
   {
-    name: 'Feed',
+    name: 'Postingan',
     to: '/feed',
-    icon: 'ph:newspaper',
+    icon: 'material-symbols:rss-feed-rounded',
   },
   {
-    name: 'Notifikasi',
+    name: 'Pesanan',
     to: '/notifikasi',
-    icon: 'ph:bell',
+    icon: 'teenyicons:receipt-outline',
   },
   {
     name: 'Saya',
