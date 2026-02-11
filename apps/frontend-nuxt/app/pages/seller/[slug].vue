@@ -116,11 +116,11 @@
 
                 <div
                   class="flex self-center items-center gap-3 bg-[rgb(var(--color-primary))]"
-                  style="justify-content: center;border-radius:20px;gap:5px;padding: 8px 10px;"
+                  style="justify-content: center;border-radius:20px;gap:5px;padding: 7px 10px;"
                   @click="addToCart(item)"
                 >
                   <div>
-                    <Icon icon="mingcute:add-fill" class="text-white" style="display:inline" height="16" width="16" />
+                    <Icon icon="mingcute:add-fill" class="text-white" style="display:inline" height="14" width="14" />
                   </div>
                   <div class="text-white" style="font-weight: normal;">
                     Pesan
