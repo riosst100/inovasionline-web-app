@@ -55,11 +55,36 @@ const actions = [
     badge: 2,
   },
 ]
+
+const auth = useAuth()
+const seller = ref(null)
+
+onMounted(async () => {
+  if (auth.authLoading.value) {
+    await auth.refresh()
+  }
+
+  if (!auth.accessToken.value) return
+
+  try {
+    const res = await $fetch('/seller/me', {
+      baseURL: useRuntimeConfig().public.apiBase,
+      headers: {
+        Authorization: `Bearer ${auth.accessToken.value}`
+      }
+    })
+
+    seller.value = res.seller
+  } catch (err) {
+    console.error(err)
+  }
+})
+
 </script>
 
 <template>
-  <section class="px-4 pt-4">
-    <div class="rounded-xl bg-white border p-2">
+  <section v-if="seller" class="px-4 pt-4">
+    <div class="rounded-xl bg-white border p-2 mb-4">
       <p class="mb-4 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">
         <Icon icon="iconoir:eye" style="width:15px;height:15px;margin-right:5px" /> Hanya terlihat oleh Anda
       </p>
@@ -74,24 +99,25 @@ const actions = [
         />
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-gray-800 truncate">
-            Toko Sumber Rejeki
+            {{ seller?.name }}
           </p>
           <p class="text-xs text-gray-500 truncate">
-            Desa Tiwulandu, Kec. Banjarharjo
+            Desa {{ seller?.desa }}, Kec. {{ seller?.kecamatan }}
           </p>
         </div>
 
         <!-- button pusat penjual -->
-        <button
-          class="flex self-center items-center text-white gap-3 bg-[rgb(var(--color-primary))]"
-          style="justify-content: center;border-radius:20px;gap:5px;padding: 7px 10px;"
-        >
-          Pusat Penjual
-        </button>
+         <NuxtLink to="/seller-dashboard">
+          <button
+            class="flex self-center items-center text-white gap-3 bg-[rgb(var(--color-primary))]"
+            style="justify-content: center;border-radius:20px;gap:5px;padding: 7px 10px;"
+          >
+            Pusat Penjual
+          </button>
+        </NuxtLink>
       </div>
-
       <!-- divider -->
-      <div class="my-3 h-px bg-gray-100"></div>
+      <div class="my-3 h-px bg-gray-200"></div>
 
       <!-- bottom actions -->
       <div class="grid grid-cols-3">
@@ -119,6 +145,7 @@ const actions = [
         </button>
       </div>
     </div>
+    <hr />
   </section>
   <section v-if="showWelcome" class="px-4 pt-[15px]">
     <div

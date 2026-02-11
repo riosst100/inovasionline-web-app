@@ -1,8 +1,53 @@
 import express from 'express'
 import prisma from '../utils/prisma.js'
 import { getOrSetCache } from '../utils/cache.js'
+import jwt from 'jsonwebtoken'
 
 const router = express.Router()
+
+// ===============================
+// CURRENT USER SELLER (CSR only)
+// ===============================
+router.get('/me', async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    const token = authHeader.split(' ')[1]
+
+    let payload
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET)
+    } catch {
+      return res.status(401).json({ message: 'Invalid token' })
+    }
+
+    const userId = payload.id
+
+    const vendor = await prisma.vendor.findFirst({
+      where: {
+        userId
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        patokan: true,
+        desa: true,
+        kecamatan: true,
+        kota: true,
+        verified: true
+      }
+    })
+
+    return res.json({ seller: vendor })
+  } catch (err) {
+    next(err)
+  }
+})
 
 // ===============================
 // SELLER INFO (ringan, untuk SSR)
