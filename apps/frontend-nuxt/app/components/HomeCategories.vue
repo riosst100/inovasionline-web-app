@@ -6,7 +6,7 @@
         :key="category.id"
         :to="`/kategori/${category.slug}`"
         class="flex flex-col items-center gap-2"
-        prefetch
+        :prefetch="category.slug === 'food-beverages'"
       >
         <div
           class="w-14 h-14 rounded-full category-item flex items-center justify-center"
@@ -38,7 +38,7 @@ const {
   pending,
   error,
   refresh
-} = await useAsyncData(
+} = useAsyncData(
   'categories-homepage',
   async () => {
     const res = await $fetch(`${config.public.apiBase}/homepage`)
