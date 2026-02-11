@@ -116,7 +116,7 @@
 
                 <div
                   class="flex self-center items-center gap-3 bg-[rgb(var(--color-primary))] px-4"
-                  style="justify-content: center;border-radius:20px;gap:5px;padding-top: 5px;padding-bottom: 8px;"
+                  style="justify-content: center;border-radius:20px;gap:5px;padding-top: 5px;padding-bottom: 5px;"
                   @click="addToCart(item)"
                 >
                   <div>
