@@ -3,7 +3,7 @@
     class="fixed left-0 right-0 z-30 flex justify-center"
     style="bottom:30px"
   >
-    <!-- <div
+    <div
       class="flex items-center gap-3 bg-[rgb(var(--color-primary))] px-6 py-3 shadow-lg"
       style="justify-content: center;border-radius:30px;gap:8px"
     >
@@ -11,9 +11,10 @@
         <Icon icon="material-symbols-light:order-approve-rounded" class="text-white" width="28" />
       </div>
       <div class="text-sm text-white" style="font-weight: 500;">
-        Buat Pesanan ({{ cartCount }} produk)
+        <!-- Buat Pesanan ({{ cartCount }} produk) -->
+         Silahkan tambahkan produk
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 

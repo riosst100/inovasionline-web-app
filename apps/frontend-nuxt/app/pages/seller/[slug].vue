@@ -91,29 +91,41 @@
               <div
                 v-for="item in group.items"
                 :key="item.id"
-                class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3"
+                class="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-2"
+                style="margin-top: 8px;"
               >
                 <img
                   :src="item.image || '/images/product-placeholder.png'"
-                  class="h-16 w-16 rounded-lg object-cover"
+                  class="self-center rounded-lg object-cover"
+                  style="height:80px;width:80px"
                 />
 
                 <div class="flex-1">
-                  <p class="text-sm font-semibold text-gray-800">
+                  <p class="font-semibold">
                     {{ item.name }}
                   </p>
 
-                  <p class="mt-1 text-sm font-semibold text-[rgb(var(--color-primary))]">
+                  <p class="font-semibold text-[rgb(var(--color-primary))]">
                     Rp {{ Number(item.price).toLocaleString('id-ID') }}
+                  </p>
+
+                  <p class="text-xs text-gray-400 mt-2">
+                    0 terjual
                   </p>
                 </div>
 
-                <button
+                <div
+                  class="flex self-center items-center gap-3 bg-[rgb(var(--color-primary))] px-4"
+                  style="justify-content: center;border-radius:20px;gap:5px;padding-top: 5px;padding-bottom: 8px;"
                   @click="addToCart(item)"
-                  class="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white"
                 >
-                  + Pesan
-                </button>
+                  <div>
+                    <Icon icon="mingcute:add-fill" class="text-white" style="display:inline" height="16" width="16" />
+                  </div>
+                  <div class="text-white" style="font-weight: normal;">
+                    Pesan
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -175,6 +187,7 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import SellerProductsSkeleton from '@/components/skeletons/SellerProductsSkeleton'
+import { Icon } from '@iconify/vue'
 
 definePageMeta({ layout: 'shop' })
 
@@ -312,14 +325,14 @@ const reviews = ref([
 }
 .seller-tabs-item {
   width: 100%;
-  padding-top: 9px;
-  padding-bottom: 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgb(229 231 235 / var(--tw-border-opacity, 1));
 }
 .seller-tabs-item-active,
 .seller-tabs-item:hover {
   color: rgb(var(--color-primary) / var(--tw-text-opacity, 1));
   font-weight: 600;
-  border-bottom: 3px solid rgb(var(--color-primary) / var(--tw-text-opacity, 1));
+  border-bottom: 2px solid rgb(var(--color-primary) / var(--tw-text-opacity, 1));
 }
 </style>
