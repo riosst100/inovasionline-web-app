@@ -3,7 +3,6 @@
 const config = useRuntimeConfig()
 const { $getFcmToken, $resetFcmToken, $onForegroundMessage } = useNuxtApp()
 
-
 const token = ref<string | null>(null)
 const sending = ref(false)
 const notifPermission = ref<'default' | 'granted' | 'denied'>('default')
@@ -18,13 +17,13 @@ async function saveToken(fcmToken: string) {
 
 // ambil token + simpan
 async function registerPush(showAlert = true) {
-    if (Notification.permission === 'denied') {
-  alert(
-    'Notifikasi diblokir.\nSilakan buka Settings aplikasi lalu aktifkan Notifications.'
-  )
-  return
-}
 
+  if (Notification.permission === 'denied') {
+    alert(
+      'Notifikasi diblokir.\nSilakan buka Settings aplikasi lalu aktifkan Notifications.'
+    )
+    return
+  }
 
   const t = await $getFcmToken()
 
@@ -47,6 +46,7 @@ async function registerPush(showAlert = true) {
 
 // kirim push dari UI
 async function sendPush() {
+
   if (!token.value) {
     alert('Token belum ada')
     return
@@ -70,6 +70,11 @@ async function sendPush() {
   }
 }
 
+async function resetToken() {
+  await $resetFcmToken()
+  token.value = null
+  alert('Token lokal di device dihapus. Reload lalu daftar ulang.')
+}
 
 onMounted(async () => {
 
@@ -81,26 +86,23 @@ onMounted(async () => {
   }
 
   // foreground message handler
-  $onForegroundMessage((payload: any) => {
+  $onForegroundMessage(async (payload: any) => {
 
     console.log('FG payload:', payload)
 
     if (!payload?.data) return
 
-    if (Notification.permission === 'granted') {
-      new Notification(payload.data.title, {
-        body: payload.data.body
-      })
-    }
+    // 🔥 jangan pakai new Notification()
+    const reg = await navigator.serviceWorker.getRegistration()
+
+    if (!reg) return
+
+    await reg.showNotification(payload.data.title, {
+      body: payload.data.body,
+      icon: '/icon.png'
+    })
   })
 })
-
-async function resetToken() {
-  await $resetFcmToken()
-  token.value = null
-  alert('Token lokal di device dihapus. Reload lalu daftar ulang.')
-}
-
 
 </script>
 
@@ -109,9 +111,10 @@ async function resetToken() {
     <h1>Push TWA Nuxt</h1>
 
     <button @click="resetToken">
-  Reset token device ini
-</button>
+      Reset token device ini
+    </button>
 
+    <br /><br />
 
     <!-- tombol hanya muncul kalau belum granted -->
     <button

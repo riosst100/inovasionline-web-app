@@ -12,34 +12,38 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging()
 
+// tetap pakai ini untuk desktop / fallback
 messaging.onBackgroundMessage(function (payload) {
+  show(payload)
+})
 
-  console.log('[SW] push payload', payload)
+// 🔥 tambahan untuk Android Chrome
+self.addEventListener('push', function (event) {
 
-  const title = payload.data?.title || 'Notif'
+  if (!event.data) return
+
+  let payload = {}
+
+  try {
+    payload = event.data.json()
+  } catch (e) {
+    return
+  }
+
+  show(payload)
+})
+
+function show(payload) {
+
+  console.log('[SW] show payload', payload)
+
+  const data = payload.data || payload.notification || {}
+
+  const title = data.title || 'Notif'
   const options = {
-    body: payload.data?.body || '',
+    body: data.body || '',
     icon: '/icon.png'
   }
 
   self.registration.showNotification(title, options)
-})
-
-
-
-// import { initializeApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics";
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyA6vPoXAXE6VHeCkzzXgc6sMSlEQyGlLz0",
-//   authDomain: "inovasi-online.firebaseapp.com",
-//   projectId: "inovasi-online",
-//   storageBucket: "inovasi-online.firebasestorage.app",
-//   messagingSenderId: "67090412940",
-//   appId: "1:67090412940:web:6fa84e0dbcb6eb387012a9",
-//   measurementId: "G-262YGLM1ZS"
-// };
-
-// // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-// // const analytics = getAnalytics(app);
+}
