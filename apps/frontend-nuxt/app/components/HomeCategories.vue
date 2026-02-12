@@ -45,12 +45,11 @@ const {
     return res
   },
   {
-    default: () => []
+    default: () => [],
+    server: false
   }
 )
 </script>
-
-
 
 <style scoped>
 .category-item {
