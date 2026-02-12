@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+const config = useRuntimeConfig()
+
 const { $getFcmToken, $onForegroundMessage } = useNuxtApp()
 
 const token = ref<string | null>(null)
