@@ -7,6 +7,8 @@ import crypto from "crypto"
 import prisma from "../utils/prisma.js"
 import { signAccessToken, signRefreshToken } from "../utils/jwt.js"
 
+import admin from "firebase-admin"
+
 const router = express.Router()
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
@@ -25,6 +27,83 @@ const cookieOptions = {
 // helper
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex")
+
+const pendingBinds = new Map()
+
+// REGISTER DEVICE FCM TOKEN
+router.post("/push/register-device", async (req, res) => {
+
+  const { token } = req.body
+
+  if (!token) {
+    return res.status(400).json({ message: "token required" })
+  }
+
+  const code = crypto.randomBytes(16).toString("hex")
+
+  pendingBinds.set(code, token)
+
+  // optional: auto-expire 5 menit
+  setTimeout(() => pendingBinds.delete(code), 5 * 60 * 1000)
+
+  return res.json({ code })
+})
+
+// ATTACH FCM TOKEN TO USER
+router.post("/push/attach", async (req, res) => {
+
+  const { code } = req.body
+
+  if (!code) {
+    return res.status(400).json({ message: "code required" })
+  }
+
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+
+  const tokenJwt = authHeader.replace(/^Bearer\s+/i, "").trim()
+
+  let payload
+  try {
+    payload = jwt.verify(tokenJwt, process.env.JWT_SECRET)
+  } catch {
+    return res.status(401).json({ message: "Invalid token" })
+  }
+
+  const userId = payload.id
+
+  const token = pendingBinds.get(code)
+
+  if (!token) {
+    return res.status(400).json({ message: "invalid / expired code" })
+  }
+
+  try {
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { fcmToken: token }
+    })
+
+    pendingBinds.delete(code)
+
+    return res.json({ success: true })
+
+  } catch (err) {
+
+    if (err.code === "P2002") {
+      return res.status(409).json({
+        message: "FCM token already used"
+      })
+    }
+
+    console.error(err)
+    return res.status(500).json({ message: "Internal error" })
+  }
+})
 
 /**
  * LOGOUT

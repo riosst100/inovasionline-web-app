@@ -29,6 +29,9 @@ model User {
   googleId     String? @unique
   authProvider String  @default("local")
 
+  // ✅ FCM token Android native (1 user = 1 device)
+  fcmToken     String? @unique
+
   vendor  Vendor?
   partner Partner?
   admin   Admin?

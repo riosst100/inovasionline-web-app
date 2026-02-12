@@ -1,5 +1,5 @@
 <template>
-  <div
+  <!-- <div
     class="fixed left-0 right-0 z-30 flex justify-center"
     style="bottom:30px"
   >
@@ -10,12 +10,12 @@
       <div class="relative">
         <Icon icon="material-symbols-light:order-approve-rounded" class="text-white" width="28" />
       </div>
-      <div class="text-sm text-white" style="font-weight: 500;">
+      <div class="text-sm text-white" style="font-weight: 500;"> -->
         <!-- Buat Pesanan ({{ cartCount }}) -->
-         Silahkan tambahkan pesanan
+         <!-- Silahkan tambahkan pesanan
       </div>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script setup>

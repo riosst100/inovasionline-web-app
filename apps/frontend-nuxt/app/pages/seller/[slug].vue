@@ -181,6 +181,18 @@
     </div>
 
   </div>
+<!-- Toast -->
+<transition name="fade">
+  <div
+    v-if="showToast"
+    class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 text-white text-sm px-2 py-2 rounded-lg shadow-lg text-center"
+    style="background:#0000009c;width:80%"
+  >
+    Fitur pemesanan lewat Web/Aplikasi belum tersedia saat ini.
+    Pantau terus Whatsapp <b>{{ seller?.name || 'penjual' }}</b> ya.
+  </div>
+</transition>
+
 </template>
 
 <script setup>
@@ -193,6 +205,8 @@ definePageMeta({ layout: 'shop' })
 
 const tabs = ['Menu', 'Review', 'Information']
 const activeTab = ref('Menu')
+const showToast = ref(false)
+let toastTimer = null
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -291,8 +305,17 @@ useHead(() => ({
 }))
 
 function addToCart (product) {
-  console.log('Tambah ke pesanan:', product)
+  showToast.value = true
+
+  if (toastTimer) {
+    clearTimeout(toastTimer)
+  }
+
+  toastTimer = setTimeout(() => {
+    showToast.value = false
+  }, 3000)
 }
+
 
 const reviews = ref([
   {
@@ -306,6 +329,17 @@ const reviews = ref([
 </script>
 
 <style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 10px);
+}
+
 .profile-image {
   border: 3px solid white;
 }

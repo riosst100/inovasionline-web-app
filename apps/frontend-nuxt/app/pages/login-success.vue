@@ -1,18 +1,66 @@
 <script setup lang="ts">
 definePageMeta({
   layout: false,
-  ssr: false // biar spinner pasti kepaint
+  ssr: false
 })
 
-onMounted(() => {
+const config = useRuntimeConfig()
+
+onMounted(async () => {
+
   // flag login
   sessionStorage.setItem('justLoggedIn', 'true')
 
-  // jamin spinner kepaint dulu
+  // ===========================
+  // 🔔 bind FCM device (kalau ada)
+  // ===========================
+
+  let accessToken = localStorage.getItem('accessToken')
+
+  if (!accessToken) {
+    try {
+      const r = await $fetch<{ accessToken: string }>(
+        `${config.public.backendUrl}/auth/refresh`,
+        {
+          method: 'POST',
+          credentials: 'include'
+        }
+      )
+
+      accessToken = r.accessToken
+      localStorage.setItem('accessToken', accessToken)
+    } catch (e) {
+      // kalau gagal ambil token, tetap lanjut redirect
+      console.error('refresh token failed')
+    }
+  }
+
+  const bindCode = localStorage.getItem('pendingBindCode')
+
+  if (accessToken && bindCode) {
+    try {
+      await $fetch(`${config.public.backendUrl}/auth/push/attach`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        },
+        body: { code: bindCode }
+      })
+
+      localStorage.removeItem('pendingBindCode')
+    } catch (e) {
+      console.error('bind device failed', e)
+    }
+  }
+
+  // ===========================
+  // UI flow kamu tetap
+  // ===========================
+
   requestAnimationFrame(() => {
     setTimeout(() => {
       navigateTo('/', { replace: true })
-    }, 1000) // ⏱️ 1 detik
+    }, 1000)
   })
 })
 </script>
