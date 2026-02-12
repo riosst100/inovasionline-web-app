@@ -1,8 +1,15 @@
 import { initializeApp } from "firebase/app"
-import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging"
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  deleteToken,
+  isSupported
+} from "firebase/messaging"
 
 export default defineNuxtPlugin(async () => {
 
+  // Cegah error di browser / mode yang tidak support
   if (!(await isSupported())) {
     return
   }
@@ -22,8 +29,11 @@ export default defineNuxtPlugin(async () => {
 
   return {
     provide: {
+
+      // expose messaging (optional, for debug)
       messaging,
 
+      // ambil / generate token FCM
       getFcmToken: async () => {
         if (!('Notification' in window)) return null
 
@@ -37,6 +47,18 @@ export default defineNuxtPlugin(async () => {
         return token
       },
 
+      // 🔥 RESET TOKEN DI DEVICE (PC / ANDROID)
+      resetFcmToken: async () => {
+        try {
+          await deleteToken(messaging)
+          return true
+        } catch (e) {
+          console.error('resetFcmToken failed', e)
+          return false
+        }
+      },
+
+      // handler pesan foreground
       onForegroundMessage: (cb: any) => {
         onMessage(messaging, cb)
       }
