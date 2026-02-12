@@ -5,33 +5,30 @@ definePageMeta({
 })
 
 const config = useRuntimeConfig()
+const auth = useAuth()
 
 onMounted(async () => {
 
-  // flag login
+  // flag login (tetap)
   sessionStorage.setItem('justLoggedIn', 'true')
 
-  let accessToken = localStorage.getItem('accessToken')
+  // ===========================
+  // ambil access token dari useAuth
+  // ===========================
+
+  if (auth.authLoading.value) {
+    await auth.refresh()
+  }
+
+  const accessToken = auth.accessToken.value
 
   if (!accessToken) {
-    try {
-      const r = await $fetch<{ accessToken: string }>(
-        `${config.public.backendUrl}/auth/refresh`,
-        {
-          method: 'POST',
-          credentials: 'include'
-        }
-      )
-
-      accessToken = r.accessToken
-      localStorage.setItem('accessToken', accessToken)
-
-      alert('Access token berhasil di-refresh')
-    } catch (e) {
-      console.error('refresh token failed', e)
-      alert('Gagal refresh token')
-    }
+    alert('Access token tidak tersedia')
   }
+
+  // ===========================
+  // bind device kalau ada pendingBindCode
+  // ===========================
 
   const bindCode = localStorage.getItem('pendingBindCode')
 
@@ -53,14 +50,12 @@ onMounted(async () => {
       )
 
       alert('Bind device berhasil')
-
       console.log('attach response:', res)
 
       localStorage.removeItem('pendingBindCode')
     } catch (e: any) {
       console.error('bind device failed', e)
 
-      // kalau backend kirim message
       const msg =
         e?.data?.message ||
         e?.message ||
@@ -70,6 +65,9 @@ onMounted(async () => {
     }
   }
 
+  // ===========================
+  // redirect tetap
+  // ===========================
   requestAnimationFrame(() => {
     setTimeout(() => {
       navigateTo('/', { replace: true })
