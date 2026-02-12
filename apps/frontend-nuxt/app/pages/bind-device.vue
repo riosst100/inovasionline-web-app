@@ -5,6 +5,7 @@ onMounted(() => {
   const code = route.query.code
 
   if (code) {
+    alert('code: ' + code)
     localStorage.setItem("pendingBindCode", code)
   }
 
