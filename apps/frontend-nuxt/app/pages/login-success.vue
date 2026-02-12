@@ -11,10 +11,6 @@ onMounted(async () => {
   // flag login
   sessionStorage.setItem('justLoggedIn', 'true')
 
-  // ===========================
-  // 🔔 bind FCM device (kalau ada)
-  // ===========================
-
   let accessToken = localStorage.getItem('accessToken')
 
   if (!accessToken) {
@@ -29,33 +25,50 @@ onMounted(async () => {
 
       accessToken = r.accessToken
       localStorage.setItem('accessToken', accessToken)
+
+      alert('Access token berhasil di-refresh')
     } catch (e) {
-      // kalau gagal ambil token, tetap lanjut redirect
-      console.error('refresh token failed')
+      console.error('refresh token failed', e)
+      alert('Gagal refresh token')
     }
   }
 
   const bindCode = localStorage.getItem('pendingBindCode')
 
-  if (accessToken && bindCode) {
-    try {
-      await $fetch(`${config.public.backendUrl}/auth/push/attach`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        },
-        body: { code: bindCode }
-      })
-
-      localStorage.removeItem('pendingBindCode')
-    } catch (e) {
-      console.error('bind device failed', e)
-    }
+  if (!bindCode) {
+    alert('Tidak ada pending bind code')
   }
 
-  // ===========================
-  // UI flow kamu tetap
-  // ===========================
+  if (accessToken && bindCode) {
+    try {
+      const res = await $fetch(
+        `${config.public.backendUrl}/auth/push/attach`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          body: { code: bindCode }
+        }
+      )
+
+      alert('Bind device berhasil')
+
+      console.log('attach response:', res)
+
+      localStorage.removeItem('pendingBindCode')
+    } catch (e: any) {
+      console.error('bind device failed', e)
+
+      // kalau backend kirim message
+      const msg =
+        e?.data?.message ||
+        e?.message ||
+        'Bind device gagal'
+
+      alert(msg)
+    }
+  }
 
   requestAnimationFrame(() => {
     setTimeout(() => {
