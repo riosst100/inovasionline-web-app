@@ -37,3 +37,17 @@ h1 {
 .bg-gray {
   background: rgb(229 231 235);
 }
+
+.bg-primary {
+  background: rgb(var(--color-primary));
+}
+
+.btn {
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.05s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
