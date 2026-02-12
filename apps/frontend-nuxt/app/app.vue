@@ -8,9 +8,14 @@ onMounted(async () => {
   if (!booting.value) return
 
   try {
-    await auth.refresh()
+    await Promise.race([
+      auth.refresh(),
+      new Promise(resolve => setTimeout(resolve, 5000))
+    ])
+  } catch (e) {
+    // boleh kosong
   } finally {
-    auth.authLoading.value = false // 🔥 PENTING
+    auth.authLoading.value = false
     booting.value = false
   }
 })
