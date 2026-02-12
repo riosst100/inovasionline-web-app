@@ -35,16 +35,18 @@ router.post("/push/register-device", async (req, res) => {
 
   const { token } = req.body
 
+  console.log('REGISTER DEVICE')
+  console.log('token: ' + token)
+
   if (!token) {
     return res.status(400).json({ message: "token required" })
   }
 
   const code = crypto.randomBytes(16).toString("hex")
 
-  pendingBinds.set(code, token)
+  console.log('code: ' + code)
 
-  // optional: auto-expire 5 menit
-  setTimeout(() => pendingBinds.delete(code), 5 * 60 * 1000)
+  pendingBinds.set(code, token)
 
   return res.json({ code })
 })
