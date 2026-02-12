@@ -13,7 +13,7 @@ async function registerPush() {
     return
   }
 
-  await $fetch('http://localhost:3001/register-token', {
+  await $fetch(`${config.public.backendUrl}/register-token`, {
     method: 'POST',
     body: {
       token: token.value
@@ -27,7 +27,7 @@ async function sendPush() {
   sending.value = true
 
   try {
-    await $fetch('http://localhost:3001/send-notification', {
+    await $fetch(`${config.public.backendUrl}/send-notification`, {
       method: 'POST',
       body: {
         title: 'Push dari UI',
