@@ -1,7 +1,8 @@
 <script setup lang="ts">
 
 const config = useRuntimeConfig()
-const { $getFcmToken, $onForegroundMessage } = useNuxtApp()
+const { $getFcmToken, $resetFcmToken, $onForegroundMessage } = useNuxtApp()
+
 
 const token = ref<string | null>(null)
 const sending = ref(false)
@@ -94,11 +95,23 @@ onMounted(async () => {
   })
 })
 
+async function resetToken() {
+  await $resetFcmToken()
+  token.value = null
+  alert('Token lokal di device dihapus. Reload lalu daftar ulang.')
+}
+
+
 </script>
 
 <template>
   <div style="padding:16px">
     <h1>Push TWA Nuxt</h1>
+
+    <button @click="resetToken">
+  Reset token device ini
+</button>
+
 
     <!-- tombol hanya muncul kalau belum granted -->
     <button
