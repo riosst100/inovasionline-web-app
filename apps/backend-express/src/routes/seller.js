@@ -5,9 +5,6 @@ import jwt from 'jsonwebtoken'
 
 const router = express.Router()
 
-// ===============================
-// CURRENT USER SELLER (CSR only)
-// ===============================
 router.get('/me', async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization
@@ -16,7 +13,7 @@ router.get('/me', async (req, res, next) => {
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    const token = authHeader.split(' ')[1]
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim()
 
     let payload
     try {
@@ -27,27 +24,39 @@ router.get('/me', async (req, res, next) => {
 
     const userId = payload.id
 
-    const vendor = await prisma.vendor.findFirst({
-      where: {
-        userId
-      },
-      select: {
-        id: true,
-        name: true,
-        image: true,
-        patokan: true,
-        desa: true,
-        kecamatan: true,
-        kota: true,
-        verified: true
-      }
-    })
+    // ✅ hanya data vendor yang dicache
+    const cacheKey = `vendor-by-user-${userId}`
 
-    return res.json({ seller: vendor })
+    const { data, cache } = await getOrSetCache(
+      cacheKey,
+      60, // pendek saja
+      async () => {
+        const vendor = await prisma.vendor.findFirst({
+          where: { userId },
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            patokan: true,
+            desa: true,
+            kecamatan: true,
+            kota: true,
+            verified: true
+          }
+        })
+
+        return vendor
+      }
+    )
+
+    res.setHeader('X-Cache', cache)
+    return res.json({ seller: data })
+
   } catch (err) {
     next(err)
   }
 })
+
 
 // ===============================
 // SELLER INFO (ringan, untuk SSR)

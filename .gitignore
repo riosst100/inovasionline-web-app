@@ -6,6 +6,8 @@
 .cache
 dist
 
+serviceAccountKey.json
+
 # Node dependencies
 node_modules
 

@@ -83,11 +83,13 @@ onMounted(async () => {
 </script>
 
 <template>
+  <NuxtLink to="/push">PSH NOTIF</NuxtLink>
+  
   <section v-if="seller" class="px-4 pt-4">
-    <div class="rounded-xl bg-white border p-2 mb-4">
-      <p class="mb-4 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">
+    <div class="rounded-xl bg-white border p-2 shadow-sm">
+      <!-- <p class="mb-4 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">
         <Icon icon="iconoir:eye" style="width:15px;height:15px;margin-right:5px" /> Hanya terlihat oleh Anda
-      </p>
+      </p> -->
       <div class="flex items-center gap-3">
         <NuxtImg
           placeholder
@@ -117,14 +119,14 @@ onMounted(async () => {
         </NuxtLink>
       </div>
       <!-- divider -->
-      <div class="my-3 h-px bg-gray-200"></div>
+      <div class="my-2 h-px bg-gray-200"></div>
 
       <!-- bottom actions -->
       <div class="grid grid-cols-3">
         <button
           v-for="item in actions"
           :key="item.id"
-          class="relative flex flex-col items-center gap-1 py-1"
+          class="relative flex flex-col items-center gap-1 pt-1"
         >
           <Icon
             :icon="item.icon"
@@ -145,7 +147,7 @@ onMounted(async () => {
         </button>
       </div>
     </div>
-    <hr />
+    <!-- <hr /> -->
   </section>
   <section v-if="showWelcome" class="px-4 pt-[15px]">
     <div
