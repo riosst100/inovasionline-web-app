@@ -53,6 +53,8 @@ let tokens = []
 app.post('/register-token', (req, res) => {
   const { token } = req.body
 
+  console.log('REGISTER FROM DEVICE:', token)
+
   if (!token) {
     return res.status(400).json({ message: 'token required' })
   }
@@ -66,23 +68,37 @@ app.post('/register-token', (req, res) => {
   res.json({ success: true })
 })
 
-// kirim push ke semua token
+
+// kirim push (bisa ke 1 device / semua device)
 app.post('/send-notification', async (req, res) => {
 
-  console.log('TOKENS:', tokens)
+  const { title, body, token: targetToken } = req.body
 
-  const { title, body } = req.body
+  // kalau ada token → kirim ke device itu saja
+  const targetTokens = targetToken
+    ? tokens.filter(t => t === targetToken)
+    : tokens
+
+  console.log('TARGET TOKENS:', targetTokens)
+
+  if (!targetTokens.length) {
+    return res.json({
+      success: true,
+      sent: 0,
+      failed: 0,
+      message: 'No target token'
+    })
+  }
 
   const message = {
-  data: {
-    title: title || 'Notif',
-    body: body || 'Halo dari Express'
+    data: {
+      title: title || 'Notif',
+      body: body || 'Pesan baru'
+    }
   }
-}
-
 
   const results = await Promise.allSettled(
-    tokens.map(token =>
+    targetTokens.map(token =>
       admin.messaging().send({
         ...message,
         token
@@ -90,6 +106,7 @@ app.post('/send-notification', async (req, res) => {
     )
   )
 
+  // bersihin token mati
   results.forEach((r, index) => {
     if (r.status === 'rejected') {
       const err = r.reason
@@ -97,8 +114,10 @@ app.post('/send-notification', async (req, res) => {
       if (
         err?.errorInfo?.code === 'messaging/registration-token-not-registered'
       ) {
-        console.log('Remove invalid token:', tokens[index])
-        tokens.splice(index, 1)
+        const deadToken = targetTokens[index]
+        tokens = tokens.filter(t => t !== deadToken)
+
+        console.log('Remove invalid token:', deadToken)
       }
     }
   })
@@ -109,6 +128,7 @@ app.post('/send-notification', async (req, res) => {
     failed: results.filter(r => r.status === 'rejected').length
   })
 })
+
 
 
 export default app

@@ -46,25 +46,29 @@ async function registerPush(showAlert = true) {
 
 // kirim push dari UI
 async function sendPush() {
+  if (!token.value) {
+    alert('Token belum ada')
+    return
+  }
+
   sending.value = true
 
   try {
     await $fetch(`${config.public.backendUrl}/send-notification`, {
       method: 'POST',
       body: {
-        title: 'Push dari UI',
-        body: 'Notif dikirim dari halaman Nuxt'
+        title: 'Push dari device ini',
+        body: 'Notif hanya ke device ini',
+        token: token.value
       }
     })
 
-    alert('Push terkirim')
-  } catch (e) {
-    console.error(e)
-    alert('Gagal kirim push')
+    alert('Push terkirim ke device ini')
   } finally {
     sending.value = false
   }
 }
+
 
 onMounted(async () => {
 
