@@ -28,7 +28,6 @@ onMounted(async () => {
   const accessToken = auth.accessToken.value
 
   if (!accessToken) {
-    alert('Access token tidak tersedia')
     return
   }
 
@@ -56,8 +55,6 @@ onMounted(async () => {
 
       console.log('attach response:', res)
       localStorage.removeItem('pendingBindCode')
-
-      alert('Bind device berhasil')
     } catch (e: any) {
       console.error('bind device failed', e)
 
@@ -65,8 +62,6 @@ onMounted(async () => {
         e?.data?.message ||
         e?.message ||
         'Bind device gagal'
-
-      alert(msg)
     }
   }
 
