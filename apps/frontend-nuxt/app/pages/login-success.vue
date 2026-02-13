@@ -13,17 +13,23 @@ onMounted(async () => {
   sessionStorage.setItem('justLoggedIn', 'true')
 
   // ===========================
-  // ambil access token dari useAuth
+  // ambil access token (AMAN)
   // ===========================
 
-  if (auth.authLoading.value) {
-    await auth.refresh()
+  try {
+    // kalau token belum ada, paksa refresh
+    if (!auth.accessToken.value) {
+      await auth.refresh()
+    }
+  } catch (e) {
+    console.error('refresh token failed', e)
   }
 
   const accessToken = auth.accessToken.value
 
   if (!accessToken) {
     alert('Access token tidak tersedia')
+    return
   }
 
   // ===========================
@@ -32,11 +38,8 @@ onMounted(async () => {
 
   const bindCode = localStorage.getItem('pendingBindCode')
 
-  if (!bindCode) {
-    alert('Tidak ada pending bind code')
-  }
-
-  if (accessToken && bindCode) {
+  // kalau memang tidak ada, langsung lanjut redirect
+  if (bindCode) {
     try {
       const res = await $fetch(
         `${config.public.backendUrl}/auth/push/attach`,
@@ -45,14 +48,16 @@ onMounted(async () => {
           headers: {
             Authorization: `Bearer ${accessToken}`
           },
-          body: { code: bindCode }
+          body: {
+            code: bindCode
+          }
         }
       )
 
-      alert('Bind device berhasil')
       console.log('attach response:', res)
-
       localStorage.removeItem('pendingBindCode')
+
+      alert('Bind device berhasil')
     } catch (e: any) {
       console.error('bind device failed', e)
 
