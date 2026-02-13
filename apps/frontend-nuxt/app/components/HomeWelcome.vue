@@ -84,7 +84,6 @@ onMounted(async () => {
 
 <template>
   <NuxtLink to="/push">PSH NOTIF</NuxtLink>
-  <NuxtLink to="/twa-test">TWA TEST</NuxtLink>
   
   <section v-if="seller" class="px-4 pt-4">
     <div class="rounded-xl bg-white border p-2 shadow-sm">

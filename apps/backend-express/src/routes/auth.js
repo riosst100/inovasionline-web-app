@@ -5,9 +5,8 @@ import bcrypt from "bcrypt"
 import crypto from "crypto"
 
 import prisma from "../utils/prisma.js"
+import admin from "../utils/firebase.js"
 import { signAccessToken, signRefreshToken } from "../utils/jwt.js"
-
-import admin from "firebase-admin"
 
 const router = express.Router()
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
@@ -29,6 +28,112 @@ const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex")
 
 const pendingBinds = new Map()
+
+/**
+ * SEND PUSH TO USER (by userId, using stored FCM token)
+ */
+router.post("/push/send", async (req, res) => {
+
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+
+  const tokenJwt = authHeader.replace(/^Bearer\s+/i, "").trim()
+
+  let payload
+  try {
+    payload = jwt.verify(tokenJwt, process.env.JWT_SECRET)
+  } catch {
+    return res.status(401).json({ message: "Invalid token" })
+  }
+
+  const senderUserId = payload.id
+
+  /**
+   * body:
+   * {
+   *   "userId": "...",   // target user id
+   *   "title": "...",
+   *   "body": "...",
+   *   "data": { ... }   // optional
+   * }
+   */
+  const { userId, title, body, data } = req.body
+
+  if (!userId || !title || !body) {
+    return res.status(400).json({
+      message: "userId, title, body required"
+    })
+  }
+
+  try {
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { fcmToken: true }
+    })
+
+    if (!user || !user.fcmToken) {
+      return res.status(404).json({
+        message: "User does not have FCM token"
+      })
+    }
+
+    const message = {
+      token: user.fcmToken,
+      notification: {
+        title,
+        body
+      },
+      data: data
+        ? Object.fromEntries(
+            Object.entries(data).map(([k, v]) => [k, String(v)])
+          )
+        : undefined,
+      android: {
+        priority: "high"
+      }
+    }
+
+    const response = await admin.messaging().send(message)
+
+    return res.json({
+      success: true,
+      messageId: response
+    })
+
+  } catch (err) {
+
+    console.error(err)
+
+    // FCM token invalid / not registered anymore
+    if (
+      err?.errorInfo?.code === "messaging/registration-token-not-registered" ||
+      err?.code === "messaging/registration-token-not-registered"
+    ) {
+      // optional: bersihkan token di database
+      await prisma.user.update({
+        where: { id: userId },
+        data: { fcmToken: null }
+      })
+
+      return res.status(410).json({
+        message: "FCM token not valid anymore"
+      })
+    }
+
+    console.error("FCM ERROR =", err)
+
+    return res.status(500).json({
+      message: err?.message || "Failed to send push notification",
+      code: err?.code,
+      info: err?.errorInfo
+    })
+  }
+})
+
 
 // REGISTER DEVICE FCM TOKEN
 router.post("/push/register-device", async (req, res) => {

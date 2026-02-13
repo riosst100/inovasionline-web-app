@@ -1,140 +1,192 @@
+<template>
+  <div class="page">
+
+    <h1>Send Push Notification</h1>
+
+    <form @submit.prevent="submit">
+
+      <!-- <div class="field">
+        <label>User ID (target)</label>
+        <input
+          v-model="form.userId"
+          placeholder="clxxxxxxx"
+          required
+        />
+      </div> -->
+
+      <div class="field">
+        <label>Title</label>
+        <input
+          v-model="form.title"
+          placeholder="Judul notifikasi"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label>Body</label>
+        <textarea
+          v-model="form.body"
+          rows="3"
+          placeholder="Isi notifikasi"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label>Data (JSON, optional)</label>
+        <textarea
+          v-model="rawData"
+          rows="4"
+          placeholder='{"type":"order","orderId":"123"}'
+        />
+      </div>
+
+      <button :disabled="loading">
+        {{ loading ? "Sending..." : "Send Push" }}
+      </button>
+
+    </form>
+
+    <pre v-if="result" class="result">{{ result }}</pre>
+    <p v-if="error" class="error">{{ error }}</p>
+
+  </div>
+</template>
+
 <script setup lang="ts">
+import { ref } from "vue"
 
 const config = useRuntimeConfig()
-const { $getFcmToken, $resetFcmToken, $onForegroundMessage } = useNuxtApp()
+const auth = useAuth()
 
-const token = ref<string | null>(null)
-const sending = ref(false)
-const notifPermission = ref<'default' | 'granted' | 'denied'>('default')
+const form = ref({
+  title: "Test Push",
+  body: "Ini push dari Nuxt"
+})
 
-// simpan token ke backend
-async function saveToken(fcmToken: string) {
-  await $fetch(`${config.public.backendUrl}/register-token`, {
-    method: 'POST',
-    body: { token: fcmToken }
-  })
+const rawData = ref("")
+const loading = ref(false)
+const error = ref("")
+const result = ref("")
+
+function getUserIdFromJwt(token: string) {
+  try {
+    const payload = token.split(".")[1]
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
+    return JSON.parse(decoded).id
+  } catch {
+    return null
+  }
 }
 
-// ambil token + simpan
-async function registerPush(showAlert = true) {
+async function submit() {
+  error.value = ""
+  result.value = ""
 
-  if (Notification.permission === 'denied') {
-    alert(
-      'Notifikasi diblokir.\nSilakan buka Settings aplikasi lalu aktifkan Notifications.'
-    )
-    return
-  }
+  let data: any = undefined
 
-  const t = await $getFcmToken()
-
-  if (!t) {
-    if (showAlert) {
-      alert('Gagal ambil token / notifikasi belum diizinkan')
+  if (rawData.value.trim()) {
+    try {
+      data = JSON.parse(rawData.value)
+    } catch {
+      error.value = "Data harus JSON valid"
+      return
     }
+  }
+
+  if (auth.authLoading.value) {
+    await auth.refresh()
+  }
+
+  const accessToken = auth.accessToken.value
+
+  if (!accessToken) {
+    error.value = "Access token tidak ditemukan"
     return
   }
 
-  token.value = t
-  await saveToken(t)
+  const myUserId = getUserIdFromJwt(accessToken)
 
-  notifPermission.value = Notification.permission
-
-  if (showAlert) {
-    alert('Token terdaftar')
-  }
-}
-
-// kirim push dari UI
-async function sendPush() {
-
-  if (!token.value) {
-    alert('Token belum ada')
+  if (!myUserId) {
+    error.value = "Gagal ambil user id dari token"
     return
   }
 
-  sending.value = true
+  loading.value = true
 
   try {
-    await $fetch(`${config.public.backendUrl}/send-notification`, {
-      method: 'POST',
+    const res = await $fetch<{
+      success: boolean
+      messageId: string
+    }>(`${config.public.backendUrl}/auth/push/send`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      },
       body: {
-        title: 'Push dari device ini',
-        body: 'Notif hanya ke device ini',
-        token: token.value
+        userId: myUserId,
+        title: form.value.title,
+        body: form.value.body,
+        data
       }
     })
 
-    alert('Push terkirim ke device ini')
+    result.value = JSON.stringify(res, null, 2)
+  } catch (e: any) {
+    error.value = e?.data?.message || e?.message || "Gagal kirim push"
   } finally {
-    sending.value = false
+    loading.value = false
   }
 }
-
-async function resetToken() {
-  await $resetFcmToken()
-  token.value = null
-  alert('Token lokal di device dihapus. Reload lalu daftar ulang.')
-}
-
-onMounted(async () => {
-
-  notifPermission.value = Notification.permission
-
-  // auto register kalau sudah pernah allow
-  if (notifPermission.value === 'granted') {
-    await registerPush(false)
-  }
-
-  // foreground message handler
-  $onForegroundMessage(async (payload: any) => {
-
-    console.log('FG payload:', payload)
-
-    if (!payload?.data) return
-
-    // 🔥 jangan pakai new Notification()
-    const reg = await navigator.serviceWorker.getRegistration()
-
-    if (!reg) return
-
-    await reg.showNotification(payload.data.title, {
-      body: payload.data.body,
-      icon: '/icon.png'
-    })
-  })
-})
-
 </script>
 
-<template>
-  <div style="padding:16px">
-    <h1>Push TWA Nuxt</h1>
+<style scoped>
+.page {
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
 
-    <button @click="resetToken">
-      Reset token device ini
-    </button>
+h1 {
+  margin-bottom: 16px;
+}
 
-    <br /><br />
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
 
-    <!-- tombol hanya muncul kalau belum granted -->
-    <button
-      v-if="notifPermission !== 'granted'"
-      @click="registerPush(true)"
-    >
-      Aktifkan Push
-    </button>
+label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
 
-    <br /><br />
+input,
+textarea {
+  padding: 8px;
+  font-size: 14px;
+}
 
-    <button
-      :disabled="sending"
-      @click="sendPush"
-    >
-      Kirim Push
-    </button>
+button {
+  margin-top: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
 
-    <p v-if="token" style="word-break:break-all">
-      Token: {{ token }}
-    </p>
-  </div>
-</template>
+.result {
+  margin-top: 16px;
+  background: #f5f5f5;
+  padding: 12px;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.error {
+  margin-top: 12px;
+  color: red;
+}
+</style>
