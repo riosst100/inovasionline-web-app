@@ -291,41 +291,75 @@ router.post("/refresh", async (req, res) => {
 })
 
 router.post("/google/native", async (req, res) => {
-  console.log('GOOGLE LOGIN NATIVE')
+  console.log("=== GOOGLE LOGIN NATIVE ===")
 
   const { idToken } = req.body
-  console.log('idtoken: '+idToken)
-  if (!idToken) return res.status(400).json({ message: "idToken required" })
+  if (!idToken) {
+    return res.status(400).json({ message: "idToken required" })
+  }
 
   try {
+
     const ticket = await client.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID
     })
 
     const payload = ticket.getPayload()
+
     const email = payload.email
+    const googleId = payload.sub
+    const name = payload.name ?? email
+    const avatar = payload.picture ?? null
 
-    console.log('payload: '+payload)
-    console.log('email: '+email)
+    console.log("EMAIL:", email)
+    console.log("GOOGLE ID:", googleId)
+    console.log("AVATAR:", avatar)
 
-    let user = await prisma.user.findUnique({ where: { email } })
+    let user = await prisma.user.findUnique({
+      where: { googleId }
+    })
+
+    // 🔥 kalau belum ada berdasarkan googleId, cek email
+    if (!user) {
+      user = await prisma.user.findUnique({
+        where: { email }
+      })
+    }
 
     if (!user) {
+
+      // create user baru
       user = await prisma.user.create({
         data: {
           email,
-          name: payload.name ?? email,
-          password: "GOOGLE"
+          name,
+          password: "GOOGLE",
+          googleId,
+          avatar,
+          authProvider: "google"
         }
       })
+
+      console.log("USER CREATED")
+
+    } else {
+
+      // update googleId + avatar kalau login via google
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          googleId,
+          avatar,
+          authProvider: "google"
+        }
+      })
+
+      console.log("USER UPDATED")
     }
 
     const accessToken = signAccessToken({ id: user.id })
     const refreshToken = signRefreshToken({ id: user.id })
-
-    console.log('accessToken: '+accessToken)
-    console.log('refreshToken: '+refreshToken)
 
     await prisma.refreshToken.create({
       data: {
@@ -337,14 +371,20 @@ router.post("/google/native", async (req, res) => {
 
     return res.json({
       accessToken,
-      refreshToken
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar
+      }
     })
 
   } catch (err) {
+    console.error(err)
     return res.status(401).json({ message: "Invalid Google token" })
   }
 })
-
 
 /**
  * GOOGLE CALLBACK
