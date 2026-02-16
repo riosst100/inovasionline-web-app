@@ -1,381 +1,486 @@
-package com.inovasionline.twa
-
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.os.Build
-import android.os.Bundle
-import android.provider.Settings
-import android.util.Log
-import android.view.View
-import android.webkit.CookieManager
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.credentials.*
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import com.google.android.libraries.identity.googleid.*
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.coroutines.*
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
-
-@SuppressLint("InlinedApi")
-class MainActivity : AppCompatActivity() {
-
-    companion object {
-        private const val TAG = "RIO_DEBUG"
-        private const val PREF = "push"
-        private const val KEY_SENT = "sent"
-        private const val PREF_LOGIN = "login_pref"
-        private const val KEY_LOGGED_IN = "logged_in"
-    }
-
-    private lateinit var webView: WebView
-    private lateinit var splashOverlay: View
-    private lateinit var credentialManager: CredentialManager
-
-    private var hasRequestedPermission = false
-    private var openedSettings = false
-    private var justBridged = false // 🔥 FIX LOGIN FIRST LOAD
-
-    private val HOME_URL = "https://inovasionline.com"
-    private val BACKEND_URL =
-        "https://api.inovasionline.com/auth/google/native"
-
-    private val WEB_CLIENT_ID =
-        "962366033380-169mr3kth1sl22fh94ek79ioalj7us4b.apps.googleusercontent.com"
-
-    private val permissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            hasRequestedPermission = true
-            if (!isGranted) checkNotificationPermission()
-        }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        webView = findViewById(R.id.webView)
-        splashOverlay = findViewById(R.id.splashOverlay)
-
-        // 🔥 COOKIE PERSISTENCE FIX
-        val cookieManager = CookieManager.getInstance()
-        cookieManager.setAcceptCookie(true)
-        cookieManager.setAcceptThirdPartyCookies(webView, true)
-
-        credentialManager = CredentialManager.create(this)
-
-        setupWebView()
-        checkLoginFirst()
-        checkAndRefreshFcmTokenIfNeeded()
-        PushRegistrar.ensureRegistered(this)
-        handleIncomingUrl(intent)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        CookieManager.getInstance().flush()
-    }
-
-    override fun onDestroy() {
-        CookieManager.getInstance().flush()
-        super.onDestroy()
-    }
-
-    // ================= LOADING =================
-
-    private fun showLoading() {
-        splashOverlay.visibility = View.VISIBLE
-        splashOverlay.alpha = 1f
-    }
-
-    private fun hideLoadingSmooth() {
-        splashOverlay.animate()
-            .alpha(0f)
-            .setDuration(300)
-            .withEndAction {
-                splashOverlay.visibility = View.GONE
-            }
-            .start()
-    }
-
-    // ================= LOGIN FLOW =================
-
-    private fun checkLoginFirst() {
-        val prefs = getSharedPreferences(PREF_LOGIN, MODE_PRIVATE)
-        val loggedIn = prefs.getBoolean(KEY_LOGGED_IN, false)
-
-        if (!loggedIn) {
-            showGoogleLoginDialog()
-        } else {
-            checkNotificationPermission()
-        }
-    }
-
-    private fun showGoogleLoginDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Login Diperlukan")
-            .setMessage("Untuk melanjutkan, silakan login menggunakan akun Google Anda.")
-            .setCancelable(false)
-            .setPositiveButton("Login dengan Google") { _, _ ->
-                showGoogleLoginPopup()
-            }
-            .setNegativeButton("Keluar") { _, _ ->
-                finish()
-            }
-            .show()
-    }
-
-    private fun showGoogleLoginPopup() {
-
-        val googleIdOption = GetGoogleIdOption.Builder()
-            .setServerClientId(WEB_CLIENT_ID)
-            .setFilterByAuthorizedAccounts(false)
-            .build()
-
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
-
-        CoroutineScope(Dispatchers.Main).launch {
-
-            try {
-
-                val result = credentialManager.getCredential(
-                    request = request,
-                    context = this@MainActivity
-                )
-
-                val credential = result.credential
-
-                if (credential is CustomCredential &&
-                    credential.type ==
-                    GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                ) {
-
-                    val googleIdTokenCredential =
-                        GoogleIdTokenCredential.createFrom(credential.data)
-
-                    val idToken = googleIdTokenCredential.idToken
-
-                    showLoading()
-                    sendTokenToBackend(idToken)
-                }
-
-            } catch (e: Exception) {
-                Log.e(TAG, "Login gagal", e)
-                showGoogleLoginDialog()
-            }
-        }
-    }
-
-    // ================= BACKEND CALL =================
-
-    private fun sendTokenToBackend(idToken: String) {
-
-        CoroutineScope(Dispatchers.IO).launch {
-
-            try {
-
-                val url = URL(BACKEND_URL)
-                val connection = url.openConnection() as HttpURLConnection
-
-                connection.requestMethod = "POST"
-                connection.setRequestProperty("Content-Type", "application/json")
-                connection.doOutput = true
-
-                val body = JSONObject().apply {
-                    put("idToken", idToken)
-                }.toString()
-
-                connection.outputStream.use {
-                    it.write(body.toByteArray())
-                }
-
-                val responseCode = connection.responseCode
-                val response =
-                    connection.inputStream.bufferedReader().readText()
-
-                if (responseCode == 200) {
-
-                    val json = JSONObject(response)
-                    val accessToken = json.getString("accessToken")
-
-                    getSharedPreferences(PREF_LOGIN, MODE_PRIVATE)
-                        .edit()
-                        .putBoolean(KEY_LOGGED_IN, true)
-                        .apply()
-
-                    runOnUiThread {
-                        openBridgeLogin(accessToken)
-                    }
-
-                } else {
-                    runOnUiThread { hideLoadingSmooth() }
-                }
-
-            } catch (e: Exception) {
-                Log.e(TAG, "ERROR CALLING BACKEND", e)
-                runOnUiThread { hideLoadingSmooth() }
-            }
-        }
-    }
-
-    private fun openBridgeLogin(accessToken: String) {
-
-        justBridged = true
-
-        val bridgeUrl =
-            "https://api.inovasionline.com/auth/mobile-bridge?token=$accessToken"
-
-        webView.loadUrl(bridgeUrl)
-    }
-
-    // ================= WEBVIEW =================
-
-    @SuppressLint("SetJavaScriptEnabled")
-    private fun setupWebView() {
-
-        webView.visibility = View.INVISIBLE
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-
-        webView.webViewClient = object : WebViewClient() {
-
-            override fun onPageStarted(
-                view: WebView?,
-                url: String?,
-                favicon: Bitmap?
-            ) {
-                showLoading()
-            }
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-
-                // 🔥 FIX: reload once after bridge redirect
-                if (justBridged && url?.startsWith(HOME_URL) == true) {
-
-                    justBridged = false
-
-                    webView.postDelayed({
-                        webView.reload()
-                    }, 300)
-                }
-            }
-
-            override fun onPageCommitVisible(
-                view: WebView?,
-                url: String?
-            ) {
-
-                webView.postDelayed({
-
-                    webView.alpha = 0f
-                    webView.scaleX = 1.02f
-                    webView.scaleY = 1.02f
-                    webView.visibility = View.VISIBLE
-
-                    webView.animate()
-                        .alpha(1f)
-                        .scaleX(1f)
-                        .scaleY(1f)
-                        .setDuration(400)
-                        .setInterpolator(FastOutSlowInInterpolator())
-                        .start()
-
-                    hideLoadingSmooth()
-
-                }, 120)
-            }
-        }
-
-        webView.loadUrl(HOME_URL)
-    }
-
-    // ================= NOTIFICATION =================
-
-    private fun checkNotificationPermission() {
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
-
-        val granted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (granted) return
-
-        val isPermanentDenied =
-            hasRequestedPermission &&
-                    !shouldShowRequestPermissionRationale(
-                        Manifest.permission.POST_NOTIFICATIONS
-                    )
-
-        if (isPermanentDenied) showSettingsDialog()
-        else showPrePermissionDialog()
-    }
-
-    private fun showPrePermissionDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Aktifkan Notifikasi")
-            .setMessage("Untuk melanjutkan, aktifkan notifikasi.")
-            .setCancelable(false)
-            .setPositiveButton("Aktifkan") { _, _ ->
-                permissionLauncher.launch(
-                    Manifest.permission.POST_NOTIFICATIONS
-                )
-            }
-            .setNegativeButton("Keluar") { _, _ ->
-                finish()
-            }
-            .show()
-    }
-
-    private fun showSettingsDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Notifikasi Diblokir")
-            .setMessage("Silakan aktifkan melalui Pengaturan.")
-            .setCancelable(false)
-            .setPositiveButton("Buka Pengaturan") { _, _ ->
-                openAppSettings()
-            }
-            .setNegativeButton("Keluar") { _, _ ->
-                finish()
-            }
-            .show()
-    }
-
-    private fun openAppSettings() {
-        openedSettings = true
-        val intent = Intent(
-            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            "package:$packageName".toUri()
-        )
-        startActivity(intent)
-    }
-
-    private fun handleIncomingUrl(intent: Intent?) {
-        val url = intent?.getStringExtra("open_url")
-            ?: intent?.dataString
-
-        if (!url.isNullOrBlank()) {
-            webView.loadUrl(url)
-        }
-    }
-
-    private fun checkAndRefreshFcmTokenIfNeeded() {
-        val prefs = getSharedPreferences(PREF, MODE_PRIVATE)
-        val sent = prefs.getBoolean(KEY_SENT, false)
-        if (!sent) FirebaseMessaging.getInstance().deleteToken()
-    }
+import express from "express"
+import { OAuth2Client } from "google-auth-library"
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
+import crypto from "crypto"
+
+import prisma from "../utils/prisma.js"
+import admin from "../utils/firebase.js"
+import { signAccessToken, signRefreshToken } from "../utils/jwt.js"
+
+const router = express.Router()
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+
+const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000
+const isProd = process.env.NODE_ENV === "production"
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax",
+  ...(isProd && { domain: ".inovasionline.com" }),
+  path: "/",
+  maxAge: REFRESH_MAX_AGE
 }
+
+// helper
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex")
+
+const pendingBinds = new Map()
+
+/**
+ * SEND PUSH TO USER (by userId, using stored FCM token)
+ */
+router.post("/push/send", async (req, res) => {
+
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+
+  const tokenJwt = authHeader.replace(/^Bearer\s+/i, "").trim()
+
+  let payload
+  try {
+    payload = jwt.verify(tokenJwt, process.env.JWT_SECRET)
+  } catch {
+    return res.status(401).json({ message: "Invalid token" })
+  }
+
+  const senderUserId = payload.id
+
+  /**
+   * body:
+   * {
+   *   "userId": "...",   // target user id
+   *   "title": "...",
+   *   "body": "...",
+   *   "data": { ... }   // optional
+   * }
+   */
+  const { userId, title, body, data } = req.body
+
+  if (!userId || !title || !body) {
+    return res.status(400).json({
+      message: "userId, title, body required"
+    })
+  }
+
+  try {
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { fcmToken: true }
+    })
+
+    if (!user || !user.fcmToken) {
+      return res.status(404).json({
+        message: "User does not have FCM token"
+      })
+    }
+
+    const message = {
+      token: user.fcmToken,
+      notification: {
+        title,
+        body
+      },
+      data: data
+        ? Object.fromEntries(
+            Object.entries(data).map(([k, v]) => [k, String(v)])
+          )
+        : undefined,
+      android: {
+        priority: "high"
+      }
+    }
+
+    const response = await admin.messaging().send(message)
+
+    return res.json({
+      success: true,
+      messageId: response
+    })
+
+  } catch (err) {
+
+    console.error(err)
+
+    // FCM token invalid / not registered anymore
+    if (
+      err?.errorInfo?.code === "messaging/registration-token-not-registered" ||
+      err?.code === "messaging/registration-token-not-registered"
+    ) {
+      // optional: bersihkan token di database
+      await prisma.user.update({
+        where: { id: userId },
+        data: { fcmToken: null }
+      })
+
+      return res.status(410).json({
+        message: "FCM token not valid anymore"
+      })
+    }
+
+    console.error("FCM ERROR =", err)
+
+    return res.status(500).json({
+      message: err?.message || "Failed to send push notification",
+      code: err?.code,
+      info: err?.errorInfo
+    })
+  }
+})
+
+
+// REGISTER DEVICE FCM TOKEN
+router.post("/push/register-device", async (req, res) => {
+
+  const { token } = req.body
+
+  console.log('REGISTER DEVICE')
+  console.log('token: ' + token)
+
+  if (!token) {
+    return res.status(400).json({ message: "token required" })
+  }
+
+  const code = crypto.randomBytes(16).toString("hex")
+
+  console.log('code: ' + code)
+
+  pendingBinds.set(code, token)
+
+  return res.json({ code })
+})
+
+// ATTACH FCM TOKEN TO USER
+router.post("/push/attach", async (req, res) => {
+
+  const { code } = req.body
+
+  if (!code) {
+    return res.status(400).json({ message: "code required" })
+  }
+
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+
+  const tokenJwt = authHeader.replace(/^Bearer\s+/i, "").trim()
+
+  let payload
+  try {
+    payload = jwt.verify(tokenJwt, process.env.JWT_SECRET)
+  } catch {
+    return res.status(401).json({ message: "Invalid token" })
+  }
+
+  const userId = payload.id
+
+  const token = pendingBinds.get(code)
+
+  if (!token) {
+    return res.status(400).json({ message: "invalid / expired code" })
+  }
+
+  try {
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { fcmToken: token }
+    })
+
+    pendingBinds.delete(code)
+
+    return res.json({ success: true })
+
+  } catch (err) {
+
+    if (err.code === "P2002") {
+      return res.status(409).json({
+        message: "FCM token already used"
+      })
+    }
+
+    console.error(err)
+    return res.status(500).json({ message: "Internal error" })
+  }
+})
+
+/**
+ * LOGOUT
+ */
+router.post("/logout", async (req, res) => {
+  const token = req.cookies.refreshToken
+
+  if (token) {
+    await prisma.refreshToken.updateMany({
+      where: {
+        tokenHash: hashToken(token),
+        revokedAt: null
+      },
+      data: { revokedAt: new Date() }
+    })
+  }
+
+  res.clearCookie("refreshToken", cookieOptions)
+  res.sendStatus(204)
+})
+
+/**
+ * REFRESH TOKEN (ROLLING + 1 DEVICE)
+ */
+router.post("/refresh", async (req, res) => {
+  const oldRefreshToken = req.cookies.refreshToken
+  if (!oldRefreshToken) {
+    return res.status(401).json({ message: "No refresh token" })
+  }
+
+  try {
+    jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET)
+
+    const tokenHash = hashToken(oldRefreshToken)
+
+    const stored = await prisma.refreshToken.findFirst({
+      where: {
+        tokenHash,
+        revokedAt: null
+      },
+      include: { user: true }
+    })
+
+    if (!stored) {
+      return res.status(401).json({ message: "Invalid refresh token" })
+    }
+
+    // 🔥 1 USER = 1 DEVICE
+    await prisma.refreshToken.updateMany({
+      where: {
+        userId: stored.user.id,
+        revokedAt: null
+      },
+      data: {
+        revokedAt: new Date(),
+        lastUsedAt: new Date()
+      }
+    })
+
+    const userPayload = { id: stored.user.id }
+
+    const newAccessToken = signAccessToken(userPayload)
+    const newRefreshToken = signRefreshToken(userPayload)
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: stored.user.id,
+        tokenHash: hashToken(newRefreshToken),
+        expiresAt: new Date(Date.now() + REFRESH_MAX_AGE)
+      }
+    })
+
+    res.cookie("refreshToken", newRefreshToken, cookieOptions)
+    return res.json({ accessToken: newAccessToken })
+  } catch {
+    return res.status(401).json({ message: "Invalid refresh token" })
+  }
+})
+
+router.get("/mobile-bridge", async (req, res) => {
+
+  const token = req.query.token
+  if (!token) {
+    return res.redirect("https://inovasionline.com/login")
+  }
+
+  try {
+
+    const payload = jwt.verify(token, process.env.JWT_SECRET)
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id }
+    })
+
+    if (!user) {
+      return res.redirect("https://inovasionline.com/login")
+    }
+
+    // revoke old refresh tokens
+    await prisma.refreshToken.updateMany({
+      where: {
+        userId: user.id,
+        revokedAt: null
+      },
+      data: { revokedAt: new Date() }
+    })
+
+    const refreshToken = signRefreshToken({ id: user.id })
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + REFRESH_MAX_AGE)
+      }
+    })
+
+    // 🔥 SET COOKIE HERE
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      domain: ".inovasionline.com",
+      path: "/",
+      maxAge: REFRESH_MAX_AGE
+    })
+
+    // 🔥 redirect ke homepage setelah cookie terpasang
+    return res.redirect("https://inovasionline.com/login-success")
+
+  } catch (err) {
+    return res.redirect("https://inovasionline.com/login")
+  }
+})
+
+
+router.post("/google/native", async (req, res) => {
+  const { idToken } = req.body
+  if (!idToken) {
+    return res.status(400).json({ message: "idToken required" })
+  }
+
+  try {
+
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    })
+
+    const payload = ticket.getPayload()
+
+    const email = payload.email
+    const googleId = payload.sub
+    const name = payload.name ?? email
+    const avatar = payload.picture ?? null
+
+    let user = await prisma.user.findUnique({
+      where: { googleId }
+    })
+
+    if (!user) {
+      user = await prisma.user.findUnique({
+        where: { email }
+      })
+    }
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          password: "GOOGLE",
+          googleId,
+          avatar,
+          authProvider: "google"
+        }
+      })
+    } else {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          googleId,
+          avatar,
+          authProvider: "google"
+        }
+      })
+    }
+
+    // 🔥 hanya kirim accessToken sementara
+    const accessToken = signAccessToken({ id: user.id })
+
+    return res.json({
+      accessToken
+    })
+
+  } catch (err) {
+    console.error(err)
+    return res.status(401).json({ message: "Invalid Google token" })
+  }
+})
+
+
+/**
+ * GOOGLE CALLBACK
+ * ❗ redirect flow TETAP
+ * ❗ 1 user = 1 device
+ */
+router.post("/google/callback", async (req, res) => {
+  const credential = req.body?.credential
+  if (!credential) {
+    return res.redirect(`${process.env.FRONTEND_URL}/login`)
+  }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    })
+
+    const payload = ticket.getPayload()
+    const email = payload.email
+
+    if (!email) {
+      return res.redirect(`${process.env.FRONTEND_URL}/login`)
+    }
+
+    let user = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (!user) {
+      const randomPassword = crypto.randomBytes(32).toString("hex")
+      const hashedPassword = await bcrypt.hash(randomPassword, 12)
+
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: payload.name ?? email,
+          password: hashedPassword
+        }
+      })
+    }
+
+    // 🔥 1 USER = 1 DEVICE (revoke semua token lama)
+    await prisma.refreshToken.updateMany({
+      where: {
+        userId: user.id,
+        revokedAt: null
+      },
+      data: {
+        revokedAt: new Date()
+      }
+    })
+
+    const refreshToken = signRefreshToken({ id: user.id })
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + REFRESH_MAX_AGE)
+      }
+    })
+
+    res.cookie("refreshToken", refreshToken, cookieOptions)
+
+    return res.redirect(`${process.env.FRONTEND_URL}/login-success`)
+  } catch {
+    return res.redirect(`${process.env.FRONTEND_URL}/login`)
+  }
+})
+
+export default router
