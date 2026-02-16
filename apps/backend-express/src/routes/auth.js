@@ -19,7 +19,7 @@ const cookieOptions = {
   secure: isProd,
   sameSite: isProd ? "none" : "lax",
   ...(isProd && { domain: ".inovasionline.com" }),
-  path: "/auth/refresh",
+  path: "/",
   maxAge: REFRESH_MAX_AGE
 }
 
@@ -289,12 +289,11 @@ router.post("/refresh", async (req, res) => {
     return res.status(401).json({ message: "Invalid refresh token" })
   }
 })
+router.post("/mobile-bridge", async (req, res) => {
 
-router.get("/mobile-bridge", async (req, res) => {
-
-  const token = req.query.token
+  const { token } = req.body
   if (!token) {
-    return res.redirect(`${process.env.FRONTEND_URL}/login`)
+    return res.status(400).json({ message: "Token required" })
   }
 
   try {
@@ -306,18 +305,16 @@ router.get("/mobile-bridge", async (req, res) => {
     })
 
     if (!user) {
-      return res.redirect(`${process.env.FRONTEND_URL}/login`)
+      return res.status(401).json({ message: "Invalid user" })
     }
 
-    // 🔥 revoke semua refresh lama (1 device)
+    // revoke old
     await prisma.refreshToken.updateMany({
       where: {
         userId: user.id,
         revokedAt: null
       },
-      data: {
-        revokedAt: new Date()
-      }
+      data: { revokedAt: new Date() }
     })
 
     const refreshToken = signRefreshToken({ id: user.id })
@@ -332,14 +329,12 @@ router.get("/mobile-bridge", async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, cookieOptions)
 
-    return res.redirect(`${process.env.FRONTEND_URL}/login-success`)
+    return res.json({ success: true })
 
   } catch (err) {
-    console.error(err)
-    return res.redirect(`${process.env.FRONTEND_URL}/login`)
+    return res.status(401).json({ message: "Invalid token" })
   }
 })
-
 
 router.post("/google/native", async (req, res) => {
   const { idToken } = req.body
