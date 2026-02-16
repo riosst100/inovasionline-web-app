@@ -290,9 +290,58 @@ router.post("/refresh", async (req, res) => {
   }
 })
 
-router.post("/google/native", async (req, res) => {
-  console.log("=== GOOGLE LOGIN NATIVE ===")
+router.get("/mobile-bridge", async (req, res) => {
 
+  const token = req.query.token
+  if (!token) {
+    return res.redirect(`${process.env.FRONTEND_URL}/login`)
+  }
+
+  try {
+
+    const payload = jwt.verify(token, process.env.JWT_SECRET)
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id }
+    })
+
+    if (!user) {
+      return res.redirect(`${process.env.FRONTEND_URL}/login`)
+    }
+
+    // 🔥 revoke semua refresh lama (1 device)
+    await prisma.refreshToken.updateMany({
+      where: {
+        userId: user.id,
+        revokedAt: null
+      },
+      data: {
+        revokedAt: new Date()
+      }
+    })
+
+    const refreshToken = signRefreshToken({ id: user.id })
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + REFRESH_MAX_AGE)
+      }
+    })
+
+    res.cookie("refreshToken", refreshToken, cookieOptions)
+
+    return res.redirect(process.env.FRONTEND_URL)
+
+  } catch (err) {
+    console.error(err)
+    return res.redirect(`${process.env.FRONTEND_URL}/login`)
+  }
+})
+
+
+router.post("/google/native", async (req, res) => {
   const { idToken } = req.body
   if (!idToken) {
     return res.status(400).json({ message: "idToken required" })
@@ -312,15 +361,10 @@ router.post("/google/native", async (req, res) => {
     const name = payload.name ?? email
     const avatar = payload.picture ?? null
 
-    console.log("EMAIL:", email)
-    console.log("GOOGLE ID:", googleId)
-    console.log("AVATAR:", avatar)
-
     let user = await prisma.user.findUnique({
       where: { googleId }
     })
 
-    // 🔥 kalau belum ada berdasarkan googleId, cek email
     if (!user) {
       user = await prisma.user.findUnique({
         where: { email }
@@ -328,8 +372,6 @@ router.post("/google/native", async (req, res) => {
     }
 
     if (!user) {
-
-      // create user baru
       user = await prisma.user.create({
         data: {
           email,
@@ -340,12 +382,7 @@ router.post("/google/native", async (req, res) => {
           authProvider: "google"
         }
       })
-
-      console.log("USER CREATED")
-
     } else {
-
-      // update googleId + avatar kalau login via google
       user = await prisma.user.update({
         where: { id: user.id },
         data: {
@@ -354,30 +391,13 @@ router.post("/google/native", async (req, res) => {
           authProvider: "google"
         }
       })
-
-      console.log("USER UPDATED")
     }
 
+    // 🔥 hanya kirim accessToken sementara
     const accessToken = signAccessToken({ id: user.id })
-    const refreshToken = signRefreshToken({ id: user.id })
-
-    await prisma.refreshToken.create({
-      data: {
-        userId: user.id,
-        tokenHash: hashToken(refreshToken),
-        expiresAt: new Date(Date.now() + REFRESH_MAX_AGE)
-      }
-    })
 
     return res.json({
-      accessToken,
-      refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        avatar: user.avatar
-      }
+      accessToken
     })
 
   } catch (err) {
@@ -385,6 +405,7 @@ router.post("/google/native", async (req, res) => {
     return res.status(401).json({ message: "Invalid Google token" })
   }
 })
+
 
 /**
  * GOOGLE CALLBACK
