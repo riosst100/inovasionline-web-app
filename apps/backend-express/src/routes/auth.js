@@ -289,11 +289,12 @@ router.post("/refresh", async (req, res) => {
     return res.status(401).json({ message: "Invalid refresh token" })
   }
 })
-router.post("/mobile-bridge", async (req, res) => {
 
-  const { token } = req.body
+router.get("/mobile-bridge", async (req, res) => {
+
+  const token = req.query.token
   if (!token) {
-    return res.status(400).json({ message: "Token required" })
+    return res.redirect("https://inovasionline.com/login")
   }
 
   try {
@@ -305,10 +306,10 @@ router.post("/mobile-bridge", async (req, res) => {
     })
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid user" })
+      return res.redirect("https://inovasionline.com/login")
     }
 
-    // revoke old
+    // revoke old refresh tokens
     await prisma.refreshToken.updateMany({
       where: {
         userId: user.id,
@@ -327,14 +328,24 @@ router.post("/mobile-bridge", async (req, res) => {
       }
     })
 
-    res.cookie("refreshToken", refreshToken, cookieOptions)
+    // 🔥 SET COOKIE HERE
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      domain: ".inovasionline.com",
+      path: "/",
+      maxAge: REFRESH_MAX_AGE
+    })
 
-    return res.json({ success: true })
+    // 🔥 redirect ke homepage setelah cookie terpasang
+    return res.redirect("https://inovasionline.com/login-success")
 
   } catch (err) {
-    return res.status(401).json({ message: "Invalid token" })
+    return res.redirect("https://inovasionline.com/login")
   }
 })
+
 
 router.post("/google/native", async (req, res) => {
   const { idToken } = req.body
