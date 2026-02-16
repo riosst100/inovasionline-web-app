@@ -290,6 +290,62 @@ router.post("/refresh", async (req, res) => {
   }
 })
 
+router.post("/google/native", async (req, res) => {
+  console.log('GOOGLE LOGIN NATIVE')
+
+  const { idToken } = req.body
+  console.log('idtoken: '+idToken)
+  if (!idToken) return res.status(400).json({ message: "idToken required" })
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    })
+
+    const payload = ticket.getPayload()
+    const email = payload.email
+
+    console.log('payload: '+payload)
+    console.log('email: '+email)
+
+    let user = await prisma.user.findUnique({ where: { email } })
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: payload.name ?? email,
+          password: "GOOGLE"
+        }
+      })
+    }
+
+    const accessToken = signAccessToken({ id: user.id })
+    const refreshToken = signRefreshToken({ id: user.id })
+
+    console.log('accessToken: '+accessToken)
+    console.log('refreshToken: '+refreshToken)
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + REFRESH_MAX_AGE)
+      }
+    })
+
+    return res.json({
+      accessToken,
+      refreshToken
+    })
+
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid Google token" })
+  }
+})
+
+
 /**
  * GOOGLE CALLBACK
  * ❗ redirect flow TETAP
