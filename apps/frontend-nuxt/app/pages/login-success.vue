@@ -16,54 +16,54 @@ onMounted(async () => {
   // ambil access token (AMAN)
   // ===========================
 
-  try {
-    // kalau token belum ada, paksa refresh
-    if (!auth.accessToken.value) {
-      await auth.refresh()
-    }
-  } catch (e) {
-    console.error('refresh token failed', e)
-  }
+  // try {
+  //   // kalau token belum ada, paksa refresh
+  //   if (!auth.accessToken.value) {
+  //     await auth.refresh()
+  //   }
+  // } catch (e) {
+  //   console.error('refresh token failed', e)
+  // }
 
-  const accessToken = auth.accessToken.value
+  // const accessToken = auth.accessToken.value
 
-  if (!accessToken) {
-    return
-  }
+  // if (!accessToken) {
+  //   return
+  // }
 
   // ===========================
   // bind device kalau ada pendingBindCode
   // ===========================
 
-  const bindCode = localStorage.getItem('pendingBindCode')
+  // const bindCode = localStorage.getItem('pendingBindCode')
 
   // kalau memang tidak ada, langsung lanjut redirect
-  if (bindCode) {
-    try {
-      const res = await $fetch(
-        `${config.public.backendUrl}/auth/push/attach`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          },
-          body: {
-            code: bindCode
-          }
-        }
-      )
+  // if (bindCode) {
+  //   try {
+  //     const res = await $fetch(
+  //       `${config.public.backendUrl}/auth/push/attach`,
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`
+  //         },
+  //         body: {
+  //           code: bindCode
+  //         }
+  //       }
+  //     )
 
-      console.log('attach response:', res)
-      localStorage.removeItem('pendingBindCode')
-    } catch (e: any) {
-      console.error('bind device failed', e)
+  //     console.log('attach response:', res)
+  //     localStorage.removeItem('pendingBindCode')
+  //   } catch (e: any) {
+  //     console.error('bind device failed', e)
 
-      const msg =
-        e?.data?.message ||
-        e?.message ||
-        'Bind device gagal'
-    }
-  }
+  //     const msg =
+  //       e?.data?.message ||
+  //       e?.message ||
+  //       'Bind device gagal'
+  //   }
+  // }
 
   // ===========================
   // redirect tetap
