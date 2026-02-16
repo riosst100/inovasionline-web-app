@@ -332,7 +332,7 @@ router.get("/mobile-bridge", async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, cookieOptions)
 
-    return res.redirect(process.env.FRONTEND_URL)
+    return res.redirect(`${process.env.FRONTEND_URL}/login-success`)
 
   } catch (err) {
     console.error(err)
