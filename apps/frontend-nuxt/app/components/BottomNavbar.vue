@@ -8,6 +8,7 @@
         v-for="item in menus"
         :key="item.name"
         :to="item.to"
+        prefetch
         class="flex flex-col items-center gap-1 text-xs"
         :class="isActive(item.to)
           ? 'text-primary'
